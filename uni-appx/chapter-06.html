@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第6章 组件化开发与组件通信 | uni-app x 大学课堂</title>
+<meta name="description" content="uni-app x 第6章：组件与页面的区别、easycom 自动引入规则、props 与 attrs 透传、回调函数实现子传父、模板 ref 与 defineExpose、插槽、组件生命周期与通信方式决策表。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">第 6 章 · 组件化开发与组件通信</div>
+        <div class="sub">模块二 · 语法与交互 · 建议 3 学时</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip vapor nowrap">蒸汽模式</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#sec-quiz">去做随堂测验</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">模块二 · 语法与交互</span>
+      <span class="chip mint">第 6 章 / 共 13 章</span>
+      <span class="chip yellow">难度 ★★★</span>
+      <span class="chip gray">前置：第 3–5 章</span>
+    </div>
+    <h1>组件化开发与组件通信：把界面拆成可复用的零件</h1>
+    <p class="lead">
+      前五章你已经能做出完整页面了。但从"能写"到"能维护"，中间隔着一件事：<b>组件化</b>。
+      这一章讲三件事：<b>怎么创建与自动引入组件</b>（easycom）、
+      <b>父与子之间怎么传数据</b>（props 向下、回调向上、ref 调用方法）、
+      以及<b>什么时候该用哪种通信方式</b>。学完这一章，你的项目会从"一堆页面"变成"一套零件"。
+    </p>
+    <div class="chapter-meta">
+      <div>⏱ 建议 <strong>3</strong> 学时（讲授约 95 分钟 + 上机约 60 分钟）</div>
+      <div>🧩 教学内容 <strong>9</strong> 节</div>
+      <div>📝 随堂测验 <strong>8</strong> 题</div>
+      <div>🏠 课后作业 <strong>4</strong> 项</div>
+      <div>📱 代码演练 <strong>3</strong> 处</div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="goals-card">
+    <h2>🎯 这一章我们要达到什么</h2>
+    <div class="goal-grid">
+      <div class="goal-item">
+        <div class="icon">🧩</div>
+        <h4>会拆组件</h4>
+        <p>看到一段重复出现的界面，能判断"该不该抽组件、抽成什么、需要哪些 props"。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">⚡</div>
+        <h4>会免注册使用</h4>
+        <p>掌握 easycom 的目录与命名规则，做到"写完 .uvue 文件就能在页面里直接用"。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">🔁</div>
+        <h4>会双向沟通</h4>
+        <p>父传子用 props、子通知父用回调、父调子方法用 ref + defineExpose，三条路各归其位。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">🧱</div>
+        <h4>会选方案</h4>
+        <p>面对"跨三层传递""多个页面共享"这类需求，能选对 provide/inject 或全局状态。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ 6.1 ============ -->
+      <section class="lesson-section" id="sec-6-1" data-nav="6.1 组件与页面的区别">
+        <div class="sec-head">
+          <span class="sec-no">6.1</span>
+          <h2>组件化：从"能写"到"能维护"</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            先看一段真实会发生的场景：你的课程列表页里，"课程卡片"这段结构写了 4 遍——
+            首页一遍、搜索页一遍、收藏页一遍、详情页底部推荐一遍。某天产品说"卡片上要加一行教师名"，
+            你就要改 4 个地方；改漏一个，用户就会看到一个不一致的界面。
+            <b>组件化解决的就是这个问题。</b>
+          </p>
+
+          <div class="playground" data-playground="compdemo"></div>
+
+          <h3>组件和页面：四点差别，先记清楚</h3>
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>对比项</th><th>页面（在 pages.json 注册的 uvue）</th><th>组件（components 里的 uvue）</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>是否需要注册</b></td>
+                  <td>必须在 <code>pages.json</code> 里注册才能访问</td>
+                  <td><b>不需要注册</b>（符合 easycom 规则即可直接用）</td>
+                </tr>
+                <tr>
+                  <td><b>页面生命周期</b></td>
+                  <td>支持 <code>onLoad</code> / <code>onReady</code> / <code>onPageShow</code> / <code>onUnload</code> 等</td>
+                  <td><b>不支持</b>页面生命周期，也不能用 <code>$setPageStyle</code> 这类页面 API</td>
+                </tr>
+                <tr>
+                  <td><b>组件生命周期</b></td>
+                  <td>—</td>
+                  <td>有自己的一套：<code>onMounted</code> / <code>onUnmounted</code> / <code>onBeforeUnmount</code> 等</td>
+                </tr>
+                <tr>
+                  <td><b>复用与嵌套</b></td>
+                  <td>可以被当作组件引入到别的页面里（页面也能当组件用）</td>
+                  <td>能嵌套组件、能被多处复用</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>官方还有一个值得知道的细节：</strong>
+              <p>
+                <b>用组合式 API 写的组件，可以监听它所在页面的页面级生命周期</b>（选项式则不行）。
+                也就是说，组件里想"页面显示时刷新一下"，可以用组合式的方式拿到页面生命周期——
+                第 7 章会讲具体钩子。这也是官方推荐新代码用组合式的原因之一。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>什么该抽成组件？三个信号：</strong>
+              <p>
+                ① 同一段界面<b>出现两次以上</b>（课程卡片、信息行、空状态提示）；
+                ② 一段界面<b>自带逻辑</b>（比如"倒计时组件"自己管时间）；
+                ③ 一个页面的模板<b>超过 150 行</b>，已经看不清结构了。
+                反过来，<b>只用一次、也没有独立逻辑</b>的东西，不要急着抽——那只会增加跳转文件的次数。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6.2 ============ -->
+      <section class="lesson-section" id="sec-6-2" data-nav="6.2 easycom 自动引入">
+        <div class="sec-head">
+          <span class="sec-no">6.2</span>
+          <h2>easycom：写完文件就能用，不用 import 也不用注册</h2>
+          <span class="sec-time">20 分钟 · 讲授 + 动手</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            传统 Vue 组件要"安装 → 引入 → 注册"三步才能用。easycom 把它压缩成一步：
+            <b>只要目录和名字符合规范，直接在模板里写标签就能用</b>。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>放哪里</th><th>目录结构要求</th><th>模板里怎么写</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>项目根目录 <code>components/</code></td>
+                  <td><code>components/course-card/course-card.uvue</code><br />（<b>组件名/组件名.uvue</b>）</td>
+                  <td><code>&lt;course-card /&gt;</code></td>
+                </tr>
+                <tr>
+                  <td><code>uni_modules/插件id/components/插件id/</code></td>
+                  <td><code>uni_modules/uni-link-x/components/uni-link/uni-link.uvue</code></td>
+                  <td><code>&lt;uni-link /&gt;</code></td>
+                </tr>
+                <tr>
+                  <td><code>pages/</code> 下任意位置</td>
+                  <td>可以直接建 <code>.uvue</code> 当组件用，但不符合 easycom 规则</td>
+                  <td>需要手动 <code>import</code> 与使用</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">创建与使用组件的完整流程</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="create">① 创建（项目结构）</button>
+              <button class="code-tab" data-tab="use">② 使用（页面里）</button>
+              <button class="code-tab" data-tab="manual">③ 不符合 easycom 时</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="create"><pre class="code-block" data-lang="bash">
+campus-app/
+├─ components/                     ← 在项目根目录新建（没有就手动建一个）
+│  └─ course-card/                 ← 组件名同名目录
+│     └─ course-card.uvue          ← 组件文件（同名）
+├─ pages/
+│  └─ list/
+│     └─ list.uvue                 ← 页面里直接写 &lt;course-card&gt; 即可
+└─ pages.json                      ← 组件不需要在这里注册
+
+# 提示：在 HBuilderX 里对着 components 目录右键 → 新建组件，
+# 输入组件名后勾选"创建同名目录"，目录结构会自动符合 easycom 规范。</pre></div>
+              <div class="code-pane" data-pane="use"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- 不写 import、不写注册，直接用；属性名用短横线写法 --&gt;
+    &lt;course-card
+      v-for="item in list"
+      :key="item.id"
+      :name="item.name"
+      :teacher="item.teacher" /&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  // 这里完全没有 import 语句
+  type Course = { id: number, name: string, teacher: string }
+  const list = ref&lt;Course[]&gt;([])
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="manual"><pre class="code-block" data-lang="ts">
+&lt;!-- 不符合 easycom 规范的组件（例如放在 pages 目录下）：需要手动引入 --&gt;
+&lt;template&gt;
+  &lt;view&gt;
+    &lt;child ref="childRef"&gt;&lt;/child&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  import child from './child.uvue'
+
+  // 手动引入的组件，ref 类型是 ComponentPublicInstance
+  const childRef = ref&lt;ComponentPublicInstance | null&gt;(null)
+&lt;/script&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>两个容易忽略的规则：</strong>
+              <p>
+                ① <b>同名文件 <code>.vue</code> 与 <code>.uvue</code> 同时存在时，<code>.uvue</code> 优先编译</b>——
+                从老项目迁移时别把两个文件都留着；
+                ② 如果你的组件目录不符合规范，也可以在 <code>pages.json</code> 里声明自己的 easycom 目录规则，
+                让编译器找得到它。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>命名建议：</strong>
+              <p>
+                组件名用<b>多段短横线</b>表达层级，例如 <code>course-card</code>、<code>form-row</code>、<code>empty-tip</code>；
+                自己的业务组件加个前缀（如 <code>app-</code>）能避免与插件市场的组件重名。
+                另外官方给出了 ref 的<b>类型命名规范</b>：组件标签名首字母大写 + 驼峰 + <code>ComponentPublicInstance</code>
+                （例如 <code>&lt;test/&gt;</code> 对应的类型是 <code>TestComponentPublicInstance</code>），
+                这样写 <code>ref</code> 时类型才对得上。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6.3 ============ -->
+      <section class="lesson-section" id="sec-6-3" data-nav="6.3 props 与 attrs 透传">
+        <div class="sec-head">
+          <span class="sec-no">6.3</span>
+          <h2>父传子：props 与"透传"机制</h2>
+          <span class="sec-time">20 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            props 是父组件向子组件传数据的唯一正规入口。写法你已经见过（第 3 章用过），
+            这里把细节补全：<b>类型怎么写、默认值怎么给、以及"没声明成 props 的属性会去哪儿"</b>。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">components/course-card/course-card.uvue —— props 的完整写法</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="card" hover-class="card-hover"&gt;
+    &lt;text class="name"&gt;{{ name }}&lt;/text&gt;
+    &lt;text class="meta"&gt;{{ teacher }} · {{ room }}&lt;/text&gt;
+
+    &lt;!-- 可选 prop：父层不传时用默认值 0 --&gt;
+    &lt;text class="count"&gt;{{ count }} 人已选&lt;/text&gt;
+
+    &lt;!-- 类型可选：不传就不显示 --&gt;
+    &lt;view v-if="type.length &gt; 0" class="tag"&gt;&lt;text class="tag-text"&gt;{{ type }}&lt;/text&gt;&lt;/view&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  // ① 必传与可选：可选参数用 ? 标记
+  type CardProps = {
+    name: string,
+    teacher: string,
+    room: string,
+    type: string,
+    count?: number
+  }
+
+  // ② 给可选参数默认值：官方写法是 withDefaults 包住 defineProps
+  const props = withDefaults(defineProps&lt;CardProps&gt;(), {
+    count: 0
+  })
+
+  // ③ 组合式里用点操作符访问：props.name
+  //    （选项式里 $props 是 Map，要写 this.$props["name"]）
+  const summary = computed(() =&gt; props.teacher + ' · ' + props.room)
+&lt;/script&gt;
+
+&lt;style&gt;
+  .card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .card-hover { background-color: #E9F0FF; }
+  .name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+  .meta { font-size: 12px; color: #5A6B8C; margin-bottom: 6px; }
+  .count { font-size: 12px; color: #A8B0BF; margin-bottom: 8px; }
+  .tag { background-color: #E9F0FF; border-radius: 6px; padding: 2px 8px; align-self: flex-start; }
+  .tag-text { font-size: 11px; color: #1E4FD8; }
+&lt;/style&gt;</pre></div>
+          </div>
+
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>props 是单向的：子组件不要直接改它。</strong>
+              <p>
+                数据"由父传给子"，所以<b>修改也应该发生在父组件</b>。
+                如果子组件直接改 props，父组件那份数据不会跟着变，界面就会出现"两个地方显示不一致"的诡异问题。
+                正确做法是：子组件通过<b>回调或事件</b>通知父组件（下一节就讲），由父组件去改自己的数据。
+                这是最容易在项目中期变成技术债的一条规则。
+              </p>
+            </div>
+          </div>
+
+          <h3>attrs 透传：没声明成 props 的属性去哪儿了？</h3>
+          <p>
+            这是官方文档里一个很容易被忽略、但实际很有用的机制：
+            <b>父组件传下来的、没有被子组件声明为 props 的属性，会"透传"到子组件的根节点上</b>。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">透传的实际效果（组件是单根节点时）</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;!-- 父层：class 与 id 都没有在组件的 props 里声明 --&gt;
+&lt;course-card class="highlight" id="first-card" name="移动应用开发" /&gt;
+
+&lt;!-- 组件模板（单根节点） --&gt;
+&lt;template&gt;
+  &lt;view class="card"&gt;
+    &lt;text&gt;{{ name }}&lt;/text&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;!-- 实际渲染结果：class 会与组件根节点的 class 合并，id 也会落上去 --&gt;
+&lt;!-- 也就是说：外部可以通过传 class 微调组件根节点的样式 --&gt;
+
+&lt;!-- 如果不希望这种透传，官方文档指向 inheritAttrs 选项来关闭 --&gt;
+&lt;!-- 详见官方「选项式 API」文档中的 inheritAttrs 一节 --&gt;</pre></div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>这和第 3 章的样式隔离怎么对应？</strong>
+              <p>
+                两者说的是不同层面：
+                <b>透传（attrs）</b>管的是"父层写在组件标签上的 <code>class</code> / <code>style</code> / 其他属性"，
+                在<b>单根节点</b>组件上会落到根节点；<b>样式隔离策略</b>管的是"组件内部 <code>.foo</code> 这种 class 能不能被外部影响"。
+                所以：<b>想改组件外框 → 传 class；想改组件内部某个元素 → 用 <code>externalClasses</code> 开口子</b>（第 3 章）。
+                多根节点组件则需要组件内部自己决定把这些属性分配给谁。
+              </p>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="propsdemo"></div>
+        </div>
+      </section>
+
+      <!-- ============ 6.4 ============ -->
+      <section class="lesson-section" id="sec-6-4" data-nav="6.4 子传父：回调函数">
+        <div class="sec-head">
+          <span class="sec-no">6.4</span>
+          <h2>子传父：向组件传递回调函数</h2>
+          <span class="sec-time">20 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            子组件要"通知父组件做点事"，官方文档给出的方式是：
+            <b>父层在组件上写一个 <code>@callback</code>，子组件把它声明成 props 并直接调用</b>。
+            本质就是"父层把一个函数交给子组件保管"。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">子传父：父层给函数，子组件调用它</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="parent">父层（页面）</button>
+              <button class="code-tab" data-tab="child">子组件</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="parent"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;text class="muted"&gt;子组件传来的值：{{ value }}&lt;/text&gt;
+
+    &lt;!-- 核心：把父层的函数通过 @callback 交给子组件 --&gt;
+    &lt;like-button :count="count" @callback="onLike" /&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  const value = ref&lt;string&gt;('')
+  const count = ref&lt;number&gt;(0)
+
+  // 子组件调用它时，参数会传进来
+  const onLike = (msg: string) =&gt; {
+    value.value = msg
+    count.value = count.value + 1          // 数据由父层维护
+  }
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="child"><pre class="code-block" data-lang="html">
+&lt;!-- components/like-button/like-button.uvue --&gt;
+&lt;template&gt;
+  &lt;button class="like" @click="handleClick"&gt;点赞（{{ count }}）&lt;/button&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  type LikeProps = {
+    count: number,
+    // 把父层传进来的函数声明成 prop（函数类型这样写）
+    callback?: (msg: string) =&gt; void
+  }
+
+  const props = withDefaults(defineProps&lt;LikeProps&gt;(), {
+    count: 0
+  })
+
+  const handleClick = () =&gt; {
+    // 只负责"通知"，不负责改数据
+    if (props.callback != null) {
+      props.callback('子组件被点了第 ' + (props.count + 1) + ' 次')
+    }
+  }
+&lt;/script&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>关于 <code>defineEmits</code>：</strong>
+              <p>
+                Vue 生态里另一种常见写法是 <code>defineEmits</code> + <code>$emit</code>。
+                官方「组件模型」文档给出的示例采用的是上面的<b>回调函数</b>方式，
+                所以本课程统一用回调写法——它有一个额外好处：<b>参数类型写在 props 类型里，编译器能帮你检查</b>。
+                如果你在别人项目里见到 <code>defineEmits</code>，先确认当前版本的实际行为再决定是否使用。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>一个命名建议：</strong>
+              <p>
+                回调名用"<b>发生了什么</b>"而不是"<b>去做什么</b>"：
+                <code>@onSubmit</code> / <code>@onChange</code> 这种更好，父层想怎么处理由父层决定。
+                这能让组件真正可复用——同一个组件在 A 页面用来提交，在 B 页面用来预览，都不需要改组件。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6.5 ============ -->
+      <section class="lesson-section" id="sec-6-5" data-nav="6.5 组件实例与 defineExpose">
+        <div class="sec-head">
+          <span class="sec-no">6.5</span>
+          <h2>父调子：模板 ref 与 defineExpose</h2>
+          <span class="sec-time">20 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            有些场景必须由父组件"主动调用子组件里的方法"，例如：页面顶部的"清空"按钮要调用表单组件的
+            <code>reset()</code>，或者"保存"时要求子组件先做一次校验。
+            这时需要两步：<b>子组件用 <code>defineExpose</code> 暴露方法</b>，<b>父组件用模板 ref 拿到组件实例</b>。
+          </p>
+
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>官方明确说明：<b>子组件的方法不会自动暴露给父组件。</b></strong>
+              <p>
+                只有通过 <code>defineExpose</code> 显式暴露出去的方法/数据，父组件才能通过 ref 调用。
+                这是很多人的第一反应会踩的坑："我明明写了 <code>reset()</code>，为什么父层报找不到方法？"
+              </p>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">defineExpose + 模板 ref：页面调用组件方法</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="child">子组件：暴露方法</button>
+              <button class="code-tab" data-tab="parent">父层：通过 ref 调用</button>
+              <button class="code-tab" data-tab="element">顺便：拿元素（非组件）</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="child"><pre class="code-block" data-lang="html">
+&lt;!-- components/signup-form/signup-form.uvue --&gt;
+&lt;script setup&gt;
+  const name = ref&lt;string&gt;('')
+  const phone = ref&lt;string&gt;('')
+
+  const reset = () =&gt; {
+    name.value = ''
+    phone.value = ''
+  }
+
+  const validate = (): boolean =&gt; {
+    return name.value.length &gt;= 2 &amp;&amp; phone.value.length == 11
+  }
+
+  // 关键：显式暴露出去，父层才调用得到
+  defineExpose({ reset, validate })
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="parent"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- 模板 ref：ref 的名字要与下面变量名对应 --&gt;
+    &lt;signup-form ref="formRef" /&gt;
+    &lt;button @click="onReset"&gt;清空表单&lt;/button&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  // 自定义组件的实例类型是 ComponentPublicInstance
+  const formRef = ref&lt;ComponentPublicInstance | null&gt;(null)
+
+  const onReset = () =&gt; {
+    // 拿到实例后调用被暴露出来的方法
+    // （具体调用写法与类型标注以官方示例工程为准，关键是"必须 defineExpose"）
+    console.log('准备调用子组件的 reset()，实例是否拿到：', formRef.value != null)
+  }
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="element"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  // 需要操作"元素"而不是"组件"时（例如测量尺寸），有两种官方方式：
+
+  // 方式一：模板 ref + UniElement 类型
+  // <view ref="htmlRef" id="htmlRef"></view>
+  const htmlRef = ref&lt;UniElement | null&gt;(null)
+
+  // 方式二：通过 id 获取（与模板 ref 得到的是同一个元素）
+  const byId = uni.getElementById('htmlRef')
+
+  onReady(() =&gt; {
+    // 注意：onLoad 阶段 DOM 还没建好，此时同步取 ref 会拿到 null
+    // 要等到 onReady 之后再访问
+    console.log('元素宽度：', byId?.getBoundingClientRectAsync != null)
+  })
+&lt;/script&gt;
+
+&lt;!-- 类型规范（官方）：
+     内置组件（scroll-view / slider 等）→ ref&lt;UniSliderElement&gt; 这类 UniXxxElement
+     内置元素（view / text）        → ref&lt;UniElement | null&gt;
+     自定义组件                     → ref&lt;ComponentPublicInstance | null&gt; --&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="refdemo"></div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>能用 props / 回调解决，就不要用 ref 调方法。</strong>
+              <p>
+                ref 调方法会让父组件"知道子组件内部有什么"，耦合度更高、也更难测试。
+                它适合"命令式"的场景（清空、聚焦、校验、播放），
+                而数据的流转仍然应该走 props 与回调。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6.6 ============ -->
+      <section class="lesson-section" id="sec-6-6" data-nav="6.6 插槽与内容分发">
+        <div class="sec-head">
+          <span class="sec-no">6.6</span>
+          <h2>插槽：让父组件决定"里面放什么"</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            props 传的是<b>数据</b>，插槽传的是<b>界面片段</b>。
+            当组件的外框固定、但内部内容千变万化时（例如"卡片"这个外框），插槽比 props 更合适。
+            官方说明组件可以封装"方法、事件、插槽"，<code>v-slot</code> 也在内置指令兼容清单里。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">默认插槽：外框固定，内容由使用者决定</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="comp">组件（提供外框）</button>
+              <button class="code-tab" data-tab="use">使用（填内容）</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="comp"><pre class="code-block" data-lang="html">
+&lt;!-- components/app-card/app-card.uvue --&gt;
+&lt;template&gt;
+  &lt;view class="card"&gt;
+    &lt;text class="title"&gt;{{ title }}&lt;/text&gt;
+
+    &lt;!-- 内容区交给使用者：默认插槽 --&gt;
+    &lt;slot&gt;&lt;/slot&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  const props = defineProps&lt;{ title: string }&gt;()
+&lt;/script&gt;
+
+&lt;style&gt;
+  .card { background-color: #FFFFFF; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+  .title { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+&lt;/style&gt;</pre></div>
+              <div class="code-pane" data-pane="use"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- 同一张卡片，装了两种完全不同的内容 --&gt;
+    &lt;app-card title="今日课程"&gt;
+      &lt;view class="row" v-for="c in today" :key="c.id"&gt;
+        &lt;text class="name"&gt;{{ c.name }}&lt;/text&gt;
+        &lt;text class="time"&gt;{{ c.time }}&lt;/text&gt;
+      &lt;/view&gt;
+    &lt;/app-card&gt;
+
+    &lt;app-card title="快捷入口"&gt;
+      &lt;view class="grid"&gt;
+        &lt;view class="cell" v-for="m in menus" :key="m"&gt;&lt;text&gt;{{ m }}&lt;/text&gt;&lt;/view&gt;
+      &lt;/view&gt;
+    &lt;/app-card&gt;
+  &lt;/view&gt;
+&lt;/template&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>关于具名插槽与作用域插槽：</strong>
+              <p>
+                官方文档确认组件支持封装插槽，<code>v-slot</code> 也在指令兼容清单中，
+                但文档没有逐条列出"具名插槽 / 作用域插槽"的限制与差异。
+                实践建议：<b>先用默认插槽把"外框复用"这件事做好</b>；
+                确实需要具名插槽（多个内容区）或作用域插槽（把子组件数据回传给内容）时，
+                对照官方示例工程（hello uvue 的组件示例）验证一次再落地。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>什么时候用插槽，什么时候用 props？</strong>
+              <p>
+                一句话判断：<b>传"文字/数字/开关"用 props，传"一段界面"用插槽</b>。
+                如果发现自己在用 props 传一堆标志位（<code>showLeft</code> / <code>showRight</code> / <code>customTop</code>），
+                那通常说明这个组件应该改用插槽。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6.7 ============ -->
+      <section class="lesson-section" id="sec-6-7" data-nav="6.7 通信决策表与组件生命周期">
+        <div class="sec-head">
+          <span class="sec-no">6.7</span>
+          <h2>通信方式决策表 + 组件生命周期</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <h3>五种通信方式，怎么选</h3>
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>需求</th><th>方案</th><th>要点</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>父 → 子：把数据给它显示</td>
+                  <td><b>props</b></td>
+                  <td>单向数据流；子组件不能改 props</td>
+                </tr>
+                <tr>
+                  <td>子 → 父：告诉父层"发生了什么"</td>
+                  <td><b>回调函数</b>（父层 <code>@callback</code>）</td>
+                  <td>官方示例采用的方式；数据仍由父层维护</td>
+                </tr>
+                <tr>
+                  <td>父 → 子：命令它做件事（清空 / 校验 / 聚焦）</td>
+                  <td><b>ref + <code>defineExpose</code></b></td>
+                  <td>子组件必须显式暴露；能不用就不用</td>
+                </tr>
+                <tr>
+                  <td>跨多层传递（爷爷 → 孙子）</td>
+                  <td><b>provide / inject</b></td>
+                  <td>组合式里直接 <code>provide('key', value)</code>；适合"主题、当前用户"这类上下文</td>
+                </tr>
+                <tr>
+                  <td>多个页面共享同一份状态</td>
+                  <td><b>全局状态</b>（<code>store/</code> 目录下的响应式对象）</td>
+                  <td>官方教程有专门的"全局变量与状态管理"章节；第 9 章会深入</td>
+                </tr>
+                <tr>
+                  <td>页面之间传数据</td>
+                  <td><code>navigateTo</code> 的 url 参数 / event-bus</td>
+                  <td>第 7 章讲</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">provide/inject 与全局状态（官方示例形态）</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="provide">provide / inject</button>
+              <button class="code-tab" data-tab="store">全局状态 store</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="provide"><pre class="code-block" data-lang="ts">
+&lt;!-- 页面（提供方）：向下提供数据或函数，中间层不用一层层传 --&gt;
+&lt;script setup&gt;
+  provide('msg', 'hello')
+  provide('num', 0)
+  provide('obj', { 'a': 1 })
+  provide('arr', [1, 2, 3])
+  // 也可以提供一个函数给下层调用
+  provide('fn', (): string =&gt; 'hello')
+&lt;/script&gt;
+
+&lt;!-- 深层子组件（注入方） --&gt;
+&lt;script setup&gt;
+  const msg = inject&lt;string&gt;('msg')
+  const fn = inject&lt;() =&gt; string&gt;('fn')
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="store"><pre class="code-block" data-lang="ts">
+// store/index.uts —— 官方"全局变量与状态管理"示例的形态
+type State = {
+  componentMsg: number
+}
+
+export const state = reactive({
+  componentMsg: 0
+} as State)
+
+export const setComponentMsg = (value: number) =&gt; {
+  state.componentMsg = value
+}
+
+// 任意页面/组件里使用：
+// import { state, setComponentMsg } from '@/store/index.uts'
+// const msg = computed&lt;number&gt;((): number =&gt; state.componentMsg)
+// const change = () =&gt; { setComponentMsg(state.componentMsg + 1) }</pre></div>
+            </div>
+          </div>
+
+          <h3>组件生命周期：和页面不是一套</h3>
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>想做的事</th><th>组件里写（组合式）</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr><td>组件挂载完成后（可以取元素尺寸了）</td><td><code>onMounted(() =&gt; {})</code></td><td>对应选项式的 <code>mounted</code></td></tr>
+                <tr><td>组件卸载前（清理定时器、取消监听）</td><td><code>onBeforeUnmount(() =&gt; {})</code></td><td>对应 <code>beforeUnmount</code></td></tr>
+                <tr><td>组件已卸载后</td><td><code>onUnmounted(() =&gt; {})</code></td><td>对应 <code>unmounted</code></td></tr>
+                <tr><td>"创建时"要做的事</td><td>直接写在 <code>&lt;script setup&gt;</code> 顶层</td><td>对应选项式的 <code>created</code>；注意它在组件实例化时就执行</td></tr>
+                <tr><td>页面加载 / 显示</td><td><b>组件里不能直接用</b></td><td><code>onLoad</code> / <code>onPageShow</code> 属于页面；组合式组件可以监听所在页面的生命周期（见 6.1）</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>一条能避免 90% 组件 bug 的规则：</strong>
+              <p>
+                <b>组件只负责"显示 + 通知"，不负责"决定数据怎么变"。</b>
+                凡是"改数据"的动作，都通过回调交给父层或全局状态去处理。
+                这样组件才可能被复用到第二个页面——否则第一次复用就会牵出一串连锁修改。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6.8 测验 ============ -->
+      <section class="lesson-section" id="sec-quiz" data-nav="6.8 随堂测验">
+        <div class="sec-head">
+          <span class="sec-no">6.8</span>
+          <h2>随堂测验：组件规范与通信方式</h2>
+          <span class="sec-time">10 分钟 · 独立完成</span>
+        </div>
+        <div class="sec-body">
+          <div class="quiz">
+            <div class="quiz-head">
+              <h3>📝 第 6 章随堂测验（8 题）</h3>
+              <span class="quiz-score" id="quizScore">得分 0 / 8</span>
+            </div>
+            <div id="quizMount"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6.9 小结与作业 ============ -->
+      <section class="lesson-section" id="sec-summary" data-nav="6.9 小结与作业">
+        <div class="sec-head">
+          <span class="sec-no">6.9</span>
+          <h2>本章小结 · 动手任务 · 课后作业</h2>
+          <span class="sec-time">10 分钟 · 总结 + 布置</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="summary-card">
+            <h3>📌 今天你学到的，浓缩成 6 句话</h3>
+            <p style="color:#33445F">
+              组件不需要在 <code>pages.json</code> 注册，也不支持页面生命周期，但有自己的一套组件生命周期；
+              <b>符合 <code>组件名/组件名.uvue</code> 规范并放在 <code>components/</code> 或 <code>uni_modules</code> 下，就能被 easycom 自动引入</b>，
+              同名时 <code>.uvue</code> 优先；
+              父传子用 <b>props</b>（<code>withDefaults</code> 给默认值），组合式用点操作符访问，<b>子组件不要改 props</b>；
+              子传父用<b>回调函数</b>（父层 <code>@callback="fn"</code>，子组件把函数声明为 props 并调用），
+              数据仍然由父层维护；
+              父要调子组件的方法，必须<b>子组件 <code>defineExpose</code> + 父层模板 ref</b>；
+              没声明成 props 的属性会<b>透传</b>到单根节点组件的根节点上（这也是改组件外框样式的方式）；
+              跨多层用 <b>provide / inject</b>，多页面共享用<b>全局状态</b>，组件本身只该"显示 + 通知"。
+            </p>
+            <div class="kp-chips">
+              <span class="kp-chip">组件 ≠ 页面</span>
+              <span class="kp-chip">无需注册</span>
+              <span class="kp-chip">easycom 规范</span>
+              <span class="kp-chip">.uvue 优先</span>
+              <span class="kp-chip">defineProps</span>
+              <span class="kp-chip">withDefaults</span>
+              <span class="kp-chip">单向数据流</span>
+              <span class="kp-chip">attrs 透传</span>
+              <span class="kp-chip">inheritAttrs</span>
+              <span class="kp-chip">回调函数</span>
+              <span class="kp-chip">模板 ref</span>
+              <span class="kp-chip">defineExpose</span>
+              <span class="kp-chip">UniElement</span>
+              <span class="kp-chip">插槽</span>
+              <span class="kp-chip">provide / inject</span>
+              <span class="kp-chip">组件生命周期</span>
+            </div>
+          </div>
+
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 课堂动手任务
+            <span class="chip" id="taskCounter">0 / 5 已完成</span>
+          </h3>
+          <p class="text-sub" style="margin-top:6px">点一下即可打勾，进度保存在你的浏览器里。</p>
+
+          <div class="task-list">
+            <div class="task-item" data-task-id="c6-t1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">把"课程卡片"抽成 <code>course-card</code> 组件，用 <code>v-for</code> 渲染至少 5 条数据</div>
+                <div class="task-hint">验收：页面里没有 <code>import</code> 也能直接用（easycom 生效）</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c6-t2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">给组件加一个可选 prop（例如 <code>count?</code>）并用 <code>withDefaults</code> 给默认值</div>
+                <div class="task-hint">验收：父层不传时显示默认值，传了就显示传入值</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c6-t3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用回调实现"子组件里的按钮被点击 → 父层列表新增一条"</div>
+                <div class="task-hint">注意：子组件不要直接改 props，只调用回调</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c6-t4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>defineExpose</code> 暴露一个 <code>reset()</code>，让页面上的"清空"按钮调用它</div>
+                <div class="task-hint">先故意不写 defineExpose，观察"调用不到"的现象，再补上</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c6-t5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>app-card</code> + 默认插槽，做出"同一张卡片装两种不同内容"的效果</div>
+                <div class="task-hint">验收：卡片组件里没有出现任何具体业务文字</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="homework" style="margin-top:22px">
+            <h3 style="margin-bottom:6px">🏠 课后作业（按星级自选，鼓励全做）</h3>
+            <p class="text-sub" style="font-size:13.5px;margin-bottom:14px">下节课开始前提交到课程群，作业计入平时成绩。</p>
+
+            <div class="hw-item">
+              <span class="hw-star">⭐</span>
+              <div>
+                <h4>基础：组件清单与 props 设计</h4>
+                <p>翻一遍你之前的作业，找出至少 5 处重复出现的界面。为其中 3 个写出组件设计方案：组件名、需要哪些 props（含类型与默认值）、需要哪些回调。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐</span>
+              <div>
+                <h4>进阶：做一个小型组件库</h4>
+                <p>实现 3 个可复用组件（建议：<code>app-card</code> 卡片、<code>app-row</code> 信息行、<code>app-empty</code> 空状态），放在 <code>components/</code> 下并用 easycom 直接引用；再写一个演示页面把它们组合使用，提交截图与目录结构。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐</span>
+              <div>
+                <h4>挑战：组件化重构</h4>
+                <p>把第 5 章的"活动报名表"完整组件化：拆成"表单行组件 + 选择器行组件 + 提交按钮组件"，用 props 传标签与值、用回调向上汇报变化。提交重构前后的对比：页面文件行数、重复代码处数、新增组件数。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐+</span>
+              <div>
+                <h4>拓展：三种通信方式实验</h4>
+                <p>用三种方式各实现一次"子组件让父层数据 +1"：① 回调函数；② ref + <code>defineExpose</code> 调用父层方法；③ 全局状态 store。三种都跑通后写一段对比：各自的代码量、耦合程度、以及你会在什么场景选哪一种。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout info" style="margin-top:22px">
+            <span class="ci">➡️</span>
+            <div>
+              <strong>下一章预告 · 第 7 章《页面路由与生命周期》</strong>
+              <p>
+                组件之间能通信了，接下来是<b>页面之间</b>：多页面跳转与传参、tabBar 底部导航、
+                页面生命周期的正确用法（<code>onLoad</code> / <code>onPageShow</code> / <code>onUnload</code> 各自该放什么逻辑）、
+                返回上一页时如何把数据传回去，以及页面栈的注意事项。
+                带着你的组件库来，下一章我们把它组装成一个多页面 App。
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="chapter-05.html">
+          <div class="dir">← 上一章</div>
+          <div class="ttl">第 5 章 · 事件与表单交互</div>
+        </a>
+        <a class="next" href="chapter-07.html">
+          <div class="dir">下一章 →</div>
+          <div class="ttl">第 7 章 · 页面路由与生命周期</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">模块二 · 语法与交互 · 第 6 章</div>
+      <div class="fnote">
+        本章关于组件与页面差异、easycom 规范与类型规范、props 与 attrs 透传、回调通信、defineExpose、
+        provide/inject、全局状态与组件生命周期的说法，均依据 DCloud 官方「组件模型」与「uvue 概述」文档整理。
+        插槽的具名与作用域用法官方文档未逐条列出，落地前请对照官方示例工程验证。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>下一章：页面路由与生命周期</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+/* 编码约定（重要）：示例代码字符串里如果出现 HTML 注释起始符或 script 结束标签，
+   必须写成带反斜杠的形式（<\!-- 与 <\/），否则浏览器会把本脚本块提前截断，页面直接白屏。 */
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html', current: true },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+
+/* ---------------- 随堂测验数据 ---------------- */
+window.QUIZ_DATA = [
+  {
+    q: '关于"组件"与"页面"，下面哪个说法<b>不正确</b>？',
+    opts: [
+      '组件必须在 <code>pages.json</code> 里注册才能使用',
+      '组件不支持 <code>onLoad</code> / <code>onPageShow</code> 这类页面生命周期',
+      '一个在 <code>pages.json</code> 注册的页面 uvue 文件，也可以被当作组件引入到其他页面',
+      '组件有自己的一套生命周期，例如 <code>onMounted</code> / <code>onUnmounted</code>'
+    ],
+    answer: 0,
+    explain: '<b>组件不需要在 <code>pages.json</code> 注册</b>——只有页面需要。其余三项都正确：组件不支持页面生命周期与页面 API、页面也能当组件用、组件有自己的生命周期钩子。'
+  },
+  {
+    q: '要让一个组件在页面里"不写 import、不写注册"就能直接用，必须满足什么？',
+    opts: [
+      '把组件文件放在页面同目录下',
+      '放在 <code>components/</code> 或 <code>uni_modules/插件id/components/插件id/</code> 下，且符合"组件名/组件名.uvue"的目录结构',
+      '在 <code>manifest.json</code> 里声明组件名',
+      '给组件加 <code>easycom</code> 属性'
+    ],
+    answer: 1,
+    explain: '这就是 easycom 规则：目录结构符合 <code>组件名/组件名.(vue|uvue)</code> 就会被自动引入。不符合规范时也可以手动 <code>import</code>，或在 <code>pages.json</code> 里声明自定义 easycom 目录规则。'
+  },
+  {
+    q: '子组件里直接修改父组件传进来的 props，会发生什么？',
+    opts: [
+      '父组件的数据会自动同步更新，没问题',
+      '父组件那份数据不会跟着变，容易出现"两处显示不一致"，应该通过回调通知父层去改',
+      '会立刻报错，程序崩溃',
+      'props 会自动变成响应式的本地数据'
+    ],
+    answer: 1,
+    explain: 'props 是<b>单向数据流</b>：数据由父传给子，修改也应该发生在父层。子组件要改数据，应通过回调（<code>@callback</code>）通知父组件，由父组件修改自己的数据。'
+  },
+  {
+    q: '父组件在子组件标签上写了 <code>class="highlight"</code>，但子组件的 props 里并没有声明 class。默认会发生什么？',
+    opts: [
+      '这个 class 会被忽略，完全没有效果',
+      '会报"未知属性"的编译错误',
+      '会透传到子组件的根节点上（单根节点组件时），与根节点的 class 合并',
+      '会自动变成子组件的一个 prop'
+    ],
+    answer: 2,
+    explain: '官方说明：父组件传下来、但没有被子组件解析为 props 的属性会被<b>透传</b>，在单根节点子组件上会作用到根节点；可以用 <code>inheritAttrs</code> 选项关闭该行为。这也是"从外部微调组件外框样式"的常用手段。'
+  },
+  {
+    q: '子组件要通知父组件"用户点了按钮"，官方文档示例采用的方式是？',
+    opts: [
+      '子组件直接修改 props',
+      '父层在组件上写 <code>@callback="fn"</code>，子组件把该函数声明成 props 并调用它',
+      '子组件用 <code>uni.$emit</code> 广播事件',
+      '子组件通过 <code>uni.setStorageSync</code> 写数据，父层去读'
+    ],
+    answer: 1,
+    explain: '官方「组件模型」示例采用"向组件传递回调函数"的方式：父层 <code>@callback="callback"</code>，子组件把 <code>callback</code> 声明为 props（函数类型）并在合适时机调用。数据仍由父层维护。'
+  },
+  {
+    q: '页面需要调用子组件内部的 <code>reset()</code> 方法，正确的做法是？',
+    opts: [
+      '直接在页面的 <code>&lt;script setup&gt;</code> 里写 <code>reset()</code> 调用',
+      '子组件用 <code>defineExpose</code> 暴露 <code>reset</code>，父层用模板 <code>ref</code> 拿到组件实例后再调用',
+      '子组件把 <code>reset</code> 写在 <code>props</code> 里传出去',
+      '用 <code>uni.getElementById</code> 找到子组件再调用'
+    ],
+    answer: 1,
+    explain: '官方明确说明：<b>子组件的方法不会自动暴露给父组件</b>，只有通过 <code>defineExpose</code> 显式暴露，父组件才能通过 ref 调用。自定义组件的实例类型是 <code>ComponentPublicInstance</code>。'
+  },
+  {
+    q: '组件里想"挂载完成后测量某个元素的宽度"，应该怎么做？',
+    opts: [
+      '在组件里写 <code>onLoad</code>，在其中取元素',
+      '在 <code>onMounted</code>（或页面的 <code>onReady</code> 之后）再取元素，因为更早的阶段 DOM 还没建好',
+      '在 <code>computed</code> 里取元素',
+      '写在 <code>props</code> 的默认值里'
+    ],
+    answer: 1,
+    explain: '组件里不能用 <code>onLoad</code>（那是页面生命周期）；而且<b>更早的阶段 DOM 尚未创建，同步取 ref / <code>uni.getElementById</code> 会拿到 null</b>。所以要在挂载完成之后（组件的 <code>onMounted</code> 或页面的 <code>onReady</code> 之后）访问元素。'
+  },
+  {
+    q: '<b>（多选）</b>关于组件通信，下面哪些说法正确？',
+    opts: [
+      'props 向下传数据，回调向上通知，两者配合构成组件通信的主干',
+      '跨多层传递（爷爷 → 孙子）可以用 <code>provide</code> / <code>inject</code>',
+      '多个页面共享同一份状态时，可以抽到 <code>store/</code> 目录下的全局状态里',
+      '为了让组件更"聪明"，应该让组件内部直接修改全局数据，父层不用管'
+    ],
+    answer: [0, 1, 2],
+    explain: 'A、B、C 都正确。D 是反模式：<b>组件应只负责"显示 + 通知"</b>，改数据的动作交给父层或明确的全局状态管理，否则组件无法复用、也难以排查问题。'
+  }
+];
+
+/* ---------------- 代码 ↔ 手机联动演练区 ---------------- */
+window.PG_DEMOS = {
+  compdemo: {
+    examples: [
+      {
+        name: '① 不抽组件（反例）',
+        file: 'pages/list/list.uvue',
+        navbar: '反例：重复代码',
+        hint: '同一个卡片结构在页面里写了三遍。想改一处（比如加"教师"这一行），就得改三处——这就是组件化要解决的问题。',
+        code: {
+          page: '<template>\n  <view class="page">\n    <\!-- 同样的结构重复写：改一处要改多处 -->\n    <view class="card">\n      <text class="name">移动应用开发</text>\n      <text class="meta">张老师 · 实验楼 B302</text>\n    </view>\n    <view class="card">\n      <text class="name">数据结构</text>\n      <text class="meta">李老师 · 教学楼 A201</text>\n    </view>\n    <view class="card">\n      <text class="name">计算机网络</text>\n      <text class="meta">王老师 · 教学楼 A305</text>\n    </view>\n  </view>\n</template>\n\n<style>\n  .page { flex: 1; padding: 16px; background-color: #F5F8FF; }\n  .card { background-color: #FFFFFF; border-radius: 12px; padding: 16px; margin-bottom: 10px; }\n  .name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }\n  .meta { font-size: 12px; color: #5A6B8C; }\n</style>'
+        },
+        render: function () {
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#F5F8FF">' +
+            [['移动应用开发', '张老师 · 实验楼 B302'], ['数据结构', '李老师 · 教学楼 A201'], ['计算机网络', '王老师 · 教学楼 A305']].map(function (r) {
+              return '<div class="uv-card" style="padding:16px;margin-bottom:10px">' +
+                '<div class="uv-text" style="font-size:16px;font-weight:700;margin-bottom:4px">' + r[0] + '</div>' +
+                '<div class="uv-text" style="font-size:12px;color:#5A6B8C">' + r[1] + '</div></div>';
+            }).join('') + '</div>';
+        }
+      },
+      {
+        name: '② 抽成组件（props 传值）',
+        file: 'components/course-card/course-card.uvue',
+        navbar: '抽成组件',
+        hint: '同样的界面，抽成一个 course-card 组件。之后要加一行"教师名"，只改组件文件一处，所有用到它的页面同步生效。这就是组件化的收益。',
+        code: {
+          component: '<template>\n  <view class="card" hover-class="card-hover">\n    <\!-- 组件只负责显示，数据全部来自 props -->\n    <text class="name">{{ name }}</text>\n    <text class="meta">{{ teacher }} · {{ room }}</text>\n    <text class="count">{{ count }} 人已选</text>\n  </view>\n</template>\n\n<script setup>\n  type CardProps = {\n    name: string,\n    teacher: string,\n    room: string,\n    count?: number\n  }\n\n  const props = withDefaults(defineProps<CardProps>(), {\n    count: 0\n  })\n<\/script>\n\n<style>\n  .card { background-color: #FFFFFF; border-radius: 12px; padding: 16px; margin-bottom: 10px; }\n  .card-hover { background-color: #E9F0FF; }\n  .name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }\n  .meta { font-size: 12px; color: #5A6B8C; margin-bottom: 6px; }\n  .count { font-size: 12px; color: #A8B0BF; }\n</style>',
+          page: '<template>\n  <view class="page">\n    <\!-- easycom：不需要 import，也不需要注册 -->\n    <course-card\n      v-for="item in list"\n      :key="item.id"\n      :name="item.name"\n      :teacher="item.teacher"\n      :room="item.room"\n      :count="item.count" />\n  </view>\n</template>\n\n<script setup>\n  type Course = { id: number, name: string, teacher: string, room: string, count: number }\n\n  const list = ref<Course[]>([\n    { \'id\': 1, \'name\': \'移动应用开发\', \'teacher\': \'张老师\', \'room\': \'实验楼 B302\', \'count\': 42 },\n    { \'id\': 2, \'name\': \'数据结构\', \'teacher\': \'李老师\', \'room\': \'教学楼 A201\', \'count\': 60 },\n    { \'id\': 3, \'name\': \'计算机网络\', \'teacher\': \'王老师\', \'room\': \'教学楼 A305\', \'count\': 38 }\n  ])\n<\/script>'
+        },
+        codeLabels: { component: 'components/course-card/course-card.uvue', page: 'pages/list/list.uvue' },
+        render: function () {
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#F5F8FF">' +
+            [['移动应用开发', '张老师 · 实验楼 B302', 42], ['数据结构', '李老师 · 教学楼 A201', 60], ['计算机网络', '王老师 · 教学楼 A305', 38]].map(function (r) {
+              return '<div class="uv-card" style="padding:16px;margin-bottom:10px">' +
+                '<div class="uv-text" style="font-size:16px;font-weight:700;margin-bottom:4px">' + r[0] + '</div>' +
+                '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-bottom:6px">' + r[1] + '</div>' +
+                '<div class="uv-text" style="font-size:12px;color:#A8B0BF">' + r[2] + ' 人已选</div></div>';
+            }).join('') +
+            '<div class="uv-text" style="font-size:12px;color:#0B8A66;margin-top:6px">✓ 三张卡片都来自同一个组件文件</div></div>';
+        }
+      },
+      {
+        name: '③ 组件化后的改动成本',
+        file: 'components/course-card/course-card.uvue',
+        navbar: '改一处，全站生效',
+        hint: '产品说"卡片上要加一个课程类型标签"。组件化之后只改组件文件一处；点下面按钮看效果——三个卡片同时多出了标签行。',
+        state: { withTag: false },
+        code: {
+          component: '<template>\n  <view class="card">\n    <text class="name">{{ name }}</text>\n    <text class="meta">{{ teacher }} · {{ room }}</text>\n\n    <\!-- 新增：只在组件里改这一处 -->\n    <view class="tag"><text class="tag-text">{{ type }}</text></view>\n  </view>\n</template>\n\n<script setup>\n  type CardProps = {\n    name: string,\n    teacher: string,\n    room: string,\n    type: string\n  }\n  const props = defineProps<CardProps>()\n<\/script>\n\n<style>\n  .tag { background-color: #E9F0FF; border-radius: 6px; padding: 2px 8px; align-self: flex-start; }\n  .tag-text { font-size: 11px; color: #1E4FD8; }\n</style>'
+        },
+        render: function (state) {
+          var withTag = state.withTag === true;
+          var rows = [['移动应用开发', '张老师 · 实验楼 B302', '专业必修'], ['数据结构', '李老师 · 教学楼 A201', '专业必修'], ['计算机网络', '王老师 · 教学楼 A305', '专业选修']];
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#F5F8FF">' +
+            rows.map(function (r) {
+              return '<div class="uv-card" style="padding:16px;margin-bottom:10px">' +
+                '<div class="uv-text" style="font-size:16px;font-weight:700;margin-bottom:4px">' + r[0] + '</div>' +
+                '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-bottom:' + (withTag ? '8px' : '0') + '">' + r[1] + '</div>' +
+                (withTag ? '<div style="background:#E9F0FF;border-radius:6px;padding:2px 8px;align-self:flex-start"><span class="uv-text" style="font-size:11px;color:#1E4FD8">' + r[2] + '</span></div>' : '') +
+                '</div>';
+            }).join('') +
+            '<div class="uv-btn primary" data-bind="toggle" style="margin-top:6px">' + (withTag ? '还原（去掉标签）' : '给组件加一行标签') + '</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:10px">' + (withTag ? '三张卡片同时变了：只改了组件文件一处' : '当前：没有标签行') + '</div></div>';
+        },
+        actions: {
+          toggle: function (state) {
+            state.withTag = state.withTag !== true;
+            return state.withTag ? '在组件里加了一行 → 三个卡片同时生效' : '改回原样，同样是改一处';
+          }
+        }
+      }
+    ]
+  },
+
+  propsdemo: {
+    examples: [
+      {
+        name: '① props 单向：父改，子跟着变',
+        file: 'components/level-bar/level-bar.uvue',
+        navbar: 'props 单向流',
+        hint: '父层的数据变了，子组件显示的内容自动跟着变——这就是 props 的"向下流动"。注意子组件自己从不修改这个值。',
+        state: { level: 3 },
+        code: {
+          page: '<template>\n  <view class="page">\n    <\!-- 父层把 level 传下去 -->\n    <level-bar :level="level" />\n    <button @click="levelUp">父层：升一级</button>\n  </view>\n</template>\n\n<script setup>\n  const level = ref<number>(3)\n\n  const levelUp = () => {\n    level.value = level.value + 1     // 数据由父层维护\n  }\n<\/script>',
+          component: '<template>\n  <view class="bar">\n    <text class="text">当前等级 Lv.{{ level }}</text>\n  </view>\n</template>\n\n<script setup>\n  // 子组件只是"显示"传进来的值，不修改它\n  const props = defineProps<{ level: number }>()\n<\/script>\n\n<style>\n  .bar { background-color: #E9F0FF; border-radius: 10px; padding: 14px; }\n  .text { font-size: 15px; color: #1E4FD8; font-weight: bold; }\n</style>'
+        },
+        codeLabels: { page: 'pages/demo/level.uvue', component: 'components/level-bar/level-bar.uvue' },
+        render: function (state) {
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div style="background:#E9F0FF;border-radius:10px;padding:14px">' +
+            '<span class="uv-text" style="font-size:15px;color:#1E4FD8;font-weight:700">当前等级 Lv.' + (state.level || 3) + '</span></div>' +
+            '<div class="uv-btn primary" style="margin-top:16px" data-bind="up">父层：升一级</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:12px">父层改 level.value → 子组件显示自动更新（props 向下流动）</div></div>';
+        },
+        actions: {
+          up: function (state) { state.level = (state.level || 3) + 1; return 'level.value = ' + state.level + ' → 子组件跟着变'; }
+        }
+      },
+      {
+        name: '② 回调向上：子通知父',
+        file: 'components/like-button/like-button.uvue',
+        navbar: '回调向上',
+        hint: '点赞数由父层维护。子组件被点击时只做一件事：调用父层交给它的回调函数。这样子组件完全不知道"数据存在哪里"，因此能被任何页面复用。',
+        state: { count: 12, logs: [] },
+        code: {
+          page: '<template>\n  <view class="page">\n    <text class="big">{{ count }}</text>\n    <like-button :count="count" @callback="onLike" />\n  </view>\n</template>\n\n<script setup>\n  const count = ref<number>(12)\n\n  // 父层把函数交给子组件；子组件调用它时带参数回来\n  const onLike = (msg: string) => {\n    count.value = count.value + 1\n    console.log(msg)\n  }\n<\/script>',
+          component: '<template>\n  <button class="like" @click="handleClick">点赞</button>\n</template>\n\n<script setup>\n  type LikeProps = {\n    count: number,\n    callback?: (msg: string) => void\n  }\n\n  const props = withDefaults(defineProps<LikeProps>(), { count: 0 })\n\n  const handleClick = () => {\n    // 只负责"通知"，不负责改数据\n    if (props.callback != null) {\n      props.callback(\'子组件报告：当前显示 \' + props.count)\n    }\n  }\n<\/script>'
+        },
+        codeLabels: { page: 'pages/demo/like.uvue', component: 'components/like-button/like-button.uvue' },
+        render: function (state) {
+          var logs = state.logs || [];
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-text" style="font-size:40px;font-weight:700;color:#2F6BFF;text-align:center;margin:10px 0">' + (state.count || 0) + '</div>' +
+            '<div class="uv-btn primary" data-bind="like">点赞（子组件里的按钮）</div>' +
+            '<div class="uv-text" style="font-size:13px;font-weight:700;margin-top:16px;margin-bottom:6px">父层收到的通知：</div>' +
+            (logs.length === 0
+              ? '<div class="uv-text" style="font-size:12px;color:#A8B0BF">还没有收到回调</div>'
+              : logs.map(function (l) { return '<div style="background:#F5F8FF;border-radius:8px;padding:8px 10px;margin-bottom:6px"><span class="uv-text" style="font-size:12px;color:#111C33">' + l + '</span></div>'; }).join('')) +
+            '</div>';
+        },
+        actions: {
+          like: function (state) {
+            state.count = (state.count || 0) + 1;
+            state.logs = (state.logs || []).concat('子组件说：当前显示 ' + state.count);
+            return '回调被调用 → 父层 count 变成 ' + state.count;
+          }
+        }
+      },
+      {
+        name: '③ 反例：子组件改 props',
+        file: 'components/bad-counter/bad-counter.uvue',
+        navbar: '反例：改 props',
+        hint: '子组件内部复制了一份 props 去改，于是出现了两个"真值"：子组件显示 5，父层还是 3。这就是"不要改 props"的直观后果。',
+        state: { parentCount: 3, childCount: 3, clicks: 0 },
+        code: {
+          page: '<template>\n  <view class="page">\n    <\!-- 父层维护数据，界面上显示父层的值 -->\n    <text class="muted">父层的 count = {{ count }}</text>\n    <bad-counter :count="count" />\n  </view>\n</template>\n\n<script setup>\n  const count = ref<number>(3)\n<\/script>',
+          component: '<template>\n  <view class="card">\n    <text class="text">子组件显示：{{ localCount }}</text>\n    <button @click="addLocal">子组件自己 +1</button>\n  </view>\n</template>\n\n<script setup>\n  const props = defineProps<{ count: number }>()\n\n  // 反例：在子组件里又存了一份"自己的真值"\n  const localCount = ref<number>(props.count)\n\n  const addLocal = () => {\n    localCount.value = localCount.value + 1   // 父层完全不知道\n  }\n<\/script>'
+        },
+        codeLabels: { page: 'pages/demo/bad.uvue', component: 'components/bad-counter/bad-counter.uvue' },
+        render: function (state) {
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-text" style="font-size:13px;color:#5A6B8C">父层的 count = ' + (state.parentCount || 3) + '</div>' +
+            '<div class="uv-card" style="margin-top:12px;padding:14px">' +
+            '<div class="uv-text" style="font-size:15px">子组件显示：' + (state.childCount || 3) + '</div>' +
+            '<div class="uv-btn primary" style="margin-top:10px" data-bind="addLocal">子组件自己 +1</div></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#B42318;margin-top:14px">出现了两个真值：子组件 ' + (state.childCount || 3) + '，父层 ' + (state.parentCount || 3) + '。<br />正确做法：子组件通过回调请父层去改。</div></div>';
+        },
+        actions: {
+          addLocal: function (state) {
+            state.childCount = (state.childCount || 3) + 1;
+            state.clicks = (state.clicks || 0) + 1;
+            return '子组件自己变成 ' + state.childCount + '，父层仍是 ' + state.parentCount + '（数据不一致）';
+          }
+        }
+      }
+    ]
+  },
+
+  refdemo: {
+    examples: [
+      {
+        name: '① 组件内部状态',
+        file: 'components/signup-form/signup-form.uvue',
+        navbar: '组件内部状态',
+        hint: '表单先由组件自己维护（内部状态）。问题来了：页面上如果有个"清空"按钮，它怎么让组件清空？这就必须让父层能调用组件的方法——下一屏演示。',
+        state: { name: '', phone: '', tip: '' },
+        code: {
+          component: '<template>\n  <view class="form">\n    <input class="field" :value="name" placeholder="姓名" @input="onName" />\n    <input class="field" :value="phone" type="number" maxlength="11" placeholder="手机号" @input="onPhone" />\n    <text class="muted">内部状态：{{ name }} / {{ phone }}</text>\n  </view>\n</template>\n\n<script setup>\n  const name = ref<string>(\'\')\n  const phone = ref<string>(\'\')\n\n  const onName = (event: UniInputEvent) => { name.value = event.detail.value }\n  const onPhone = (event: UniInputEvent): string => {\n    const cleaned = event.detail.value.replace(/[^0-9]/g, \'\')\n    phone.value = cleaned\n    return cleaned\n  }\n<\/script>'
+        },
+        codeLabels: { component: 'components/signup-form/signup-form.uvue' },
+        render: function (state) {
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-input" style="margin-bottom:10px">' + (state.name ? '<span>' + state.name + '</span>' : '<span class="ph">姓名</span>') + '</div>' +
+            '<div class="uv-input" style="margin-bottom:10px">' + (state.phone ? '<span>' + state.phone + '</span>' : '<span class="ph">手机号</span>') + '</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C">内部状态：' + (state.name || '（空）') + ' / ' + (state.phone || '（空）') + '</div>' +
+            '<div style="margin-top:14px">' +
+            '<div class="uv-btn" style="margin-bottom:8px;font-size:13px" data-bind="typeOne">模拟用户输入</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#A8B0BF">此时页面还没有办法清空它</div></div></div>';
+        },
+        actions: {
+          typeOne: function (state) { state.name = '汽水同学'; state.phone = '13800001111'; return '组件内部填入了数据'; }
+        }
+      },
+      {
+        name: '② defineExpose + 父层调用',
+        file: 'pages/demo/reset.uvue',
+        navbar: 'defineExpose',
+        hint: '组件用 defineExpose 暴露 reset()，页面拿到组件实例后就能调用它。这就是"父调子"的正规通道——注意如果不写 defineExpose，父层是调用不到的。',
+        state: { name: '', phone: '', log: [] },
+        code: {
+          page: '<template>\n  <view class="page">\n    <\!-- 模板 ref：名字要和下面的变量对应 -->\n    <signup-form ref="formRef" />\n    <button @click="onReset">清空表单（调用子组件方法）</button>\n  </view>\n</template>\n\n<script setup>\n  const formRef = ref<ComponentPublicInstance | null>(null)\n\n  const onReset = () => {\n    // 拿到实例后调用被 defineExpose 暴露的方法\n    if (formRef.value != null) {\n      // 以官方示例工程的调用写法为准；关键是"必须 defineExpose"\n      console.log(\'调用子组件的 reset()\')\n    }\n  }\n<\/script>',
+          component: '<script setup>\n  const name = ref<string>(\'\')\n  const phone = ref<string>(\'\')\n\n  const reset = () => {\n    name.value = \'\'\n    phone.value = \'\'\n  }\n\n  const validate = (): boolean => {\n    return name.value.length >= 2 && phone.value.length == 11\n  }\n\n  // 关键一行：不暴露，父层就调用不到\n  defineExpose({ reset, validate })\n<\/script>'
+        },
+        codeLabels: { page: 'pages/demo/reset.uvue', component: 'components/signup-form/signup-form.uvue' },
+        render: function (state) {
+          var logs = state.log || [];
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-input" style="margin-bottom:10px">' + (state.name ? '<span>' + state.name + '</span>' : '<span class="ph">姓名</span>') + '</div>' +
+            '<div class="uv-input" style="margin-bottom:10px">' + (state.phone ? '<span>' + state.phone + '</span>' : '<span class="ph">手机号</span>') + '</div>' +
+            '<div class="uv-btn primary" style="margin-bottom:8px" data-bind="fill">模拟填写</div>' +
+            '<div class="uv-btn" style="margin-bottom:8px" data-bind="reset">页面上的"清空"按钮 → formRef.reset()</div>' +
+            '<div class="uv-btn" style="font-size:13px" data-bind="noexpose">演示：如果没写 defineExpose</div>' +
+            (logs.length ? logs.map(function (l) {
+              return '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:8px">· ' + l + '</div>';
+            }).join('') : '') + '</div>';
+        },
+        actions: {
+          fill: function (state) { state.name = '汽水同学'; state.phone = '13800001111'; return '组件内部已填写数据'; },
+          reset: function (state) {
+            state.name = ''; state.phone = '';
+            state.log = (state.log || []).concat('父层调用 formRef.reset() → 组件内部数据被清空');
+            return 'reset() 调用成功，表单已清空';
+          },
+          noexpose: function (state) {
+            state.log = (state.log || []).concat('父层想调用 reset()，但组件没 defineExpose → 调用不到（官方明确说明这一点）');
+            return '没有 defineExpose 时，父层拿不到子组件的方法';
+          }
+        }
+      }
+    ]
+  }
+};
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

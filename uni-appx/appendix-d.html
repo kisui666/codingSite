@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>附录D 课程设计选题库与评分标准 | uni-app x 大学课堂</title>
+<meta name="description" content="uni-app x 课程设计附录：20 个可落地的校园 App 选题（含核心功能、知识点映射与难度）、五维度评分标准、三周迭代时间线、答辩提问库与学生自查表。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">附录 D · 选题库与评分标准</div>
+        <div class="sub">课程设计 / 期末作品 / 竞赛选题</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip gray nowrap">教学</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#ax-table">挑一个选题</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">附录 D</span>
+      <span class="chip mint">教师 / 学生通用</span>
+      <span class="chip yellow">课程设计必备</span>
+    </div>
+    <h1>课程设计选题库与评分标准</h1>
+    <p class="lead">
+      "做个 App"太宽，"做个校园 App"也还是宽。这一页解决三个问题：
+      <b>做什么</b>（20 个已拆解到功能级的选题）、<b>怎么评</b>（五维度评分表，可直接用于作业与答辩）、
+      <b>怎么推进</b>（三周迭代时间线 + 答辩提问库）。选题都可以只用本课程教过的技术完成，不需要额外的后端知识。
+    </p>
+    <div class="chapter-meta">
+      <div>🎯 选题 <strong id="axTotal">0</strong> 个</div>
+      <div>📊 评分维度 <strong>5</strong> 个</div>
+      <div>🗓 迭代周期 <strong>3</strong> 周</div>
+      <div>✅ 学生自查 <strong>10</strong> 项</div>
+    </div>
+  </div>
+</section>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ D.1 ============ -->
+      <section class="lesson-section" id="ax-table" data-nav="D.1 选题库（20 个）">
+        <div class="sec-head">
+          <span class="sec-no">D.1</span>
+          <h2>选题库：20 个可落地的校园 App</h2>
+          <span class="sec-time">先选难度，再选方向</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            每个选题都已经拆到"能照着做"的粒度：<b>核心功能</b>告诉你页面上有什么，<b>知识点</b>告诉你需要哪些章节，
+            <b>难度</b>决定了工作量。建议先按难度筛，再看方向是否符合你的兴趣。
+          </p>
+
+          <div class="ax-tools">
+            <div class="ax-search-row">
+              <input type="search" id="axSearch" class="ax-search" placeholder="搜索：课程表、表单、图片、位置、打卡…" aria-label="搜索选题" />
+              <span class="ax-count" id="axCount"></span>
+            </div>
+            <div class="ax-cats" id="axCats">
+              <button class="pg-btn active" data-fcat="all">全部</button>
+              <button class="pg-btn" data-fcat="easy">⭐ 基础</button>
+              <button class="pg-btn" data-fcat="mid">⭐⭐ 进阶</button>
+              <button class="pg-btn" data-fcat="hard">⭐⭐⭐ 挑战</button>
+              <button class="pg-btn" data-fcat="tool">工具类</button>
+              <button class="pg-btn" data-fcat="info">信息类</button>
+              <button class="pg-btn" data-fcat="service">服务类</button>
+              <button class="pg-btn" data-fcat="social">社交类</button>
+              <button class="pg-btn" data-fcat="fun">趣味类</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="cmp ax">
+              <thead>
+                <tr><th>选题</th><th>核心功能（3–5 项）</th><th>主要知识点（章节）</th><th>难度 / 方向</th></tr>
+              </thead>
+              <tbody id="axBody">
+                <tr data-cat="easy tool"><td>待办清单</td><td>新增 / 勾选 / 删除 / 过滤 / 统计</td><td>2、4、5、9</td><td>⭐ 工具类</td></tr>
+                <tr data-cat="easy tool"><td>个人主页</td><td>头像与资料卡 / 兴趣标签 / 关于我 / 深色模式</td><td>1、2、3、7</td><td>⭐ 工具类</td></tr>
+                <tr data-cat="easy tool"><td>考试倒计时</td><td>添加考试 / 剩余天数计算 / 排序 / 本地保存</td><td>4、5、9</td><td>⭐ 工具类</td></tr>
+                <tr data-cat="easy info"><td>校园通知板</td><td>列表 / 详情 / 分类筛选 / 置顶</td><td>2、4、7、8</td><td>⭐ 信息类</td></tr>
+                <tr data-cat="easy fun"><td>自习计时器</td><td>开始暂停 / 计时动画 / 历史记录 / 统计图</td><td>3、4、9</td><td>⭐ 趣味类</td></tr>
+                <tr data-cat="easy tool"><td>简易记账本</td><td>记一笔（金额 + 分类 + 备注）/ 月统计 / 删除</td><td>4、5、9</td><td>⭐ 工具类</td></tr>
+
+                <tr data-cat="mid tool"><td>校园课程表</td><td>周课表网格 / 添加课程 / 详情 / 本地保存 / 今日课程卡片</td><td>2、4、5、7、9</td><td>⭐⭐ 工具类</td></tr>
+                <tr data-cat="mid info"><td>食堂菜单与评价</td><td>按餐厅筛选 / 菜品列表 / 打分与评论 / 我的评价</td><td>2、5、7、8、9</td><td>⭐⭐ 信息类</td></tr>
+                <tr data-cat="mid service"><td>社团活动报名</td><td>活动列表 / 报名表单 / 校验 / 我的报名 / 取消报名</td><td>5、6、7、8、9</td><td>⭐⭐ 服务类</td></tr>
+                <tr data-cat="mid info"><td>失物招领墙</td><td>发布（图文）/ 列表（分页）/ 认领留言 / 我发布的</td><td>2、5、6、8、9</td><td>⭐⭐ 信息类</td></tr>
+                <tr data-cat="mid service"><td>图书馆座位预约</td><td>座位图 / 时间段选择 / 预约与取消 / 我的预约</td><td>2、4、5、7、9</td><td>⭐⭐ 服务类</td></tr>
+                <tr data-cat="mid service"><td>二手书交换</td><td>书单发布 / 搜索与筛选 / 联系发布者 / 收藏</td><td>2、5、8、9、12</td><td>⭐⭐ 服务类</td></tr>
+                <tr data-cat="mid tool"><td>兼职信息聚合</td><td>列表 / 关键词与类型筛选 / 详情 / 收藏 / 收藏夹</td><td>2、4、5、8、9</td><td>⭐⭐ 信息类</td></tr>
+                <tr data-cat="mid tool"><td>宿舍水电费提醒</td><td>录入读数 / 用量计算与图表 / 超支提醒 / 历史记录</td><td>3、4、6、9</td><td>⭐⭐ 工具类</td></tr>
+                <tr data-cat="mid fun"><td>四六级单词打卡</td><td>每日词表 / 打卡记录 / 连续天数 / 词库管理</td><td>3、4、5、9</td><td>⭐⭐ 趣味类</td></tr>
+
+                <tr data-cat="hard service"><td>校园二手交易平台</td><td>商品发布（多图）/ 列表分页 / 详情 / 搜索 / 我的发布与下架</td><td>2、5、8、9、12、13</td><td>⭐⭐⭐ 服务类</td></tr>
+                <tr data-cat="hard social"><td>学习小组组队</td><td>发布组队需求 / 加入与退出 / 成员列表 / 站内消息 / 我的组队</td><td>5、6、7、8、9</td><td>⭐⭐⭐ 社交类</td></tr>
+                <tr data-cat="hard social"><td>校园问答墙</td><td>提问 / 回答 / 点赞 / 标签分类 / 我的提问</td><td>4、5、6、8、9</td><td>⭐⭐⭐ 社交类</td></tr>
+                <tr data-cat="hard service"><td>跑腿代取（状态流转）</td><td>发布需求 / 接单 / 状态流转（待接单→配送中→完成）/ 双方评价</td><td>5、6、7、8、9</td><td>⭐⭐⭐ 服务类</td></tr>
+                <tr data-cat="hard fun"><td>运动打卡（含设备能力）</td><td>拍照打卡 / 定位签到 / 周统计 / 榜单</td><td>3、5、6、8、9、10</td><td>⭐⭐⭐ 趣味类</td></tr>
+              </tbody>
+            </table>
+            <div class="ax-empty" id="axEmpty">没有匹配的选题，换个关键词试试（例如 <b>表单</b>、<b>列表</b>、<b>定位</b>）。</div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>怎么选不后悔：</strong>
+              <p>
+                ① <b>选你真正会用的</b>——只有你自己每天用，你才会在意细节、才会反复打磨；
+                ② <b>功能宁少勿多</b>——5 个功能做透（含空态、错误态、加载态）远好过 15 个功能都只有一半；
+                ③ <b>别一上来挑"社交"</b>——涉及人与人的功能要考虑权限、隐私与异常，工作量通常是"工具类"的两倍。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ D.2 ============ -->
+      <section class="lesson-section" id="ax-score" data-nav="D.2 评分标准">
+        <div class="sec-head">
+          <span class="sec-no">D.2</span>
+          <h2>评分标准：五个维度，100 分</h2>
+          <span class="sec-time">教师可直接使用</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            评分表的设计原则：<b>可观察、可举证</b>。每一项都要求学生能拿出证据（截图、真机演示、代码片段、日志），
+            避免"老师看着像做得好就给高分"。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>维度</th><th>分值</th><th>优秀（90% 以上）</th><th>合格（60%–80%）</th><th>待改进（60% 以下）</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>功能完成度</b></td>
+                  <td>30</td>
+                  <td>需求清单全部完成，且三态齐全（加载中 / 空态 / 错误态），异常输入有处理</td>
+                  <td>主要功能可用，部分边界情况未处理</td>
+                  <td>功能缺失较多，或只在"理想数据"下能跑</td>
+                </tr>
+                <tr>
+                  <td><b>界面与交互</b></td>
+                  <td>20</td>
+                  <td>布局规范（flex + rpx/px 合理）、有设计令牌、有点击反馈与动效细节、深浅色都验证过</td>
+                  <td>布局可用，样式有少量硬编码，细节一般</td>
+                  <td>错位、字体大小不一、无点击反馈</td>
+                </tr>
+                <tr>
+                  <td><b>代码质量与结构</b></td>
+                  <td>20</td>
+                  <td>页面逻辑抽成 composable、组件复用合理、命名规范、无重复代码、类型标注完整</td>
+                  <td>结构基本合理，有少量重复代码</td>
+                  <td>所有代码堆在一个页面里，复制粘贴明显</td>
+                </tr>
+                <tr>
+                  <td><b>跨端与适配</b></td>
+                  <td>15</td>
+                  <td>浏览器与 Android 真机都验证过，记录了差异与处理方案，安全区与键盘遮挡都处理了</td>
+                  <td>真机能跑，个别平台差异未处理</td>
+                  <td>只在浏览器里跑过，真机白屏或明显错乱</td>
+                </tr>
+                <tr>
+                  <td><b>文档与答辩</b></td>
+                  <td>15</td>
+                  <td>需求与设计文档清晰，能讲清技术选型与踩坑过程，能现场回答"为什么这样写"</td>
+                  <td>文档较简单，答辩能说明主要功能</td>
+                  <td>无文档，答辩说不清实现思路</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>加分项（最多 +10 分）：</strong>
+              <p>
+                ① 打包出正式包（APK / 上架 Web 版）并给出安装或访问方式；
+                ② 做了可复用的组件库或工具函数集，并被多个页面使用；
+                ③ 用真机 release 包做过性能对比并给出数据；
+                ④ 写了自动化测试或完整的排错笔记（对应<a href="appendix-b.html">附录 B</a>）；
+                ⑤ 适配了鸿蒙 / 小程序端并说明差异处理。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>扣分项（教师需明确告知）：</strong>
+              <p>
+                ① 直接抄袭他人项目或网上下载的完整工程（一票否决）；
+                ② 提交的代码无法运行且无说明；
+                ③ 关键功能"只有界面没有逻辑"（例如按钮点了没反应）；
+                ④ 使用了 AI 生成代码但完全讲不清实现原理（可以问 1–2 个"改一行会怎样"的问题）。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ D.3 ============ -->
+      <section class="lesson-section" id="ax-plan" data-nav="D.3 三周迭代时间线">
+        <div class="sec-head">
+          <span class="sec-no">D.3</span>
+          <h2>三周迭代时间线</h2>
+          <span class="sec-time">按周交付，避免最后一周爆肝</span>
+        </div>
+        <div class="sec-body">
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>阶段</th><th>交付物</th><th>验收标准</th><th>对应章节</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>第 1 周：跑通骨架</b></td>
+                  <td>需求清单（功能列表 + 页面清单）、<code>pages.json</code> 里注册好的所有空页面、能真机运行的工程</td>
+                  <td>老师点开就能在真机上看到"首页 + 各页面能互相跳转"</td>
+                  <td>1、2、7</td>
+                </tr>
+                <tr>
+                  <td><b>第 2 周：完成核心流程</b></td>
+                  <td>主流程可用（列表 → 详情 → 表单提交 → 本地保存）、设计令牌与公共组件</td>
+                  <td>不依赖网络也能演示完整流程（数据先写死或存本地）</td>
+                  <td>3、4、5、6、9</td>
+                </tr>
+                <tr>
+                  <td><b>第 3 周：打磨与发布</b></td>
+                  <td>接入真实数据、三态处理、跨端验证记录、打包产物、演示文档与 3 分钟讲解稿</td>
+                  <td>真机演示不翻车；能回答"这里为什么这么写"</td>
+                  <td>8、10、11–13</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>给学生的推进建议：</strong>
+              <p>
+                每周结束都<b>打一个能演示的版本</b>（哪怕功能很少）。工程上这叫"可交付增量"，
+                它能避免"做完了但没法演示"和"最后一周发现方向错了"这两种最常见的翻车方式。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ D.4 ============ -->
+      <section class="lesson-section" id="ax-qa" data-nav="D.4 答辩提问库">
+        <div class="sec-head">
+          <span class="sec-no">D.4</span>
+          <h2>答辩提问库：12 个高频问题</h2>
+          <span class="sec-time">教师随机抽问，学生提前准备</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            这些问题都指向"你是不是真的理解自己写的代码"，而不是"你记不记得 API"。
+            建议学生提前用自己的项目把每一题都答一遍。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>#</th><th>问题</th><th>期望的回答要点</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>这个页面的数据里，哪些是状态，哪些是派生数据？</td><td>能区分 <code>ref</code> 与 <code>computed</code>，并说明"为什么过滤结果不用单独存"</td></tr>
+                <tr><td>2</td><td>如果接口返回为空，你的界面会是什么样？</td><td>能指出空态代码位置，并解释为什么要专门设计空态</td></tr>
+                <tr><td>3</td><td>这个列表的 <code>:key</code> 为什么用这个字段？换成 <code>index</code> 会怎样？</td><td>能说出"删除后状态错位"的具体现象</td></tr>
+                <tr><td>4</td><td>你的样式里有没有硬编码颜色？为什么改成变量？</td><td>能指出令牌定义位置与替换后的收益（改一处全站生效）</td></tr>
+                <tr><td>5</td><td>这个组件为什么这么设样式隔离策略？</td><td>能说出 <code>isolated</code> / <code>app</code> / <code>app-and-page</code> 的区别与选择理由</td></tr>
+                <tr><td>6</td><td>表单为什么要禁用提交按钮？如果你去掉会怎样？</td><td>能讲清校验、用户体验与重复提交的关系</td></tr>
+                <tr><td>7</td><td>这个请求失败了，用户会看到什么？</td><td>能指出错误分支与提示方式，而不是"只会转圈"</td></tr>
+                <tr><td>8</td><td>真机和浏览器上，这个页面有什么不一样？你怎么处理的？</td><td>能举出具体差异（键盘、选择器返回值、iOS 的 padding 等）</td></tr>
+                <tr><td>9</td><td>你的页面卸载时，有没有需要清理的东西？</td><td>能提到定时器、监听、请求取消</td></tr>
+                <tr><td>10</td><td>这个功能如果数据量变成 1000 条，会有什么问题？</td><td>能想到长列表用 <code>list-view</code>、分页、图片尺寸预设</td></tr>
+                <tr><td>11</td><td>把你项目里最得意的一段代码讲一遍。</td><td>能说清思路、权衡与替代方案，而不是只念代码</td></tr>
+                <tr><td>12</td><td>如果让你重做一遍，你会改哪三个地方？</td><td>能指出真实的技术债（结构、命名、重复代码）</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ D.5 ============ -->
+      <section class="lesson-section" id="ax-checklist" data-nav="D.5 学生上交前自查">
+        <div class="sec-head">
+          <span class="sec-no">D.5</span>
+          <h2>上交前自查：10 项清单</h2>
+          <span class="sec-time">提交前逐项打勾</span>
+        </div>
+        <div class="sec-body">
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 我的作品自查
+            <span class="chip" id="taskCounter">0 / 10 已完成</span>
+          </h3>
+          <p class="text-sub" style="margin-top:6px">点一下即可打勾，进度保存在浏览器里（自检用，不参与评分）。</p>
+
+          <div class="task-list">
+            <div class="task-item" data-task-id="axd-1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">工程能在<b>真机</b>上跑起来，所有页面都能正常进入</div><div class="task-hint">不是只在浏览器里跑通</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">所有列表都有<b>空态</b>，所有请求都有<b>加载态</b>与<b>失败提示</b></div><div class="task-hint">这三态是"作业"和"产品"的分界线</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">每个 <code>v-for</code> 都有唯一且稳定的 <code>:key</code></div><div class="task-hint">删除与排序后状态不错位</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">颜色、间距、圆角都收进了设计令牌，页面里几乎没有硬编码色值</div><div class="task-hint">搜索 <code>#</code> 检查一遍</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">每个 <code>&lt;script setup&gt;</code> 超过 80 行的页面，都问过自己"哪一段该抽出去"</div><div class="task-hint">逻辑抽成 composable 函数，组件抽到 <code>components/</code></div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-6">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">所有表单都有校验、禁用提交与防重复提交</div><div class="task-hint">故意连点两次提交验证过</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-7">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">静态资源都在 <code>static/</code>，图片都设了宽高或 <code>mode</code></div><div class="task-hint">避免真机空白与布局抖动</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-8">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">对照<a href="appendix-a.html">附录 A「危险写法清单」</a>排查过一遍（<code>gap</code> / <code>float</code> / 标签选择器 / 伪元素 / 全局 class）</div><div class="task-hint">"浏览器正常、真机不对"的问题八成在这里</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-9">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">准备了 3 分钟演示稿：一句话说明解决什么问题 → 演示主流程 → 讲一个踩坑与解决</div><div class="task-hint">按这个结构讲，答辩分数会明显更高</div></div>
+            </div>
+            <div class="task-item" data-task-id="axd-10">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">能讲清自己代码里任何一段"为什么这么写"，包括 AI 帮忙写的部分</div><div class="task-hint">用 AI 没问题，讲不清才是问题</div></div>
+            </div>
+          </div>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>最后一句：</strong>
+              <p>
+                课程设计的价值不在于"做了多少功能"，而在于<b>你有没有把自己写的东西讲清楚、改得动</b>。
+                一个只有 4 个页面但你完全掌控的作品，胜过一个有 12 个页面但你不敢碰的作品。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="appendix-c.html">
+          <div class="dir">← 上一篇</div>
+          <div class="ttl">附录 C · 模式选型指南</div>
+        </a>
+        <a class="next" href="index.html">
+          <div class="dir">回到 →</div>
+          <div class="ttl">课程首页与完整目录</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">附录 D · 课程设计选题库与评分标准</div>
+      <div class="fnote">
+        选题与评分表可按课时与班级情况自行调整；建议把 D.2 的评分维度在开课时就发给学生，
+        让"评分标准"变成"学习目标"。附录 C《模式选型指南》将在后续补充。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>配合附录 A / B 使用</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html', current: true }
+  ]}
+];
+
+/* 选题表：关键词搜索 + 分类筛选（支持一行多个分类，用空格分隔） */
+(function () {
+  function init() {
+    var body = document.getElementById('axBody');
+    if (!body) return;
+    var rows = Array.prototype.slice.call(body.querySelectorAll('tr[data-cat]'));
+    var input = document.getElementById('axSearch');
+    var countEl = document.getElementById('axCount');
+    var emptyEl = document.getElementById('axEmpty');
+    var cats = document.getElementById('axCats');
+    var totalEl = document.getElementById('axTotal');
+    var state = { q: '', cat: 'all' };
+
+    if (totalEl) totalEl.textContent = String(rows.length);
+
+    function apply() {
+      var q = state.q.trim().toLowerCase();
+      var shown = 0;
+      rows.forEach(function (tr) {
+        var cats2 = (tr.getAttribute('data-cat') || '').split(' ');
+        var catOk = state.cat === 'all' || cats2.indexOf(state.cat) > -1;
+        var textOk = !q || tr.textContent.toLowerCase().indexOf(q) > -1;
+        var show = catOk && textOk;
+        tr.classList.toggle('ax-hidden', !show);
+        if (show) shown++;
+      });
+      if (countEl) countEl.textContent = '显示 ' + shown + ' / ' + rows.length + ' 个选题';
+      if (emptyEl) emptyEl.classList.toggle('show', shown === 0);
+    }
+
+    if (input) {
+      input.addEventListener('input', function () { state.q = input.value; apply(); });
+      input.addEventListener('search', function () { state.q = input.value; apply(); });
+    }
+    if (cats) {
+      cats.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('[data-fcat]') : null;
+        if (!btn) return;
+        state.cat = btn.getAttribute('data-fcat');
+        Array.prototype.forEach.call(cats.querySelectorAll('[data-fcat]'), function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+        apply();
+      });
+    }
+    apply();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

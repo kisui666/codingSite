@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>附录B 编译错误与真机问题排错手册 | uni-app x 大学课堂</title>
+<meta name="description" content="uni-app x 排错手册：编译与工程、样式不生效、白屏与运行期报错、数据与逻辑、真机与工具链、界面表现六类症状的原因与解决，附五步排查流程与排错记录模板。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">附录 B · 排错手册</div>
+        <div class="sub">报错时第一站 · 按症状查</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip gray nowrap">排错</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#ax-table">按症状搜索</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">附录 B</span>
+      <span class="chip mint">全课程通用</span>
+      <span class="chip yellow">建议收藏</span>
+    </div>
+    <h1>编译错误与真机问题排错手册</h1>
+    <p class="lead">
+      排错能力比写代码能力更能拉开差距。这一页把 uni-app x 学习过程中<b>最常出现的 40 多个症状</b>
+      整理成"症状 → 原因 → 解决"的速查表：搜报错关键词、搜现象描述（例如"真机白屏""颜色改不动"）都能命中。
+      表格上方还给了<b>五步排查流程</b>，遇到没收录的问题也能自己定位。
+    </p>
+    <div class="chapter-meta">
+      <div>🔍 症状条目 <strong id="axTotal">0</strong> 条</div>
+      <div>🧭 排查流程 <strong>5</strong> 步</div>
+      <div>📝 排错记录模板 <strong>1</strong> 份</div>
+      <div>✅ 上交前自查 <strong>8</strong> 项</div>
+    </div>
+  </div>
+</section>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ B.1 方法论 ============ -->
+      <section class="lesson-section" id="ax-method" data-nav="B.1 五步排查流程">
+        <div class="sec-head">
+          <span class="sec-no">B.1</span>
+          <h2>先分层，再定位：五步排查流程</h2>
+          <span class="sec-time">遇到任何问题都先用它</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            新手排错最大的问题是"到处乱改"：改一行、跑一次、还是不对、再改一行……
+            最后既没找到原因，还把原来能跑的代码改坏了。正确的做法是<b>先判断问题属于哪一层，再用排除法缩小范围</b>。
+          </p>
+
+          <div class="step-block">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-head"><h3>🔍 先看控制台，别猜</h3><span class="step-time">30 秒</span></div>
+              <p class="step-desc">
+                HBuilderX 底部的<b>控制台</b>会打印编译信息与运行日志。有红字就先解决红字——它给的往往就是文件名与行号，
+                点击日志还能跳到对应代码行。<b>没有报错的问题，才需要往下走。</b>
+              </p>
+            </div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-head"><h3>🧱 判断阶段：是编译期还是运行期</h3><span class="step-time">1 分钟</span></div>
+              <p class="step-desc">
+                <b>编译期</b>：页面根本起不来 / 报"编译失败"。多半是语法、JSON 格式、路径、类型问题。
+                <b>运行期</b>：页面出来了但报错、白屏、点了没反应。多半是数据、事件、API 调用问题。
+                <b>无报错</b>：界面不对但程序正常。多半是样式规则、跨端差异、布局高度问题。
+              </p>
+            </div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-head"><h3>✂️ 二分法与注释法缩小范围</h3><span class="step-time">2 分钟</span></div>
+              <p class="step-desc">
+                把可疑代码<b>注释掉一半</b>再跑：问题还在，说明问题在剩下的一半里；问题消失，说明就在注释掉的那一半里。
+                重复三四次就能锁定到具体几行。这是最有效的通用手段，比"凭感觉改"快十倍。
+              </p>
+            </div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <div class="step-head"><h3>📱 换端复现，判断是否跨端差异</h3><span class="step-time">2 分钟</span></div>
+              <p class="step-desc">
+                浏览器正常、真机不对 → 几乎可以确定是<b>App 端不支持该写法</b>或平台差异（对照<a href="appendix-a.html">附录 A</a> 的"危险写法清单"）。
+                两端都不对 → 是逻辑问题，回到第 3 步。
+              </p>
+            </div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              <div class="step-head"><h3>📚 用"现象 + 关键词"去查，而不是抄代码</h3><span class="step-time">5 分钟</span></div>
+              <p class="step-desc">
+                搜索时把<b>现象</b>和<b>关键词</b>一起写，例如"uni-app x 真机 图片 不显示 static"、
+                "uvue 组件 全局 class 不生效"。由于 uni-app x 版本迭代快，
+                优先看<b>官方文档与官方示例工程</b>，其次看社区问答的时间戳是否够新。
+                搜到的老 uni-app（非 x）方案要谨慎套用。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>一个能立刻止损的习惯：</strong>
+              <p>
+                在动手改之前，<b>先让当前能跑的状态"可回退"</b>（提交一次 git，或复制一份文件）。
+                排错时最怕的不是改错，而是改到最后连"原来是什么样"都记不清了。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ B.2 症状速查 ============ -->
+      <section class="lesson-section" id="ax-table" data-nav="B.2 症状速查表">
+        <div class="sec-head">
+          <span class="sec-no">B.2</span>
+          <h2>症状速查表</h2>
+          <span class="sec-time">按需查阅</span>
+        </div>
+        <div class="sec-body">
+          <div class="ax-tools">
+            <div class="ax-search-row">
+              <input type="search" id="axSearch" class="ax-search" placeholder="搜索：白屏、颜色改不动、图片、连不上、滚动、key、类型…" aria-label="搜索排错条目" />
+              <span class="ax-count" id="axCount"></span>
+            </div>
+            <div class="ax-cats" id="axCats">
+              <button class="pg-btn active" data-fcat="all">全部</button>
+              <button class="pg-btn" data-fcat="build">编译与工程</button>
+              <button class="pg-btn" data-fcat="style">样式不生效</button>
+              <button class="pg-btn" data-fcat="run">白屏与运行期报错</button>
+              <button class="pg-btn" data-fcat="data">数据与逻辑</button>
+              <button class="pg-btn" data-fcat="device">真机与工具链</button>
+              <button class="pg-btn" data-fcat="ui">界面表现</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="cmp ax">
+              <thead>
+                <tr><th>症状</th><th>最可能的原因</th><th>怎么解决</th><th>分类</th></tr>
+              </thead>
+              <tbody id="axBody">
+                <!-- 编译与工程 -->
+                <tr data-cat="build"><td>页面根本打不开 / 提示找不到页面</td><td><code>pages.json</code> 里没注册，或 <code>path</code> 写了 <code>.uvue</code> 后缀、路径与文件目录不一致</td><td><code>path</code> 不写后缀（<code>pages/index/index</code>），并且要注册；数组第一项是启动页</td><td><span class="ax-badge warn">编译</span></td></tr>
+                <tr data-cat="build"><td>报 JSON 解析失败 / Unexpected token</td><td><code>pages.json</code>、<code>manifest.json</code> 里有多余逗号或写了注释</td><td>删掉最后一项后面的逗号，去掉所有注释（JSON 不支持注释）</td><td><span class="ax-badge warn">编译</span></td></tr>
+                <tr data-cat="build"><td>新建的页面访问不到</td><td>只创建了 <code>.uvue</code> 文件，没登记到 <code>pages.json</code></td><td>在 <code>pages</code> 数组里加一项，路径不带后缀</td><td><span class="ax-badge warn">编译</span></td></tr>
+                <tr data-cat="build"><td>改了代码页面没变化</td><td>热更新失效 / 编译缓存异常</td><td>重新点一次"运行"；仍无效就停止运行再重新运行；必要时清理工程缓存</td><td><span class="ax-badge warn">编译</span></td></tr>
+                <tr data-cat="build"><td>打包时莫名失败、找不到文件</td><td>工程路径含中文、空格或特殊字符</td><td>把工程移到纯英文无空格路径（如 <code>D:\code\campus-app</code>）后重新打开</td><td><span class="ax-badge warn">编译</span></td></tr>
+                <tr data-cat="build"><td>提示某个组件不存在 / 无法解析</td><td>组件文件位置或命名不符合自动引入规则</td><td>放到项目的 <code>components</code> 目录，按组件命名规则命名；不确定就显式 <code>import</code>（第 6 章详讲）</td><td><span class="ax-badge warn">编译</span></td></tr>
+                <tr data-cat="build"><td>提示类型不匹配 / 缺少类型</td><td>变量没有类型标注，或赋了与声明不一致的值</td><td>给数据写上类型，例如 <code>ref&lt;string&gt;('')</code>、<code>ref&lt;Notice[]&gt;([])</code>；数组与对象一定要写元素类型</td><td><span class="ax-badge warn">编译</span></td></tr>
+                <tr data-cat="build"><td>提示 <code>import</code> 找不到模块</td><td>路径写错（相对路径层级）或模块不在支持的目录</td><td>核对相对路径；公共逻辑建议放在项目内的工具目录里统一引用</td><td><span class="ax-badge warn">编译</span></td></tr>
+
+                <!-- 样式不生效 -->
+                <tr data-cat="style"><td>文字颜色 / 字号改不动</td><td>样式写在了 <code>view</code> 上，而 App 端<b>样式不继承</b></td><td>把文字样式写到 <code>text</code> 组件（或它的 class）上</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td>元素全都竖着排，想要横排</td><td>uvue 默认 <code>flex-direction: column</code></td><td>显式写 <code>flex-direction: row</code></td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td>元素之间的间距没生效</td><td>用了 <code>gap</code> / <code>row-gap</code>，App 端不支持</td><td>改成 <code>margin</code>；网格布局给格子加 <code>padding</code></td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td>整块样式完全不生效</td><td>用了标签选择器（<code>text {}</code>）、<code>#id</code>、属性选择器、<code>*</code></td><td>只用 class 选择器；class 名只允许字母数字下划线短横线</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td><code>::before</code> / <code>:active</code> 一点效果都没有</td><td>App 端不支持伪元素与伪类</td><td>装饰用真实的 <code>view</code> 节点；点击态用组件的 <code>hover-class</code> 属性</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td>点击没有任何反馈</td><td><code>hover-class</code> 默认值是 <code>none</code></td><td>显式指定 <code>hover-class="xxx"</code> 并在样式里定义该类</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td>放进自定义组件后样式全没了</td><td>组件默认隔离策略是 <code>isolated</code>，引用不到全局 / 页面 class</td><td>组件里声明 <code>defineOptions({ styleIsolation: 'app' })</code>，或用 <code>externalClasses</code> 开放定制口（第 3 章）</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td>同名 class 的覆盖关系和我预期相反</td><td>优先级规则与 Web 不同</td><td>优先级：内联 style &gt; class；同名合并：页面 &gt; 组件 &gt; 全局；同权重时按<b>组件 class 属性书写顺序</b>，后写的赢</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td><code>rem</code> / <code>em</code> 不生效</td><td>官方长度单位只列了 px、rpx 与百分比</td><td>字号与间距用 <code>px</code>（推荐），需要等比缩放时用 <code>rpx</code></td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td><code>calc()</code> 计算结果不对或不生效</td><td>官方对 App 端 calc 的说明前后矛盾</td><td>避开 calc：用 <code>margin</code> / <code>padding</code> 补足，或改成固定值；确实要用先在真机验证</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td>深色模式下颜色没跟着变</td><td>没有用媒体查询 / CSS 变量，或版本低于要求</td><td>用 <code>@media (prefers-color-scheme)</code> + CSS 变量（App 端需 HBuilderX 5.25+ 蒸汽模式）；更早版本用监听 + 动态 class</td><td><span class="ax-badge no">样式</span></td></tr>
+                <tr data-cat="style"><td><code>scoped</code> 写了没效果</td><td>非 Web 平台不支持 css scoped</td><td>删掉 <code>scoped</code>，改用官方样式隔离策略管理范围</td><td><span class="ax-badge no">样式</span></td></tr>
+
+                <!-- 白屏与运行期报错 -->
+                <tr data-cat="run"><td>真机白屏，控制台有红字</td><td>运行期报错，页面没渲染出来</td><td>看控制台<b>第一条</b>报错（后面的往往是它的连锁反应），按文件行号定位；用注释法二分</td><td><span class="ax-badge no">运行</span></td></tr>
+                <tr data-cat="run"><td>白屏但控制台没有任何报错</td><td>页面路径错了；或根节点高度为 0（内容存在但看不见）</td><td>先核对 <code>pages.json</code> 的启动页；再检查页面根节点是否写了 <code>flex: 1</code></td><td><span class="ax-badge no">运行</span></td></tr>
+                <tr data-cat="run"><td>页面有内容但只占屏幕一点点</td><td>根节点没有 <code>flex: 1</code>，高度由内容决定</td><td>页面最外层 <code>view</code> 加 <code>flex: 1</code> 并用一个 class 设背景色</td><td><span class="ax-badge no">运行</span></td></tr>
+                <tr data-cat="run"><td>报错 <code>undefined is not an object</code> / 读不到属性</td><td>数据还没拿到就渲染了，或初值是 <code>null</code></td><td>给响应式数据合理初值（空数组 / 空字符串），渲染前用 <code>v-if</code> 判断</td><td><span class="ax-badge no">运行</span></td></tr>
+                <tr data-cat="run"><td>点击按钮没有任何反应</td><td>写成了 <code>onclick</code>，或函数名拼错，或被上层元素挡住</td><td>用 <code>@click="fn"</code>（写函数名，不加括号）；检查是否有绝对定位元素覆盖</td><td><span class="ax-badge no">运行</span></td></tr>
+                <tr data-cat="run"><td>控制台里看不到 <code>console.log</code></td><td>看错了位置（在看浏览器控制台，而代码跑在真机）</td><td>日志在 HBuilderX 底部控制台；真机上可用 <code>uni.showModal</code> 直接显示结果</td><td><span class="ax-badge no">运行</span></td></tr>
+                <tr data-cat="run"><td>页面切换后报错 / 定时器还在跑</td><td>页面卸载时没有清理定时器或监听</td><td>在 <code>onUnload</code> / 组件卸载钩子里 <code>clearInterval</code>、取消监听</td><td><span class="ax-badge no">运行</span></td></tr>
+
+                <!-- 数据与逻辑 -->
+                <tr data-cat="data"><td>改了变量，界面完全不变</td><td>改的是普通变量而不是响应式数据，或忘了写 <code>.value</code></td><td>用 <code>ref</code> 声明并在脚本里通过 <code>xxx.value</code> 读写；模板里直接写变量名</td><td><span class="ax-badge no">数据</span></td></tr>
+                <tr data-cat="data"><td>数组 push 之后界面没更新</td><td>整体替换比原地修改更可靠</td><td>改成整体赋值：<code>list.value = list.value.concat(item)</code>，或先取出数组再赋值回去</td><td><span class="ax-badge no">数据</span></td></tr>
+                <tr data-cat="data"><td>列表删除 / 排序后内容错位、状态串行</td><td><code>v-for</code> 的 <code>:key</code> 用了 <code>index</code></td><td>把 <code>:key</code> 换成唯一且稳定的值（后端 id 最理想）</td><td><span class="ax-badge no">数据</span></td></tr>
+                <tr data-cat="data"><td>列表项里的输入框内容跑到了别的行</td><td>同上，组件状态被复用到错误的项上</td><td>同上；不要用 <code>index</code>、也不要用可能重复的字段当 key</td><td><span class="ax-badge no">数据</span></td></tr>
+                <tr data-cat="data"><td>计算属性不更新</td><td>它依赖的数据不是响应式的</td><td>确认依赖项都由 <code>ref</code> / <code>reactive</code> 声明</td><td><span class="ax-badge no">数据</span></td></tr>
+                <tr data-cat="data"><td><code>watch</code> 不触发</td><td>监听的目标写错，或对象内部变化需要更深的监听</td><td>确认监听的是响应式数据本身；监听对象内部字段时直接监听那个字段，或打开深监听</td><td><span class="ax-badge no">数据</span></td></tr>
+                <tr data-cat="data"><td>页面返回后数据丢失 / 没有刷新</td><td>数据只在 <code>onLoad</code> 里取过一次，返回时不会重新执行</td><td>把"每次显示都要刷新"的逻辑放到 <code>onPageShow</code>；或返回值给上一页（第 7 章）</td><td><span class="ax-badge no">数据</span></td></tr>
+                <tr data-cat="data"><td>请求回来的数据渲染报错</td><td>接口结构与假设不一致（字段名、层级、空值）</td><td>先 <code>console.log</code> 打印完整返回结构再写渲染代码；对空数组做兜底</td><td><span class="ax-badge no">数据</span></td></tr>
+
+                <!-- 真机与工具链 -->
+                <tr data-cat="device"><td>真机运行列表里看不到手机</td><td>USB 线只能充电、手机没点"允许调试"、缺驱动、手机处于"仅充电/U盘"模式</td><td>换一根支持数据传输的线 → 手机上允许 USB 调试 → 装厂商驱动 → 切换为"传输文件"模式</td><td><span class="ax-badge no">真机</span></td></tr>
+                <tr data-cat="device"><td>真机上图片是空白，浏览器正常</td><td>图片不在 <code>static/</code> 目录，没被编译进包</td><td>把图片移到 <code>static/</code>，引用写 <code>/static/xxx.png</code>；网络图与 base64 也可用</td><td><span class="ax-badge no">真机</span></td></tr>
+                <tr data-cat="device"><td>iOS 真机无法运行</td><td>iOS 真机早已不支持标准基座</td><td>申请证书制作自定义基座，或用 Mac 上的 iOS 模拟器；Windows 连接 iPhone 还需安装 iTunes 并信任电脑</td><td><span class="ax-badge no">真机</span></td></tr>
+                <tr data-cat="device"><td>运行到小程序打不开</td><td>没安装对应开发者工具，或未配置工具路径 / 服务端口</td><td>安装微信开发者工具并在 HBuilderX 设置里配置路径；运行时注意底部状态栏选择的平台</td><td><span class="ax-badge no">真机</span></td></tr>
+                <tr data-cat="device"><td>在真机上很卡，但浏览器流畅</td><td>开发期跑的是 debug 基座</td><td>测性能必须打 <b>release 正式包</b>；debug 模式的耗时不能当结论</td><td><span class="ax-badge no">真机</span></td></tr>
+                <tr data-cat="device"><td>改了代码真机没更新</td><td>差量热刷失败或基座缓存</td><td>重新点运行；仍无效就在手机上删除基座应用后重新安装运行</td><td><span class="ax-badge no">真机</span></td></tr>
+
+                <!-- 界面表现 -->
+                <tr data-cat="ui"><td>图片被压扁 / 拉长变形</td><td><code>mode</code> 默认是 <code>scaleToFill</code>（拉伸填满）</td><td>头像与封面用 <code>aspectFill</code>，需要完整显示用 <code>aspectFit</code>，宽度自适应用 <code>widthFix</code></td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>图片两侧 / 上下出现留白</td><td>用了 <code>aspectFit</code>（保持比例完整显示）</td><td>想要铺满就换 <code>aspectFill</code>；想让高度自适应就换 <code>widthFix</code></td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>图片把布局撑开了</td><td><code>image</code> 不写宽高时用默认尺寸 320 × 240</td><td>务必显式设置 <code>width</code> / <code>height</code>，或用 <code>widthFix</code></td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td><code>scroll-view</code> 完全滚不动</td><td>内容高度没有超过 scroll-view 自身高度（没设高度时它和内容一样高）</td><td>给 <code>scroll-view</code> 设固定 <code>height</code>，或用 <code>flex: 1</code> 撑满剩余空间</td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>上拉加载一次触发很多遍</td><td>没有加"加载中"锁，滚动到底反复触发</td><td>用 <code>loading</code> 标记在最前面 <code>return</code>；同时用 <code>noMore</code> 标记停止请求</td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>下拉刷新一直转圈停不下来</td><td><code>refresher-triggered</code> 没有设回 <code>false</code></td><td>刷新完成后（成功或失败都要）把 <code>refresher-triggered</code> 置为 false</td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>文字被容器裁掉 / 省略号不出现</td><td>没有宽度，或缺少 <code>text-overflow</code> 与 <code>white-space</code></td><td>单行：确定宽度 + <code>text-overflow: ellipsis</code> + <code>white-space: nowrap</code>；多行：用 <code>text</code> 的 <code>:max-lines</code></td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>底部按钮被手机手势条挡住</td><td>没有适配安全区</td><td>底栏补 <code>padding-bottom: var(--uni-safe-area-inset-bottom)</code>（HBuilderX 4.52+），不要用已废弃的 <code>--window-bottom</code></td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>几百条数据滚动明显卡顿</td><td>一次性渲染了大量节点</td><td>长列表改用 <code>list-view</code> + <code>list-item</code>，并补全 <code>:key</code>；图片先定尺寸</td><td><span class="ax-badge no">界面</span></td></tr>
+                <tr data-cat="ui"><td>浏览器好看，真机排版错乱</td><td>用了 Web 支持的写法（标签选择器、伪元素、float 等）</td><td>逐条对照<a href="appendix-a.html">附录 A「危险写法清单」</a>排查</td><td><span class="ax-badge no">界面</span></td></tr>
+              </tbody>
+            </table>
+            <div class="ax-empty" id="axEmpty">没有匹配的症状，换个关键词试试（例如 <b>白屏</b>、<b>static</b>、<b>key</b>、<b>连不上</b>）。</div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>搜索建议：</strong>
+              <p>搜<b>现象</b>比搜报错原文更容易命中，例如"颜色改不动""滚不动""真机白屏"；也可以搜你怀疑的关键词，如 <code>gap</code>、<code>static</code>、<code>key</code>。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ B.3 调试手法 ============ -->
+      <section class="lesson-section" id="ax-debug" data-nav="B.3 四个调试手法">
+        <div class="sec-head">
+          <span class="sec-no">B.3</span>
+          <h2>四个够用的调试手法</h2>
+          <span class="sec-time">10 分钟 · 动手照抄</span>
+        </div>
+        <div class="sec-body">
+          <p>不需要复杂工具，把这四招用熟，能解决你 95% 的问题。</p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">调试代码片段：打印、弹窗、兜底、看结构</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  // ① 打印：最常用。位置在 HBuilderX 底部「控制台」，真机运行也会打印
+  const onLoad = () =&gt; {
+    console.log('页面加载了')
+  }
+
+  // ② 弹窗：不依赖电脑，直接在手机屏幕上看到结果（真机调试神器）
+  const check = () =&gt; {
+    uni.showModal({ 'title': '调试', 'content': '走到了这一步', 'showCancel': false })
+  }
+
+  // ③ 兜底：把可疑代码包起来，先保证程序不崩，同时把错误打出来
+  const safeParse = (text: string) =&gt; {
+    try {
+      return JSON.parse(text)
+    } catch (e) {
+      console.log('解析失败：', e)
+      return null
+    }
+  }
+
+  // ④ 看结构：拿到接口数据先原样打印，确认字段名与层级再写渲染代码
+  const showShape = (data: any) =&gt; {
+    console.log('数据结构：', JSON.stringify(data))
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>手法</th><th>用来回答什么问题</th><th>什么时候用</th></tr></thead>
+              <tbody>
+                <tr><td><b>console.log 定位法</b></td><td>"这段代码到底有没有执行到？变量此刻是什么值？"</td><td>逻辑不对、数据不对时，在关键分支前后各打一条</td></tr>
+                <tr><td><b>uni.showModal 弹窗法</b></td><td>"真机上这一步的结果是什么？"</td><td>手机不方便连电脑看日志时</td></tr>
+                <tr><td><b>注释二分法</b></td><td>"问题出在哪一半代码里？"</td><td>白屏、报错、卡死，且日志指向不明时</td></tr>
+                <tr><td><b>最简复现法</b></td><td>"是环境问题还是我的代码问题？"</td><td>怀疑工程本身有问题时：新建一个空页面只放一行文字，能跑说明环境没问题</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ B.4 记录与自查 ============ -->
+      <section class="lesson-section" id="ax-log" data-nav="B.4 排错记录与上交自查">
+        <div class="sec-head">
+          <span class="sec-no">B.4</span>
+          <h2>排错记录模板 &amp; 上交前自查</h2>
+          <span class="sec-time">养成习惯</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            把每次解决的问题记下来，一学期后你就有了自己的"专属排错手册"——这比任何教程都有用，
+            也是面试时"你解决过什么难题"的真实素材。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">排错记录（复制到自己的笔记里）</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="bash">
+【日期】2026-10-11
+【现象】真机上课程封面图一直空白，浏览器里能正常显示
+【定位过程】
+  1. 控制台无报错 → 排除运行期错误
+  2. 换了一张网络图能显示 → 说明 image 组件本身没问题
+  3. 怀疑路径 → 查看官方文档，确认只有 static 目录会被编译进包
+【原因】图片放在 pages/demo/img/ 下，没有被编译打包
+【解决】移到 static/，引用改为 /static/cover.png
+【记住的一句话】App 端静态资源只认 static 目录</pre></div>
+          </div>
+
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 提交作业 / 提问前自查
+            <span class="chip" id="taskCounter">0 / 8 已完成</span>
+          </h3>
+          <p class="text-sub" style="margin-top:6px">点一下即可打勾，进度保存在浏览器里。老师最怕看到"跑不起来"这三个字外加一张截图。</p>
+
+          <div class="task-list">
+            <div class="task-item" data-task-id="axb-1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">控制台有没有红字？第一条报错是什么？</div><div class="task-hint">把第一条报错的完整文字复制下来，而不是只截半张图</div></div>
+            </div>
+            <div class="task-item" data-task-id="axb-2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">这个问题在浏览器端能复现吗？（能 → 逻辑问题；不能 → 跨端差异）</div><div class="task-hint">两端都测一遍，这个信息能省掉一半排查时间</div></div>
+            </div>
+            <div class="task-item" data-task-id="axb-3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">用注释法确认过问题出在哪一半代码里吗？</div><div class="task-hint">把范围缩到 10 行以内，问题基本就自己暴露了</div></div>
+            </div>
+            <div class="task-item" data-task-id="axb-4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">对照过附录 A 的"危险写法清单"吗？（gap / float / 标签选择器 / 伪元素 / 全局 class）</div><div class="task-hint">"浏览器正常真机不对"的问题，八成在这里</div></div>
+            </div>
+            <div class="task-item" data-task-id="axb-5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">新页面注册到 <code>pages.json</code> 了吗？路径有没有写后缀？</div><div class="task-hint">"页面打不开"最常见的原因</div></div>
+            </div>
+            <div class="task-item" data-task-id="axb-6">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">静态资源（图片、字体）都放在 <code>static/</code> 里了吗？</div><div class="task-hint">真机不显示图片的第一嫌疑</div></div>
+            </div>
+            <div class="task-item" data-task-id="axb-7">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把问题代码放到一个空页面里，还能复现吗？</div><div class="task-hint">能复现 → 问题在你的代码；不能 → 可能是工程或环境问题</div></div>
+            </div>
+            <div class="task-item" data-task-id="axb-8">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">提问时准备好三样东西：报错原文、最小复现代码、已尝试过的办法</div><div class="task-hint">这样提问，老师或同学才帮得上你（也是职场上的基本素养）</div></div>
+            </div>
+          </div>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>最后一句：</strong>
+              <p>
+                报错是<b>信息</b>，不是失败。会看报错的人，学习速度是别人的三倍——
+                因为每次报错都在精确地告诉你"你理解错了哪个点"。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="appendix-a.html">
+          <div class="dir">← 上一篇</div>
+          <div class="ttl">附录 A · Web → uni-app x 速查表</div>
+        </a>
+        <a class="next" href="appendix-c.html">
+          <div class="dir">下一篇 →</div>
+          <div class="ttl">附录 C · 模式选型指南</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">附录 B · 编译错误与真机问题排错手册</div>
+      <div class="fnote">
+        条目依据 DCloud 官方文档与常见实践整理。不同 HBuilderX 版本的报错文案可能不同，
+        但"原因—解决"的对应关系是稳定的；遇到未收录的问题，请按 B.1 的五步流程自行定位，并把结果记进自己的排错笔记。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>配合附录 A 使用效果最好</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html', current: true },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+
+/* 排错表：关键词搜索 + 分类筛选 */
+(function () {
+  function init() {
+    var body = document.getElementById('axBody');
+    if (!body) return;
+    var rows = Array.prototype.slice.call(body.querySelectorAll('tr[data-cat]'));
+    var input = document.getElementById('axSearch');
+    var countEl = document.getElementById('axCount');
+    var emptyEl = document.getElementById('axEmpty');
+    var cats = document.getElementById('axCats');
+    var totalEl = document.getElementById('axTotal');
+    var state = { q: '', cat: 'all' };
+
+    if (totalEl) totalEl.textContent = String(rows.length);
+
+    function apply() {
+      var q = state.q.trim().toLowerCase();
+      var shown = 0;
+      rows.forEach(function (tr) {
+        var catOk = state.cat === 'all' || tr.getAttribute('data-cat') === state.cat;
+        var textOk = !q || tr.textContent.toLowerCase().indexOf(q) > -1;
+        var show = catOk && textOk;
+        tr.classList.toggle('ax-hidden', !show);
+        if (show) shown++;
+      });
+      if (countEl) countEl.textContent = '显示 ' + shown + ' / ' + rows.length + ' 条';
+      if (emptyEl) emptyEl.classList.toggle('show', shown === 0);
+    }
+
+    if (input) {
+      input.addEventListener('input', function () { state.q = input.value; apply(); });
+      input.addEventListener('search', function () { state.q = input.value; apply(); });
+    }
+    if (cats) {
+      cats.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('[data-fcat]') : null;
+        if (!btn) return;
+        state.cat = btn.getAttribute('data-fcat');
+        Array.prototype.forEach.call(cats.querySelectorAll('[data-fcat]'), function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+        apply();
+      });
+    }
+    apply();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

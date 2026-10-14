@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>附录C 模式选型指南：蒸汽模式 / VDOM+UTS / 原生插件 | uni-app x 大学课堂</title>
+<meta name="description" content="uni-app x 选型指南：蒸汽模式与 VDOM+UTS 的对照、语言策略与平台门槛、内置能力与 JS 库与 uts 插件的三选一、老项目升级路径，以及官方文档中已知的矛盾与未确认项。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">附录 C · 模式选型指南</div>
+        <div class="sub">开工前先定技术路线</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip gray nowrap">选型</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#ax-decide">做一次选型</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">附录 C</span>
+      <span class="chip mint">全课程通用</span>
+      <span class="chip yellow">开工前必读</span>
+    </div>
+    <h1>模式选型指南：蒸汽模式 / VDOM + UTS / 原生插件</h1>
+    <p class="lead">
+      uni-app x 目前有<b>两条技术路线</b>（蒸汽模式、VDOM 模式），以及<b>三种扩展能力</b>（内置组件与 API、纯 JS 库、uts 插件）。
+      选错的代价是"写到一半发现某能力不支持"或"老项目升级踩坑"。
+      这一页把它们的分工、门槛与升级路径讲清楚，并<b>如实列出官方文档中已知的矛盾与未确认项</b>——这一点对做技术决策同样重要。
+    </p>
+    <div class="chapter-meta">
+      <div>🧭 技术路线 <strong>2</strong> 条</div>
+      <div>🧩 扩展方式 <strong>3</strong> 种</div>
+      <div>⚠ 已知矛盾/未确认 <strong>7</strong> 项</div>
+      <div>✅ 决策自查 <strong>5</strong> 问</div>
+    </div>
+  </div>
+</section>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ C.1 ============ -->
+      <section class="lesson-section" id="ax-compare" data-nav="C.1 两条路线对照">
+        <div class="sec-head">
+          <span class="sec-no">C.1</span>
+          <h2>先看清两条路线：蒸汽模式 vs VDOM 模式</h2>
+          <span class="sec-time">10 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>对比项</th><th>蒸汽模式（本课程主线）</th><th>VDOM 模式（历史路线）</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>用什么写</b></td>
+                  <td>标准 <b>Vue + TS/JS</b> + CSS 子集（与 Web 开发一致）</td>
+                  <td><b>UTS</b>（基于 TS 的强类型语言）+ Vue</td>
+                </tr>
+                <tr>
+                  <td><b>script 语言</b></td>
+                  <td>HBuilderX 5.31 前：不要手写 <code>lang</code>（统一走 uts2js，强行设成 ts/js 反而可能触发问题）；<br />5.31+：可写 <code>uts</code> / <code>ts</code> / <code>js</code>，不写则取 <code>manifest.json</code> 的全局配置，<b>默认是 ts</b></td>
+                  <td>只能是 <code>lang="uts"</code></td>
+                </tr>
+                <tr>
+                  <td><b>类型要求</b></td>
+                  <td>运行在 JS 环境，<b>不再要求强类型</b>（TS 类型仅开发期生效，运行期被擦除）</td>
+                  <td>Android 端按 uts2kt 执行时<b>要求强类型</b></td>
+                </tr>
+                <tr>
+                  <td><b>API 写法限制</b></td>
+                  <td>仅支持组合式 API，<b>不支持选项式与 mixin</b></td>
+                  <td>组合式与选项式可混用</td>
+                </tr>
+                <tr>
+                  <td><b>样式隔离</b></td>
+                  <td>仅支持<b>样式隔离策略 2.0</b></td>
+                  <td>默认老策略，需在 <code>manifest.json</code> 里配 <code>uni-app-x.styleIsolationVersion: "2"</code> 才启用 2.0</td>
+                </tr>
+                <tr>
+                  <td><b>特殊类型</b></td>
+                  <td>没有 <code>UTSJSONObject</code> 专有方法，<code>type</code> 会被擦除</td>
+                  <td><code>UTSJSONObject</code> 支持 <code>getString</code> / <code>getNumber</code> / <code>getArray</code> 等专有方法；<code>type</code> 会编译成 class；部分内置 API 的 <code>undefined</code> 被改为 <code>null</code></td>
+                </tr>
+                <tr>
+                  <td><b>渲染性能</b></td>
+                  <td>视图层（<code>template</code> + <code>style</code>）在编译期静态分析，编译为高度优化的机器码/字节码，官方 benchmark 显示渲染优于原生实现</td>
+                  <td>存在 VDOM 开销，官方对比中慢于蒸汽模式</td>
+                </tr>
+                <tr>
+                  <td><b>编译到 Web / 小程序</b></td>
+                  <td colspan="2" style="color:#C2410C"><b>注意：蒸汽模式编译到 Web / 小程序端时，目前仍按 VDOM 模式运行</b>——这两端的运行特性与 App 端会有差异，调试时别混淆</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>为什么本课程主线选蒸汽模式？</strong>
+              <p>
+                ① <b>对你们的知识结构最友好</b>：已经会 H5/CSS3/JS，蒸汽模式用的就是 Vue + TS + CSS 子集，几乎不需要再学一门语言；
+                ② <b>官方推荐新项目使用</b>，且 5.25+ 新建工程默认就是蒸汽模式；
+                ③ <b>性能路线更优</b>（编译期静态分析 + 机器码/字节码）；
+                ④ <b>AI 工具与生态支持更好</b>（官方明确说明蒸汽模式对 AI 更友好）。
+                代价是：Uts 插件开发仍然需要 UTS——所以我们在第 10 章会讲清"什么时候必须碰 UTS"。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ C.2 ============ -->
+      <section class="lesson-section" id="ax-limits" data-nav="C.2 版本与平台门槛">
+        <div class="sec-head">
+          <span class="sec-no">C.2</span>
+          <h2>版本与平台门槛：先确认"能不能跑"</h2>
+          <span class="sec-time">10 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>做技术选型，第一步永远是确认门槛。下面这些数字会直接决定"你的目标用户装得上吗"。</p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>项目</th><th>蒸汽模式</th><th>VDOM 模式</th></tr></thead>
+              <tbody>
+                <tr><td><b>HBuilderX 起始版本</b></td><td>鸿蒙 <b>5.0</b>、iOS <b>5.11</b>、Android <b>5.21</b></td><td>更早的版本即支持（uni-app x 初代路线）</td></tr>
+                <tr><td><b>最低系统版本</b></td><td>Android <b>6+</b>、iOS <b>15+</b>、鸿蒙 <b>API20+</b></td><td>Android <b>5+</b>、iOS <b>12+</b>、鸿蒙 <b>API14+</b></td></tr>
+                <tr><td><b>Web 端运行环境</b></td><td colspan="2">发行模式最低 Chrome 64 / Safari 11.1 / Firefox 62 / Edge 79；运行模式最低 Chrome 66</td></tr>
+                <tr><td><b>媒体查询适配暗黑模式</b></td><td>App 端需 <b>HBuilderX 5.25+</b></td><td>不支持（需用监听 + 动态 class）</td></tr>
+                <tr><td><b>页面默认可滚动</b></td><td>HBuilderX <b>5.12+</b> 起页面默认可滚动（要禁用就配 <code>disableScroll</code>）</td><td>不同</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>选型时最容易被忽略的一句：</strong>
+              <p>
+                <b>如果你的课程项目要交给同学安装体验，请写明最低系统要求。</b>
+                "iOS 15+"意味着 iPhone 6s 之后的机型基本都可以，但更老的设备装不上；
+                "Android 6+"覆盖面很广，基本没有障碍。
+                这类"非技术"的约束，往往是汇报时被问到却答不上来的那一类问题。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ C.3 ============ -->
+      <section class="lesson-section" id="ax-extend" data-nav="C.3 扩展能力三选一">
+        <div class="sec-head">
+          <span class="sec-no">C.3</span>
+          <h2>要一个能力时：内置 → JS 库 → uts 插件</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>当你想实现某个功能时，按下面顺序找答案，越靠前越省事：</p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>顺序</th><th>方式</th><th>适用</th><th>成本</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>①</b></td>
+                  <td>官方<b>内置组件与 API</b></td>
+                  <td>绝大多数需求：网络、存储、相机相册、扫码、定位、剪贴板、系统信息、弹窗……</td>
+                  <td>最低。先查官方组件/API 清单，八成能直接找到</td>
+                </tr>
+                <tr>
+                  <td><b>②</b></td>
+                  <td><b>插件市场 / uni_modules</b></td>
+                  <td>官方没内置、但别人封装好的能力（UI 库、图表、原生 SDK 桥接）</td>
+                  <td>低。安装即用；<b>需确认插件是否声明支持 uni-app x 与蒸汽模式</b></td>
+                </tr>
+                <tr>
+                  <td><b>③</b></td>
+                  <td><b>纯 JS/TS 库（npm）</b></td>
+                  <td>纯逻辑库：日期处理、工具函数、状态管理</td>
+                  <td>低。<b>蒸汽模式下纯 JS 库通常可直接用于 App 平台</b>；但依赖 <code>window</code> / <code>document</code> 的库不可用</td>
+                </tr>
+                <tr>
+                  <td><b>④</b></td>
+                  <td><b>uts 插件（含原生混编）</b></td>
+                  <td>调用某个平台的专属能力、对接第三方原生 SDK、需要强类型跨端一致</td>
+                  <td>最高。需要写 UTS，可能要写 Kotlin/Swift/ArkTS 混编</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>一句话判断"要不要写 UTS"：</strong>
+              <p>
+                如果这个能力<b>某个平台的原生代码里有、而 uni 的跨端 API 里没有</b>，才需要 UTS 插件。
+                例如：读取某些系统级传感器、对接厂商推送 SDK、调用某个银行/支付 SDK。
+                反过来，"获取定位""扫码""选择相册"这类高频需求官方都已内置，<b>不需要写 UTS</b>。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ C.4 ============ -->
+      <section class="lesson-section" id="ax-decide" data-nav="C.4 选型决策器">
+        <div class="sec-head">
+          <span class="sec-no">C.4</span>
+          <h2>动手做一次选型：回答三个问题</h2>
+          <span class="sec-time">10 分钟 · 互动</span>
+        </div>
+        <div class="sec-body">
+          <p>点选项，下面会给出针对你情况的建议（建议基于前面几节的官方事实推得，不是"标准答案"，最终以你的项目约束为准）。</p>
+
+          <div class="playground" id="decider">
+            <div class="pg-left">
+              <div class="table-wrap" style="margin-top:0">
+                <table class="cmp" style="min-width:auto">
+                  <tbody>
+                    <tr>
+                      <td style="white-space:nowrap"><b>① 项目状态</b></td>
+                      <td><button class="pg-btn" data-q="q1" data-v="new">全新项目</button> <button class="pg-btn" data-q="q1" data-v="old">老项目升级</button></td>
+                    </tr>
+                    <tr>
+                      <td style="white-space:nowrap"><b>② 是否需要原生专属能力</b></td>
+                      <td><button class="pg-btn" data-q="q2" data-v="none">不需要</button> <button class="pg-btn" data-q="q2" data-v="some">需要封装原生 SDK</button></td>
+                    </tr>
+                    <tr>
+                      <td style="white-space:nowrap"><b>③ 主要发布端</b></td>
+                      <td><button class="pg-btn" data-q="q3" data-v="app">App 为主</button> <button class="pg-btn" data-q="q3" data-v="mp">小程序 / Web 为主</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="callout info" id="decideResult" style="margin-top:14px"></div>
+            </div>
+            <div class="pg-right">
+              <div class="device" style="width:270px">
+                <div class="device-screen" style="height:400px">
+                  <div class="device-status"><span>9:41</span><span class="r">▮▮▮ <span class="bat"></span></span></div>
+                  <div class="uvue-navbar" id="decideTitle">建议路线</div>
+                  <div class="uvue-page" style="padding:14px;gap:10px" id="decideScreen"></div>
+                </div>
+              </div>
+              <div class="uvue-caption">选型结果示意</div>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">不同路线的 script 写法差异（最直观的区别）</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="vapor">蒸汽模式</button>
+              <button class="code-tab" data-tab="vdom">VDOM 模式</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="vapor"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;text class="title"&gt;{{ title }}&lt;/text&gt;
+    &lt;text class="num"&gt;{{ count }}&lt;/text&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;!-- 蒸汽模式：不写 lang（5.31 前）或按 manifest 全局配置；仅支持组合式 --&gt;
+&lt;script setup&gt;
+  const title = ref&lt;string&gt;('蒸汽模式')
+  const count = ref&lt;number&gt;(0)
+&lt;/script&gt;
+
+&lt;style&gt;
+  .page { flex: 1; padding: 16px; }
+  .title { font-size: 16px; font-weight: bold; }
+  .num { font-size: 14px; color: #5A6B8C; }
+&lt;/style&gt;</pre></div>
+              <div class="code-pane" data-pane="vdom"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;text class="title"&gt;{{ title }}&lt;/text&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;!-- VDOM 模式：lang 必须是 uts；Android 端按 uts2kt 执行时要求强类型 --&gt;
+&lt;script setup lang="uts"&gt;
+  const title: string = 'VDOM 模式'
+  // 复杂结构需要定义类型；还能用 UTSJSONObject 的 getString / getNumber 等方法
+  type Notice = {
+    id: number,
+    title: string
+  }
+&lt;/script&gt;
+
+&lt;style&gt;
+  .page { flex: 1; padding: 16px; }
+&lt;/style&gt;</pre></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ C.5 ============ -->
+      <section class="lesson-section" id="ax-upgrade" data-nav="C.5 老项目升级路径">
+        <div class="sec-head">
+          <span class="sec-no">C.5</span>
+          <h2>老项目升级：从 uni-app / VDOM 到蒸汽模式</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            现实项目里你更可能遇到的是"<b>维护一个老项目</b>"。官方给出了升级指南与转换思路，
+            下面把它整理成可以照着做的步骤。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>阶段</th><th>要做什么</th><th>怎么判断做完了</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>① 先跑起来</b></td>
+                  <td>用新版 HBuilderX 打开工程，先让它能编译运行，<b>不要一上来就改代码</b></td>
+                  <td>能在浏览器或真机上打开首页</td>
+                </tr>
+                <tr>
+                  <td><b>② 选项式 → 组合式</b></td>
+                  <td><code>data</code> / <code>methods</code> / 生命周期改写成 <code>&lt;script setup&gt;</code> 组合式；
+                  页面 <code>onShow</code> / <code>onHide</code> 改成 <code>onPageShow</code> / <code>onPageHide</code>；
+                  <code>mounted</code> / <code>unmounted</code> 改成 <code>onMounted</code> / <code>onUnmounted</code>；
+                  <code>mixin</code> 拆成普通函数</td>
+                  <td>不再出现 <code>export default {}</code>；<code>mixin</code> 已清零</td>
+                </tr>
+                <tr>
+                  <td><b>③ 处理类型与 UTSJSONObject</b></td>
+                  <td>蒸汽模式里 <code>UTSJSONObject</code> 的专有方法（<code>getString</code> / <code>getNumber</code> / <code>getArray</code>）不可用，
+                  改成普通对象的点号访问；<code>JSON.parseArray</code> / <code>parseObject</code> 改用 <code>JSON.parse</code>；
+                  需要保留 UTS 行为时，把该页面的 <code>lang</code> 显式指定为 <code>uts</code></td>
+                  <td>控制台不再报 <code>getString is not a function</code> 这类错误</td>
+                </tr>
+                <tr>
+                  <td><b>④ 处理样式与选择器</b></td>
+                  <td>把 <code>.parent .child</code> 这类复杂关系选择器改成明确的 class 命名（推荐 BEM 风格）；
+                  检查组件样式隔离假设是否还成立</td>
+                  <td>真机界面与升级前一致</td>
+                </tr>
+                <tr>
+                  <td><b>⑤ 检查组件与列表</b></td>
+                  <td><code>list-view</code> / <code>list-item</code> 的循环必须有稳定 <code>:key</code>；
+                  <code>list-item</code> 内文本用 <code>text</code> 包裹；布尔属性显式写 <code>true</code> / <code>false</code>，不依赖旧默认值</td>
+                  <td>长列表滚动正常、无复用错位</td>
+                </tr>
+                <tr>
+                  <td><b>⑥ 真机回归</b></td>
+                  <td>逐个平台验证：浏览器、Android、iOS、鸿蒙、小程序（按你的发布范围）</td>
+                  <td>每个目标端都能完成主流程</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>官方在这里给了两个很实用的"AI 提示词"：</strong>
+              <p>
+                官方「uvue 概述」文档中直接给出了两段提示词模板：一段用于"<b>选项式 → 组合式</b>"改造，
+                一段用于"<b>适配蒸汽模式</b>"。它们的写法值得学习，因为它们把"<b>不许改业务逻辑</b>、
+                <b>不许漏代码与注释</b>、<b>改完必须自己看编译报错并修到无错</b>"这些约束都写进了提示词里。
+                这其实也是你以后写 AI 提示词的最佳模板。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>给课程项目的建议：</strong>
+              <p>
+                学期内的小项目<b>不要做"全量升级"</b>这种高风险动作。
+                如果要用老项目练手，选一个页面升级、写清"改了什么、为什么、遇到什么坑"，
+                这比"升级了整个项目但说不清"得分更高。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ C.6 ============ -->
+      <section class="lesson-section" id="ax-unknown" data-nav="C.6 已知矛盾与未确认项">
+        <div class="sec-head">
+          <span class="sec-no">C.6</span>
+          <h2>如实列出：官方文档中已知的矛盾与未确认项</h2>
+          <span class="sec-time">10 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            技术选型必须建立在"我知道自己不知道什么"之上。下面这些点，是本课程在核对官方文档时
+            <b>发现存在矛盾、或文档未明确给出</b>的地方。它们不代表框架有问题（版本迭代快的框架都会有这类情况），
+            但<b>写进项目之前请自己验证一次</b>。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp ax">
+              <thead><tr><th>项目</th><th>官方表述情况</th><th>建议做法</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code>calc()</code></td>
+                  <td><b>矛盾</b>：CSS 方法页把它列入 App 支持清单，但 <code>position</code> 页示例注释写着"App 端暂不支持 calc"</td>
+                  <td>避免用 <code>calc()</code> 组合安全区变量；需要额外间距用 <code>margin</code> / <code>padding</code></td>
+                </tr>
+                <tr>
+                  <td><code>position: sticky</code></td>
+                  <td><b>矛盾</b>：同一页的"App 平台差异"写不支持 sticky，属性值表里又列出了 sticky</td>
+                  <td>需要吸顶效果时，优先用官方提供的 sticky 组件或改用其他布局方案</td>
+                </tr>
+                <tr>
+                  <td>蒸汽模式的关系选择器</td>
+                  <td><b>矛盾</b>：一处说"只支持简单 class 选择器与分组选择器"，另一处说"分组/子代/后代/兄弟选择器暂不支持"</td>
+                  <td>统一只用单一 class（本课程第 1、3 章的口径），最稳且不影响表达力</td>
+                </tr>
+                <tr>
+                  <td>tabBar 的 <code>midbutton</code></td>
+                  <td><b>矛盾</b>：<code>pages.json</code> 文档说"不再支持 tabbar 的 midbutton"，但 API 目录里存在"监听中间按钮点击"的页面</td>
+                  <td>不要依赖它；需要中间凸起按钮就用扩展组件（如 uni-ui x 的 tab-bar）</td>
+                </tr>
+                <tr>
+                  <td><code>vh</code> / <code>vw</code></td>
+                  <td><b>未确认</b>：官方长度单位文档只列了 <code>px</code>、<code>rpx</code> 与百分比</td>
+                  <td>撑满用 <code>flex: 1</code>，比例用百分比；非要用 vh/vw 就先真机验证</td>
+                </tr>
+                <tr>
+                  <td>页面栈层数上限 / <code>navigateBack</code> 的多层返回参数</td>
+                  <td><b>未确认</b>：本次核对时相应页面内容被截断，未见明确数值与字段</td>
+                  <td>不要造"无限跳转"的页面链；需要回到起点用 <code>reLaunch</code></td>
+                </tr>
+                <tr>
+                  <td><code>button</code> 的 <code>open-type</code> 完整取值、<code>input</code> 的 <code>@confirm</code> 事件细节</td>
+                  <td><b>未确认</b>：部分表格由脚本注入，核对时未取全</td>
+                  <td>用到这些能力时，直接查官方组件页当前版本表格</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>这件事的真正意义，比"记住这七条"更重要：</strong>
+              <p>
+                当你在真实工作里看到"文档 A 说可以、文档 B 说不可以"时，正确的做法不是选一个信、也不是放弃，
+                而是<b>写 10 行代码在目标平台验证一次，并把结论记进团队文档</b>。
+                这类"验证并沉淀"的能力，恰好是初级与中级工程师之间最明显的分界线。
+                本课程<a href="appendix-b.html">附录 B</a> 给你准备了排错笔记模板，可以直接用来记录这类结论。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ C.7 ============ -->
+      <section class="lesson-section" id="ax-checklist" data-nav="C.7 开工前自查">
+        <div class="sec-head">
+          <span class="sec-no">C.7</span>
+          <h2>开工前自查：五个问题</h2>
+          <span class="sec-time">5 分钟 · 自查</span>
+        </div>
+        <div class="sec-body">
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 我的项目选型自查
+            <span class="chip" id="taskCounter">0 / 5 已完成</span>
+          </h3>
+          <p class="text-sub" style="margin-top:6px">点一下即可打勾，进度保存在浏览器里。</p>
+
+          <div class="task-list">
+            <div class="task-item" data-task-id="axc-1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">列出我的<b>目标平台</b>（App / Web / 小程序 / 鸿蒙），并确认每条线的最低系统与版本要求</div><div class="task-hint">这决定了技术路线与测试工作量</div></div>
+            </div>
+            <div class="task-item" data-task-id="axc-2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">列出项目需要的所有<b>设备/第三方能力</b>，并逐个确认：内置 API 有没有？插件市场有没有？还是要写 uts 插件？</div><div class="task-hint">这一步能提前发现"砍需求"或"加工作量"的决策点</div></div>
+            </div>
+            <div class="task-item" data-task-id="axc-3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">如果是老项目：确认它是<b>哪条路线</b>的代码，并按 C.5 的顺序列出升级步骤与验证方式</div><div class="task-hint">先跑起来再改，永远不要反过来</div></div>
+            </div>
+            <div class="task-item" data-task-id="axc-4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把 C.6 里与我项目相关的"矛盾/未确认项"挑出来，各写一次<b>真机验证计划</b></div><div class="task-hint">在动手写 UI 之前验证，成本最低</div></div>
+            </div>
+            <div class="task-item" data-task-id="axc-5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">写下<b>一句话技术选型结论</b>与理由（例如"主线用蒸汽模式 + 纯 JS 库，仅推送能力需要 uts 插件"）</div><div class="task-hint">答辩时一定会被问"为什么这么选"</div></div>
+            </div>
+          </div>
+
+          <div class="callout info" style="margin-top:18px">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>本课程的选型结论（可直接引用，但要说明前提）：</strong>
+              <p>
+                <b>主线：蒸汽模式（Vue + TS/JS + ucss）+ 官方内置组件与 API + 需要时用 uni_modules 插件；
+                仅当目标平台有专属能力需求时才写 uts 插件。</b>
+                前提假设是：面向大学生的教学项目、以 App 与 Web 为主要发布端、不涉及复杂的第三方原生 SDK。
+                如果你的项目不满足这些前提，请按 C.4 的决策器重新判断。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="appendix-b.html">
+          <div class="dir">← 上一篇</div>
+          <div class="ttl">附录 B · 编译错误与真机问题排错手册</div>
+        </a>
+        <a class="next" href="appendix-d.html">
+          <div class="dir">下一篇 →</div>
+          <div class="ttl">附录 D · 课程设计选题库与评分标准</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">附录 C · 模式选型指南</div>
+      <div class="fnote">
+        本页关于两条技术路线、语言策略、平台门槛、UTS 差异与升级路径的说法，均依据 DCloud 官方
+        「uvue 概述」「蒸汽模式」「uni-app x 是什么」等文档整理；C.6 的"矛盾/未确认项"是按本次核对时的文档状态如实标注的，
+        官方可能已更新，动手前请以你所用版本的最新文档与真机表现為准。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>配合第 10 章《设备能力与 UTS 插件入门》使用</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html', current: true },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+
+/* 选型决策器 */
+(function () {
+  function init() {
+    var root = document.getElementById('decider');
+    if (!root) return;
+    var result = document.getElementById('decideResult');
+    var title = document.getElementById('decideTitle');
+    var screen = document.getElementById('decideScreen');
+    var ans = { q1: '', q2: '', q3: '' };
+
+    var LABEL = {
+      q1: { 'new': '全新项目', 'old': '老项目升级' },
+      q2: { 'none': '不需要原生能力', 'some': '需要封装原生 SDK' },
+      q3: { 'app': 'App 为主', 'mp': '小程序 / Web 为主' }
+    };
+
+    function recommend() {
+      var a = ans;
+      if (a.q1.length === 0 || a.q2.length === 0 || a.q3.length === 0) {
+        result.innerHTML = '<span class="ci">🧭</span><div><strong>请先回答上面三个问题</strong><p>三个都选完之后这里会给出建议路线。</p></div>';
+        title.textContent = '建议路线';
+        screen.innerHTML = '<div class="uv-card"><div class="uv-text" style="font-size:13px;color:#5A6B8C">等待选择…</div></div>';
+        return;
+      }
+
+      var route, why, extra;
+      if (a.q1 === 'old') {
+        route = '按现有路线继续维护，逐步升级';
+        why = '老项目不建议一次性全量切换路线：先确认它现在跑在哪条路线上，<b>让它先能编译运行</b>，再按 C.5 的顺序逐页升级（选项式→组合式 → 处理 UTSJSONObject → 清理关系选择器 → 真机回归）。';
+      } else if (a.q2 === 'some') {
+        route = '蒸汽模式 + uts 插件（必要部分）';
+        why = '新项目主线用蒸汽模式（Vue + TS/JS）；<b>只有需要对接原生 SDK 的那部分能力</b>才写 uts 插件，其余全部用内置组件与 API。';
+      } else if (a.q3 === 'mp') {
+        route = '蒸汽模式（注意小程序/Web 端按 VDOM 运行）';
+        why = '以小程序 / Web 为主时，蒸汽模式仍可用，但要知道<b>这两端目前按 VDOM 模式运行</b>，调样式与 API 时要按对应端验证。';
+      } else {
+        route = '蒸汽模式（推荐）';
+        why = '全新项目 + 不需要原生封装 + App 为主，这是蒸汽模式最舒服的场景：直接用 Vue + TS/JS 写，视图层编译为机器码/字节码，性能表现更好。';
+      }
+
+      extra = '技术路线：<b>' + LABEL.q1[a.q1] + ' · ' + LABEL.q2[a.q2] + ' · ' + LABEL.q3[a.q3] + '</b>';
+
+      result.innerHTML = '<span class="ci">✓</span><div><strong>建议：' + route + '</strong><p>' + why + '</p>' +
+        '<p style="margin-top:6px;color:var(--text-sub)">开条件：① 目标平台的最低系统要求要提前确认；② C.6 里与你相关的"矛盾/未确认项"先真机验证；③ 结论写进项目文档。</p></div>';
+
+      title.textContent = route.length > 12 ? '选型建议' : route;
+      screen.innerHTML = '<div class="uv-card"><div class="uv-text" style="font-size:13px;font-weight:700;margin-bottom:6px">' + route + '</div>' +
+        '<div class="uv-text" style="font-size:12px;color:#5A6B8C">' + extra + '</div></div>' +
+        '<div class="uv-card"><div class="uv-text" style="font-size:12px;color:#5A6B8C">下一步：按 C.7 的五个问题做开工前自查</div></div>';
+    }
+
+    root.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-q]') : null;
+      if (!b) return;
+      var q = b.getAttribute('data-q');
+      ans[q] = b.getAttribute('data-v');
+      Array.prototype.forEach.call(root.querySelectorAll('[data-q="' + q + '"]'), function (x) {
+        x.classList.toggle('active', x === b);
+      });
+      recommend();
+    });
+
+    recommend();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

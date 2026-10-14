@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第4章 响应式数据与模板语法 | uni-app x 大学课堂</title>
+<meta name="description" content="uni-app x 第4章：ref 与 reactive 的选择、computed 派生数据、watch 副作用、模板语法全解（插值/表达式/多根节点/:class/:style/v-if/v-show/v-for）、组合式 API 逻辑复用与代码组织。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">第 4 章 · 响应式数据与模板语法</div>
+        <div class="sub">模块二 · 语法与交互 · 建议 3 学时</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip vapor nowrap">蒸汽模式</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#sec-quiz">去做随堂测验</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">模块二 · 语法与交互</span>
+      <span class="chip mint">第 4 章 / 共 13 章</span>
+      <span class="chip yellow">难度 ★★★</span>
+      <span class="chip gray">前置：第 1–3 章 + JS 基础</span>
+    </div>
+    <h1>响应式数据与模板语法：把界面交给数据</h1>
+    <p class="lead">
+      第 1 章我让你记住一句话：<b>改数据，不改界面</b>。这一章要把这句话落到具体代码上——
+      什么时候用 <code>ref</code>、什么时候用 <code>reactive</code>、什么时候该写 <code>computed</code>、
+      <code>watch</code> 又该用在哪；以及模板里到底能写什么、不能写什么。
+      这一章学扎实，第 5–12 章的交互代码都会变得顺理成章。
+    </p>
+    <div class="chapter-meta">
+      <div>⏱ 建议 <strong>3</strong> 学时（讲授约 95 分钟 + 上机约 60 分钟）</div>
+      <div>🧩 教学内容 <strong>8</strong> 节</div>
+      <div>📝 随堂测验 <strong>8</strong> 题</div>
+      <div>🏠 课后作业 <strong>4</strong> 项</div>
+      <div>📱 代码演练 <strong>3</strong> 处</div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="goals-card">
+    <h2>🎯 这一章我们要达到什么</h2>
+    <div class="goal-grid">
+      <div class="goal-item">
+        <div class="icon">🧠</div>
+        <h4>建立数据驱动心智</h4>
+        <p>看到任何交互需求，第一反应是"该用哪个状态变量来描述它"，而不是"我该改哪个元素"。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">🧩</div>
+        <h4>选对工具</h4>
+        <p>能分清 <code>ref</code> / <code>reactive</code> / <code>computed</code> / <code>watch</code> 各自该负责什么，用错能自己察觉。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">📝</div>
+        <h4>写干净模板</h4>
+        <p>模板里只做展示与简单判断，复杂逻辑全部上移到 <code>computed</code> 与函数里。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">📦</div>
+        <h4>会组织代码</h4>
+        <p>页面逻辑变长时能把它抽成独立函数文件，而不是堆在一个 <code>.uvue</code> 里。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ 4.1 ============ -->
+      <section class="lesson-section" id="sec-4-1" data-nav="4.1 数据驱动的心智模型">
+        <div class="sec-head">
+          <span class="sec-no">4.1</span>
+          <h2>心智模型：从"操作元素"到"描述状态"</h2>
+          <span class="sec-time">15 分钟 · 讲授 + 对比</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            先看同一件事在 Web 与 uni-app x 里的两种写法。<b>需求</b>：点击按钮，把页面上的数字 +1。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">同一个需求，两种思维</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="web">Web 思维（命令式）</button>
+              <button class="code-tab" data-tab="uvue">uvue 思维（声明式）</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="web"><pre class="code-block" data-lang="ts">
+// ① 先定义"要操作哪个元素"，并维护一份中间数据
+let count = 0
+const el = document.getElementById('num')
+
+// ② 数据变了之后，还得记得"手动把界面同步一遍"
+const add = () =&gt; {
+  count = count + 1
+  el.textContent = String(count)     // ← 忘写这一行，界面就不会变
+}
+
+// ③ 界面上一旦多出几处用到 count，就要多维护几处同步代码</pre></div>
+              <div class="code-pane" data-pane="uvue"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  // ① 只声明"状态是什么"
+  const count = ref(0)
+
+  // ② 只改状态，不关心界面
+  const add = () =&gt; {
+    count.value = count.value + 1
+  }
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;!-- ③ 界面声明"它要显示 count"，数据一变自动更新 --&gt;
+  &lt;text&gt;{{ count }}&lt;/text&gt;
+  &lt;button @click="add"&gt;+1&lt;/button&gt;
+&lt;/template&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>两种思维的本质差别：</strong>
+              <p>
+                <b>命令式</b>：你告诉程序"怎么做"——找到元素、改它的内容、记住改了几次。
+                <b>声明式</b>：你只描述"状态是什么"和"界面应该长什么样"，框架负责把两者同步。
+                代价是你要开始认真思考：<b>哪些数据是"状态"，哪些只是"算出来的结果"</b>——这正是本节要建立的分类。
+              </p>
+            </div>
+          </div>
+
+          <h3>三分类：状态、派生、副作用</h3>
+          <p>
+            写交互代码时，任何一份数据都可以归到下面三类之一。<b>分类错了，代码就会又长又容易出 Bug</b>。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>类别</th><th>含义</th><th>用什么</th><th>典型例子</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>状态（源数据）</b></td>
+                  <td>由用户操作或接口返回直接改变的"原始数据"</td>
+                  <td><code>ref</code> / <code>reactive</code></td>
+                  <td>输入框内容、当前页码、已选中的标签、接口返回的列表</td>
+                </tr>
+                <tr>
+                  <td><b>派生数据</b></td>
+                  <td>完全由其它状态算出来的结果，不需要单独维护</td>
+                  <td><code>computed</code></td>
+                  <td>过滤后的列表、总条数、合计金额、"是否可提交"的布尔值</td>
+                </tr>
+                <tr>
+                  <td><b>副作用</b></td>
+                  <td>状态变化后需要"对外做点事"，而不是产生新数据</td>
+                  <td><code>watch</code></td>
+                  <td>关键词变化后发请求、表单变化后写缓存、数据变化后打日志</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>一个判断口诀：</strong>
+              <p>
+                <b>"能不能算出来？"</b>能算出来的，就不要单独存一份（用 <code>computed</code>）；
+                算不出来的才是状态（用 <code>ref</code>）；
+                变化之后要"顺便做点别的事"，才用 <code>watch</code>。
+                新手最常犯的错，是把"能算出来的东西"也存成状态，然后费力地到处同步它。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4.2 ============ -->
+      <section class="lesson-section" id="sec-4-2" data-nav="4.2 ref 与 reactive">
+        <div class="sec-head">
+          <span class="sec-no">4.2</span>
+          <h2>ref 与 reactive：状态怎么声明</h2>
+          <span class="sec-time">25 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            在 uni-app x 里，<b>Vue 的公开 API 全部由编译器自动引入，不需要写 <code>import</code></b>——
+            <code>ref</code>、<code>reactive</code>、<code>computed</code>、<code>watch</code>、<code>onMounted</code>、<code>onLoad</code> 都是直接可用。
+            这也是为什么你在前面的示例里从没见过 <code>import { ref } from 'vue'</code>。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/demo/state.uvue —— ref 的三种写法</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  // ① 简单值：让编译器自行推导
+  const count = ref(0)
+
+  // ② 推荐：显式写上类型，数组与对象<b>必须</b>写元素类型
+  const keyword = ref&lt;string&gt;('')
+  const list = ref&lt;Notice[]&gt;([])
+
+  // 类型别名放在使用之前，读代码的人一眼就知道数据结构
+  type Notice = {
+    id: number,
+    title: string,
+    done: boolean
+  }
+
+  // ③ 事件处理函数推荐用箭头函数：
+  //    官方说明普通 function 在不同平台的作用域有细微差异，箭头函数更稳
+  const add = () =&gt; {
+    count.value = count.value + 1        // 脚本里读写都要带 .value
+  }
+
+  const clear = () =&gt; {
+    keyword.value = ''                   // 字符串同理
+    list.value = []                      // 数组整体赋值，比原地修改更可靠
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>关于 <code>.value</code> 的唯一规则：</strong>
+              <p>
+                <b>在 <code>&lt;script&gt;</code> 里必须写 <code>.value</code>；在 <code>&lt;template&gt;</code> 里不要写。</b>
+                模板会自动解包，所以你写 <code>{{ count }}</code> 而不是 <code>{{ count.value }}</code>。
+                忘记在脚本里写 <code>.value</code> 是初学者最高频的错误，症状是"数字没变化、列表没更新"。
+              </p>
+            </div>
+          </div>
+
+          <h3>reactive：适合"一组互相关联的状态"</h3>
+          <p>
+            当一个页面里有一组总是一起出现的数据（比如用户信息、表单的多个字段），用 <code>reactive</code> 会更清爽：
+            它把整个对象变成响应式，<b>访问属性时不写 <code>.value</code></b>。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">reactive 的官方写法（含类型断言）</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  type UserState = {
+    name: string,
+    level: number,
+    tags: string[]
+  }
+
+  // 官方示例的写法：对象后面用 as 断言类型
+  const user = reactive({
+    'name': '汽水同学',
+    'level': 3,
+    'tags': ['前端', '移动开发']
+  } as UserState)
+
+  // 改属性：不用写 .value
+  const levelUp = () =&gt; {
+    user.level = user.level + 1
+  }
+
+  const addTag = (tag: string) =&gt; {
+    user.tags = user.tags.concat(tag)     // 整体赋值，最稳
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>不要解构 <code>reactive</code>：</strong>
+              <p>
+                <code>const { name } = user</code> 这种写法<b>会把响应式丢掉</b>——之后你再改 <code>user.name</code>，
+                界面上的 <code>name</code> 不会跟着变。正确做法是<b>始终用 <code>user.name</code> 这样带对象前缀的方式访问</b>。
+                如果你发现自己很想解构，通常说明这个对象该拆成几个 <code>ref</code> 了。
+              </p>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="reactivity"></div>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>场景</th><th>推荐</th><th>原因</th></tr></thead>
+              <tbody>
+                <tr><td>数字、字符串、布尔值</td><td><code>ref</code></td><td>简单直接，赋值即更新</td></tr>
+                <tr><td>数组（列表、结果集）</td><td><code>ref&lt;T[]&gt;([])</code></td><td>整体替换最可靠；类型标注清楚</td></tr>
+                <tr><td>一组互相关联的字段（用户信息、表单）</td><td><code>reactive</code></td><td>少写 <code>.value</code>，语义更像"一个实体"</td></tr>
+                <tr><td>需要在多个页面/组件共享的状态</td><td>抽到独立文件里导出</td><td>第 9 章会把它升级成正式的全局状态方案</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4.3 ============ -->
+      <section class="lesson-section" id="sec-4-3" data-nav="4.3 computed 与 watch">
+        <div class="sec-head">
+          <span class="sec-no">4.3</span>
+          <h2>computed 与 watch：算出来的，和顺便要做的</h2>
+          <span class="sec-time">25 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <h3>computed：别在模板里做计算</h3>
+          <p>
+            下面这段代码能跑，但它是坏味道：模板里出现了数组的 <code>filter</code> 与判断逻辑。
+            模板应该"一眼看出界面长什么样"，而不是承担业务计算。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">用 computed 把计算从模板里拿出来</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="bad">不推荐</button>
+              <button class="code-tab" data-tab="good">推荐</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="bad"><pre class="code-block" data-lang="html">
+&lt;!-- 模板里做过滤：每次重渲染都要重算，逻辑也不好复用 --&gt;
+&lt;template&gt;
+  &lt;view v-for="item in list.filter((x) =&gt; x.title.includes(keyword))" :key="item.id"&gt;
+    &lt;text&gt;{{ item.title }}&lt;/text&gt;
+  &lt;/view&gt;
+&lt;/template&gt;</pre></div>
+              <div class="code-pane" data-pane="good"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  type Notice = { id: number, title: string, done: boolean }
+
+  const keyword = ref&lt;string&gt;('')
+  const list = ref&lt;Notice[]&gt;([])
+
+  // 派生数据：由 keyword 与 list 算出来，不需要单独维护、也不会忘记同步
+  const filtered = computed&lt;Notice[]&gt;(() =&gt; {
+    if (keyword.value.length == 0) return list.value
+    return list.value.filter((item) =&gt; item.title.includes(keyword.value))
+  })
+
+  // 再派生一层也很自然：数量由 filtered 算出来
+  const total = computed(() =&gt; filtered.value.length)
+  const doneCount = computed(() =&gt; filtered.value.filter((item) =&gt; item.done).length)
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;!-- 模板只负责展示 --&gt;
+  &lt;view v-for="item in filtered" :key="item.id"&gt;
+    &lt;text&gt;{{ item.title }}&lt;/text&gt;
+  &lt;/view&gt;
+  &lt;text&gt;共 {{ total }} 条，已完成 {{ doneCount }} 条&lt;/text&gt;
+&lt;/template&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>computed 和"普通函数"的区别：</strong>
+              <p>
+                写成 <code>const filtered = () =&gt; {...}</code> 然后在模板里 <code>filtered()</code> 调用也能跑，
+                但这样每次重渲染都会重新执行一遍。
+                <code>computed</code> 会<b>记住上次的结果</b>，只有它依赖的数据变了才重新计算——
+                页面越复杂，这个差别越明显。
+              </p>
+            </div>
+          </div>
+
+          <h3>watch：状态变化后"顺便做点别的事"</h3>
+          <p>
+            <code>watch</code> 不产出新数据，它用来触发<b>副作用</b>。最典型的两个场景：
+            <b>输入变化后延迟发请求</b>（防抖搜索）、<b>数据变化后写入本地缓存</b>。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">watch 实战：搜索防抖 + 缓存</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  const keyword = ref&lt;string&gt;('')
+  const logs = ref&lt;string[]&gt;([])
+  let timer: number | null = null            // 防抖用的定时器
+
+  // 关键词变化 → 等 400ms 没有新输入，才真正去"搜索"
+  watch(keyword, () =&gt; {
+    if (timer != null) clearTimeout(timer)   // 先取消上一次待执行的搜索
+    timer = setTimeout(() =&gt; {
+      const word = keyword.value
+      if (word.length == 0) return
+      logs.value = logs.value.concat('搜索：' + word)   // 这里换成 uni.request（第 8 章）
+    }, 400)
+  })
+
+  // 列表变化 → 写入本地缓存（第 9 章会细讲存储）
+  // watch(list, () =&gt; {
+  //   uni.setStorageSync('notice_list', JSON.stringify(list.value))
+  // })
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>你的需求</th><th>用哪个</th><th>判断依据</th></tr></thead>
+              <tbody>
+                <tr><td>列表要按关键词过滤后显示</td><td><code>computed</code></td><td>结果是"算出来的"，不影响外部</td></tr>
+                <tr><td>显示"共 N 条 / 已完成 M 条"</td><td><code>computed</code></td><td>同上</td></tr>
+                <tr><td>按钮是否可点击（表单是否填全）</td><td><code>computed</code></td><td>布尔值也是派生数据</td></tr>
+                <tr><td>输入停止 400ms 后发请求</td><td><code>watch</code></td><td>要"对外做事"（发请求），不是算数据</td></tr>
+                <tr><td>数据变化后写缓存 / 打点 / 弹提示</td><td><code>watch</code></td><td>副作用</td></tr>
+                <tr><td>进入页面加载数据</td><td>都不用，用生命周期</td><td>这不是"数据变化触发"，而是"页面加载触发"（第 7 章）</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="playground" data-playground="computed.demo"></div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>两个容易踩的坑：</strong>
+              <p>
+                ① <b>不要在 <code>computed</code> 里改其它状态</b>——计算属性只应该"算"，不该"做"；
+                ② <b><code>watch</code> 里改的状态又触发它自己</b>会造成死循环（例如监听 A 又去改 A）。出现"页面疯狂刷新"时优先怀疑这一点。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4.4 ============ -->
+      <section class="lesson-section" id="sec-4-4" data-nav="4.4 模板语法与动态样式">
+        <div class="sec-head">
+          <span class="sec-no">4.4</span>
+          <h2>模板语法全解：插值、动态 class / style、多根节点</h2>
+          <span class="sec-time">25 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <h3>插值与表达式</h3>
+          <p>
+            <code>{{ }}</code> 里可以写任意<b>表达式</b>（能算出值的东西）：三元、字符串拼接、方法调用、数组长度等。
+            但<b>不能写语句</b>（<code>if</code> / <code>for</code> / 赋值）。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">模板里能写什么、不能写什么</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- ✅ 可以：三元表达式 --&gt;
+    &lt;text&gt;{{ list.length &gt; 0 ? '有 ' + list.length + ' 条通知' : '暂无通知' }}&lt;/text&gt;
+
+    &lt;!-- ✅ 可以：方法调用（返回值用来显示） --&gt;
+    &lt;text&gt;{{ formatTime(item.createdAt) }}&lt;/text&gt;
+
+    &lt;!-- ✅ 可以：可选链与空值兜底 --&gt;
+    &lt;text&gt;{{ user?.name ?? '未登录' }}&lt;/text&gt;
+
+    &lt;!-- ❌ 不可以：语句、赋值、复杂逻辑 --&gt;
+    &lt;!-- &lt;text&gt;{{ if (list.length &gt; 0) { ... } }}&lt;/text&gt; --&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  // 需要格式化的逻辑放在函数里，模板保持干净
+  const formatTime = (ts: number): string =&gt; {
+    return new Date(ts).toLocaleDateString()
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>模板可以有多个根节点。</strong>
+              <p>
+                uvue 的 <code>&lt;template&gt;</code> 下面允许放多个二级节点（多个根组件），
+                这比"必须套一层无意义的 <code>view</code>"更方便。不过要注意：
+                <b>多根节点组件在使用时，父层传入的 class / style 需要组件内部自行分配</b>（第 3 章讲过）。
+                如果希望父层样式能直接生效，就用单根节点。
+              </p>
+            </div>
+          </div>
+
+          <h3>动态 class 与 style</h3>
+          <p>
+            这是"数据驱动界面"用得最多的一处：<b>同一个元素，根据状态换一套样式</b>。
+            官方示例里用的是 <code>:class="表达式"</code> 与 <code>:style="绑定值"</code>。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">四种常见动态样式写法</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- ① 字符串拼接：适合"类型即为类名后缀"的场景 --&gt;
+    &lt;view :class="'tag-' + item.type"&gt;&lt;text&gt;{{ item.type }}&lt;/text&gt;&lt;/view&gt;
+
+    &lt;!-- ② 三元表达式：官方示例中使用的方式 --&gt;
+    &lt;view :class="isActive ? 'tab active' : 'tab'"&gt;&lt;text&gt;首页&lt;/text&gt;&lt;/view&gt;
+
+    &lt;!-- ③ 对象语法：值为 true 才加上这个类 --&gt;
+    &lt;view class="row" :class="{ 'row-done': item.done }"&gt;
+      &lt;text&gt;{{ item.title }}&lt;/text&gt;
+    &lt;/view&gt;
+
+    &lt;!-- ④ 动态 style：适合"值本身是数据"的场景（宽度、颜色、延迟） --&gt;
+    &lt;view class="bar" :style="{ width: percent + '%' }"&gt;&lt;/view&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;style&gt;
+  .tab { height: 40px; justify-content: center; }
+  .active { background-color: #E9F0FF; }
+  .row-done { opacity: 0.6; }
+  .bar { height: 8px; border-radius: 4px; background-color: #2F6BFF; }
+&lt;/style&gt;</pre></div>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>两个与平台有关的注意点：</strong>
+              <p>
+                ① 官方文档说明：<b>VDOM 模式下 class / style 支持绑定 Map 类型数据，但蒸汽模式不支持 Map</b>——
+                蒸汽模式下请用普通对象或字符串表达式（上面四种写法都是安全的）；
+                ② CSS 里的 <code>v-bind()</code>（把样式值绑定到 JS 变量）<b>只在 Web 平台支持</b>，
+                App 端要用 <code>:style</code> 绑定的方式。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>为什么必须用模板，不能用 JSX？</strong>
+              <p>
+                官方说明：除 Web 平台外不支持用 JSX / TSX 编写页面与组件。原因也很有说服力——
+                在 App 端蒸汽模式下，<code>template</code> 与 <code>style</code> 会在编译期被静态分析，
+                直接编译成高度优化的机器码或字节码，运行速度远快于运行时构建视图的方案。
+                <b>所以：结构写在模板里，不只是风格问题，也是性能问题。</b>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4.5 ============ -->
+      <section class="lesson-section" id="sec-4-5" data-nav="4.5 条件与列表渲染">
+        <div class="sec-head">
+          <span class="sec-no">4.5</span>
+          <h2>条件与列表渲染：v-if / v-show / v-for</h2>
+          <span class="sec-time">20 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>指令</th><th>作用</th><th>怎么选</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code>v-if</code> / <code>v-else-if</code> / <code>v-else</code></td>
+                  <td>条件成立才<b>创建</b>这个节点，不成立就不存在</td>
+                  <td>切换不频繁、或希望"不存在"时用（例如权限不同的两种界面、加载中/失败/成功三态）</td>
+                </tr>
+                <tr>
+                  <td><code>v-show</code></td>
+                  <td>节点始终存在，只切换显示与隐藏</td>
+                  <td>切换非常频繁时用（例如折叠面板、Tab 内容）</td>
+                </tr>
+                <tr>
+                  <td><code>v-for</code></td>
+                  <td>按数组渲染一组节点</td>
+                  <td>必须配唯一的 <code>:key</code>（第 2 章已强调）</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>别把 <code>v-if</code> 和 <code>v-for</code> 写在同一层：</strong>
+              <p>
+                <code>&lt;view v-for="item in list" v-if="item.done"&gt;</code> 这种写法会让"先循环再判断"的逻辑混在一起，
+                既难读也影响性能。正确做法是<b>先用 <code>computed</code> 把数据过滤好，模板里只循环渲染</b>：
+                <code>v-for="item in doneList"</code>。这也正好呼应 4.3 节的"派生数据"思想。
+              </p>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">三态列表：加载中 / 失败 / 有数据</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- 失败态：只出现错误提示与重试按钮 --&gt;
+    &lt;view v-if="error.length &gt; 0" class="tip-box"&gt;
+      &lt;text class="tip-text"&gt;{{ error }}&lt;/text&gt;
+      &lt;button size="mini" @click="load"&gt;重新加载&lt;/button&gt;
+    &lt;/view&gt;
+
+    &lt;!-- 加载中：只在没有数据时显示骨架提示 --&gt;
+    &lt;view v-else-if="loading &amp;&amp; list.length == 0" class="tip-box"&gt;
+      &lt;text class="tip-text"&gt;加载中…&lt;/text&gt;
+    &lt;/view&gt;
+
+    &lt;!-- 空态：这是最容易被忽略、但用户最常看到的一个状态 --&gt;
+    &lt;view v-else-if="list.length == 0" class="tip-box"&gt;
+      &lt;text class="tip-text"&gt;还没有通知，去创建一条吧&lt;/text&gt;
+    &lt;/view&gt;
+
+    &lt;!-- 正常态 --&gt;
+    &lt;view v-else v-for="item in list" :key="item.id" class="item"&gt;
+      &lt;text class="item-title"&gt;{{ item.title }}&lt;/text&gt;
+      &lt;text class="item-time"&gt;{{ item.time }}&lt;/text&gt;
+    &lt;/view&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  type Notice = { id: number, title: string, time: string }
+
+  const list = ref&lt;Notice[]&gt;([])
+  const loading = ref(false)
+  const error = ref&lt;string&gt;('')
+
+  const load = () =&gt; {
+    loading.value = true
+    error.value = ''
+    // 这里换成 uni.request（第 8 章），此处只演示三种状态的写法
+    loading.value = false
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="playground" data-playground="directives"></div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>列表渲染的三条经验：</strong>
+              <p>
+                ① <b>永远写 <code>:key</code></b>，用唯一且稳定的值；
+                ② 嵌套 <code>v-for</code> 时内层要用不同的变量名（<code>v-for="row in rows"</code> 里再 <code>v-for="cell in row.cells"</code>），避免变量覆盖；
+                ③ <b>别忘空态</b>——"没有数据"是真实用户最常遇到的界面，写不写空态是"作业"与"产品"的分界线。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4.6 ============ -->
+      <section class="lesson-section" id="sec-4-6" data-nav="4.6 逻辑复用与代码组织">
+        <div class="sec-head">
+          <span class="sec-no">4.6</span>
+          <h2>逻辑复用与代码组织：别把所有东西塞进页面</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            一个页面写 300 行 <code>&lt;script setup&gt;</code> 时，问题不是"能不能跑"，而是"改不动了"。
+            组合式 API 的优势恰恰在这里：<b>逻辑就是普通函数，可以像 JS 模块一样抽出去、复用、单独测试</b>。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">把"通知列表"的逻辑抽成一个可复用函数</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="hook">utils/useNotice.ts</button>
+              <button class="code-tab" data-tab="page">页面里使用</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="hook"><pre class="code-block" data-lang="ts">
+// utils/useNotice.ts —— 一份可以到处复用的"通知列表逻辑"
+export type Notice = {
+  id: number,
+  title: string,
+  time: string,
+  done: boolean
+}
+
+export const useNotice = () =&gt; {
+  const list = ref&lt;Notice[]&gt;([])
+  const keyword = ref&lt;string&gt;('')
+  const loading = ref(false)
+
+  const filtered = computed&lt;Notice[]&gt;(() =&gt; {
+    if (keyword.value.length == 0) return list.value
+    return list.value.filter((item) =&gt; item.title.includes(keyword.value))
+  })
+
+  const doneCount = computed(() =&gt; list.value.filter((item) =&gt; item.done).length)
+
+  const load = () =&gt; {
+    loading.value = true
+    // 演示数据；第 8 章换成 uni.request
+    list.value = [
+      { 'id': 1, 'title': '数据结构作业', 'time': '10-20', 'done': false },
+      { 'id': 2, 'title': '社团例会', 'time': '周三 19:00', 'done': true }
+    ]
+    loading.value = false
+  }
+
+  const toggle = (id: number) =&gt; {
+    list.value = list.value.map((item) =&gt; {
+      if (item.id == id) item.done = !item.done
+      return item
+    })
+  }
+
+  // 把页面需要用到的东西一次性返回
+  return { list, keyword, loading, filtered, doneCount, load, toggle }
+}</pre></div>
+              <div class="code-pane" data-pane="page"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  // 页面变得极短：只剩"装配"
+  import { useNotice } from '@/utils/useNotice'
+
+  const { keyword, loading, filtered, doneCount, load, toggle } = useNotice()
+
+  // 输入框用 :value + @input（官方写法），把事件对象里的值写回状态
+  const onKeywordInput = (event: UniInputEvent) =&gt; {
+    keyword.value = event.detail.value
+  }
+
+  onLoad(() =&gt; {
+    load()
+  })
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- 输入框：官方写法是 :value + @input；受控时再加 controlled --&gt;
+    &lt;input :value="keyword" placeholder="搜索通知" controlled @input="onKeywordInput" /&gt;
+    &lt;text class="muted"&gt;共 {{ filtered.length }} 条，已完成 {{ doneCount }} 条&lt;/text&gt;
+
+    &lt;view v-for="item in filtered" :key="item.id" class="item" @click="toggle(item.id)"&gt;
+      &lt;text :class="item.done ? 'title done' : 'title'"&gt;{{ item.title }}&lt;/text&gt;
+    &lt;/view&gt;
+  &lt;/view&gt;
+&lt;/template&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>这种写法在官方文档里是被认可的：</strong>
+              <p>
+                官方给出的迁移提示词里明确建议"不要继续使用 <code>mixin</code>，把它合并到组合式代码中，
+                或<b>抽成普通 composable 函数</b>"。也就是说：<b>组合式 API 时代，复用逻辑靠函数，不靠 mixin</b>。
+                另外要记住两点：<b>蒸汽模式只支持组合式 API</b>（不支持选项式与 mixin）；
+                <code>type</code> 这类类型定义建议放在使用之前或独立文件里，保持可读。
+              </p>
+            </div>
+          </div>
+
+          <h3>代码组织的四条经验</h3>
+          <ul>
+            <li><b>页面只做三件事</b>：引入（import）、装配（调用函数拿数据）、渲染（模板）。超过这个范围就该抽函数；</li>
+            <li><b>一个文件只解决一件事</b>：<code>utils/useNotice.ts</code> 管通知，<code>utils/format.ts</code> 管格式化，不要合在一起；</li>
+            <li><b>类型定义跟着数据走</b>：谁定义的数据结构，谁导出 <code>type</code>，避免各处重复声明；</li>
+            <li><b>抽函数的时机</b>：当第二处也要用同一套逻辑，或者在同一个函数里看到了明显的"三段式"（加载/计算/操作），就该抽。</li>
+          </ul>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>本节的验收标准：</strong>
+              <p>
+                你写的页面里，<code>&lt;script setup&gt;</code> 超过 80 行时应该能回答：
+                "这里面哪一段是可以抽成独立函数的？"如果答不上来，说明代码已经开始失控了。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4.7 测验 ============ -->
+      <section class="lesson-section" id="sec-quiz" data-nav="4.7 随堂测验">
+        <div class="sec-head">
+          <span class="sec-no">4.7</span>
+          <h2>随堂测验：状态、派生与副作用</h2>
+          <span class="sec-time">10 分钟 · 独立完成</span>
+        </div>
+        <div class="sec-body">
+          <div class="quiz">
+            <div class="quiz-head">
+              <h3>📝 第 4 章随堂测验（8 题）</h3>
+              <span class="quiz-score" id="quizScore">得分 0 / 8</span>
+            </div>
+            <div id="quizMount"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4.8 小结与作业 ============ -->
+      <section class="lesson-section" id="sec-summary" data-nav="4.8 小结与作业">
+        <div class="sec-head">
+          <span class="sec-no">4.8</span>
+          <h2>本章小结 · 动手任务 · 课后作业</h2>
+          <span class="sec-time">10 分钟 · 总结 + 布置</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="summary-card">
+            <h3>📌 今天你学到的，浓缩成 6 句话</h3>
+            <p style="color:#33445F">
+              数据分三类：<b>状态用 <code>ref</code> / <code>reactive</code>、派生用 <code>computed</code>、副作用用 <code>watch</code></b>；
+              <b>脚本里写 <code>.value</code>、模板里不写</b>，这是最需要形成肌肉记忆的一条；
+              数组与对象要写类型（<code>ref&lt;Notice[]&gt;([])</code>），<code>reactive</code> 用官方推荐的 <code>as 类型</code> 写法，
+              并且<b>不要解构</b>；
+              <code>computed</code> 负责"算"，<code>watch</code> 负责"做"，两者都不该越界，也要避免互相触发；
+              模板里只放表达式，复杂逻辑上移；<code>:class</code> / <code>:style</code> 是"同一元素换样式"的主力写法；
+              页面写长了就把逻辑抽成 composable 函数，<b>用函数复用，不用 mixin</b>。
+            </p>
+            <div class="kp-chips">
+              <span class="kp-chip">自动引入</span>
+              <span class="kp-chip">ref / .value</span>
+              <span class="kp-chip">reactive + as 类型</span>
+              <span class="kp-chip">不解构 reactive</span>
+              <span class="kp-chip">ref&lt;T[]&gt;([])</span>
+              <span class="kp-chip">箭头函数</span>
+              <span class="kp-chip">computed 派生</span>
+              <span class="kp-chip">watch 副作用</span>
+              <span class="kp-chip">防抖</span>
+              <span class="kp-chip">模板表达式</span>
+              <span class="kp-chip">:class 动态样式</span>
+              <span class="kp-chip">:style 绑定</span>
+              <span class="kp-chip">多根节点</span>
+              <span class="kp-chip">v-if vs v-show</span>
+              <span class="kp-chip">三态列表</span>
+              <span class="kp-chip">composable 复用</span>
+            </div>
+          </div>
+
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 课堂动手任务
+            <span class="chip" id="taskCounter">0 / 5 已完成</span>
+          </h3>
+          <p class="text-sub" style="margin-top:6px">点一下即可打勾，进度保存在你的浏览器里。</p>
+
+          <div class="task-list">
+            <div class="task-item" data-task-id="c4-t1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">把你自己项目里的数据列个清单，逐个标注它是"状态 / 派生 / 副作用"</div>
+                <div class="task-hint">凡是"能算出来"的，改成 <code>computed</code>；这一步做完代码会短一截</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c4-t2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">做一个搜索框：输入关键词过滤列表，并实时显示"共 N 条 / 已完成 M 条"</div>
+                <div class="task-hint">要求过滤与计数都用 <code>computed</code>，模板里不出现 <code>filter</code></div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c4-t3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>watch</code> 实现搜索防抖：停止输入 400ms 后才把"搜索记录"追加到日志里</div>
+                <div class="task-hint">关键：每次触发前先 <code>clearTimeout</code>，否则等于没防抖</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c4-t4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>:class</code> 做一排可切换的标签（选中态高亮），用 <code>:style</code> 做一个按进度变宽的进度条</div>
+                <div class="task-hint">验收：标签的选中态不靠手动改样式，而是靠改数据</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c4-t5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">把上面这一整套列表逻辑抽成一个 <code>useXxx.ts</code> 函数文件，页面里只剩装配与模板</div>
+                <div class="task-hint">验收：<code>&lt;script setup&gt;</code> 控制在 30 行以内</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="homework" style="margin-top:22px">
+            <h3 style="margin-bottom:6px">🏠 课后作业（按星级自选，鼓励全做）</h3>
+            <p class="text-sub" style="font-size:13.5px;margin-bottom:14px">下节课开始前提交到课程群，作业计入平时成绩。</p>
+
+            <div class="hw-item">
+              <span class="hw-star">⭐</span>
+              <div>
+                <h4>基础：给数据分类</h4>
+                <p>用第 2 章的课程卡片数据，列出至少 6 个"状态 / 派生 / 副作用"的例子，每个写一句为什么这样归类（不要抄课件原句）。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐</span>
+              <div>
+                <h4>进阶：待办清单 App（数据驱动版）</h4>
+                <p>功能：新增、勾选完成、删除、按关键词过滤、显示"共 N 条 / 已完成 M 条"、清空已完成。要求：过滤与统计必须用 <code>computed</code>，列表项必须用唯一 <code>:key</code>，完成后给"空列表"写一句友好的空态文案。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐</span>
+              <div>
+                <h4>挑战：把逻辑抽出去并复用两次</h4>
+                <p>把待办清单的逻辑抽成 <code>utils/useTodo.ts</code>，然后在<b>两个不同页面</b>里各用一次（例如"待办列表页"和"首页概览卡片"），两个页面共享同一套过滤与统计逻辑。提交两个页面的截图与你抽取函数前后的代码行数对比。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐+</span>
+              <div>
+                <h4>拓展：找 Bug 报告</h4>
+                <p>故意制造并复现 4 个问题，逐个解释原因：① 列表删除后勾选状态错位；② 改了变量但界面不变（忘了 <code>.value</code>）；③ 解构 <code>reactive</code> 后界面不更新；④ <code>watch</code> 里改了被监听的数据导致页面反复刷新。把每次的现象与原因写进你的排错笔记（配合<a href="appendix-b.html">附录 B</a>）。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout info" style="margin-top:22px">
+            <span class="ci">➡️</span>
+            <div>
+              <strong>下一章预告 · 第 5 章《事件与表单交互》</strong>
+              <p>
+                数据会声明、会派生、会监听了，接下来要让用户"能输入"：
+                <code>input</code> / <code>textarea</code> / <code>switch</code> / <code>slider</code> / <code>picker</code> / <code>checkbox</code> / <code>radio</code>
+                的属性与事件、表单校验与提交、以及移动端输入体验的细节（键盘类型、光标、确认键、防重复提交）。
+                带着你的待办清单 App 来，我们把它做成能真正录入数据的应用。
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="chapter-03.html">
+          <div class="dir">← 上一章</div>
+          <div class="ttl">第 3 章 · 样式进阶：ucss 与主题</div>
+        </a>
+        <a class="next" href="chapter-05.html">
+          <div class="dir">下一章 →</div>
+          <div class="ttl">第 5 章 · 事件与表单交互</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">模块二 · 语法与交互 · 第 4 章</div>
+      <div class="fnote">
+        本章关于自动引入、组合式 / 选项式、蒸汽模式限制、模板与样式绑定、JSX 支持范围等结论，均依据 DCloud 官方 uvue 概述文档整理。
+        <code>watch</code> 的进阶选项（深监听、立即执行）与自定义组件相关写法将在第 6 章结合组件一起讲。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>下一章：事件与表单交互</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+/* 编码约定（重要）：示例代码字符串里如果出现 HTML 注释起始符或 script 结束标签，
+   必须写成带反斜杠的形式（<\!-- 与 <\/），否则浏览器会把本脚本块提前截断，页面直接白屏。 */
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html', current: true },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+
+/* ---------------- 随堂测验数据 ---------------- */
+window.QUIZ_DATA = [
+  {
+    q: '在 <code>&lt;script setup&gt;</code> 里定义了 <code>const count = ref(0)</code>，要让界面上的数字发生变化，正确做法是？',
+    opts: [
+      '在脚本里写 <code>count = count + 1</code>',
+      '在脚本里写 <code>count.value = count.value + 1</code>',
+      '在模板里写 <code>{{ count.value }}</code> 并修改它',
+      '用 <code>document.getElementById</code> 找到文字节点再改'
+    ],
+    answer: 1,
+    explain: '<b>脚本里读写响应式数据必须带 <code>.value</code>，模板里不要带</b>（模板会自动解包）。<code>count = count + 1</code> 是重新赋值常量，既丢失响应式也会报错；App 端没有 <code>document</code>。'
+  },
+  {
+    q: '下面哪一份数据最应该用 <code>computed</code> 而不是 <code>ref</code>？',
+    opts: [
+      '输入框里用户输入的关键词',
+      '接口返回的原始列表',
+      '根据关键词过滤后的列表与"共 N 条"的统计',
+      '当前是第几页'
+    ],
+    answer: 2,
+    explain: '凡是"能由其它状态算出来"的都该用 <code>computed</code>：过滤后的列表、总条数、是否可提交。<code>ref</code> 留给真正的源数据（用户输入、接口返回、页码）。'
+  },
+  {
+    q: '关于 <code>watch</code> 的使用场景，下面哪个最合适？',
+    opts: [
+      '把列表按关键词过滤后显示',
+      '计算"共 N 条 / 已完成 M 条"',
+      '关键词停止输入 400ms 后发起搜索请求',
+      '决定页面标题显示什么文字'
+    ],
+    answer: 2,
+    explain: '<code>watch</code> 用来做<b>副作用</b>——状态变化后"对外做事"（发请求、写缓存、打日志）。A、B 是派生数据用 <code>computed</code>；D 属于模板展示，直接在模板里写表达式即可。'
+  },
+  {
+    q: '<code>reactive</code> 声明了一个对象后，下面哪种写法<b>最容易导致界面不更新</b>？',
+    opts: [
+      '用 <code>user.name = \'新名字\'</code> 改属性',
+      '用 <code>const { name } = user</code> 解构出属性再使用',
+      '在模板里写 <code>{{ user.name }}</code>',
+      '把整个对象整体重新赋值给 <code>user</code> 的某个属性'
+    ],
+    answer: 1,
+    explain: '解构会把响应式"摘掉"：解构出的 <code>name</code> 只是当时的一个普通值，之后 <code>user.name</code> 变化它不会跟着变。<b>始终用带对象前缀的方式访问</b>（<code>user.name</code>）。'
+  },
+  {
+    q: '模板里出现 <code>{{ list.filter((x) =&gt; x.done).length }}</code> 这类写法，主要问题是什么？',
+    opts: [
+      '语法错误，模板里不能调用方法',
+      '能跑但不合适：每次重渲染都要重算，逻辑也不好复用',
+      '会导致 App 崩溃',
+      '没有问题，这是官方推荐的写法'
+    ],
+    answer: 1,
+    explain: '模板里可以写表达式与方法调用，但复杂计算应该上移到 <code>computed</code>：既避免重复计算，也让模板保持"一眼看出界面长什么样"。'
+  },
+  {
+    q: '要在同一个元素上根据状态切换样式，下面哪种写法是本章推荐的做法？',
+    opts: [
+      '用 <code>document</code> 找到元素再改它的 class',
+      '用 <code>:class="{ active: isActive }"</code> 或 <code>:class="isActive ? \'active\' : \'\'"</code> 绑定数据',
+      '写两份元素，用 <code>v-if</code> 择一显示',
+      '把两种样式都写进 <code>style</code> 属性里，用字符串拼接'
+    ],
+    answer: 1,
+    explain: '动态 class 用 <code>:class</code> 绑定表达式（字符串拼接 / 三元 / 对象语法都可以）。App 端没有 <code>document</code>；用 <code>v-if</code> 复制元素会带来维护成本；本章的推荐正是"数据驱动样式"。'
+  },
+  {
+    q: '关于 <code>v-if</code> 与 <code>v-show</code>，下面说法正确的是？',
+    opts: [
+      '<code>v-if</code> 只是隐藏节点，节点一直存在',
+      '<code>v-show</code> 会销毁节点，切换开销更大',
+      '<code>v-if</code> 条件不成立时节点不存在；<code>v-show</code> 只切换显示，适合频繁切换',
+      '两者完全等价，随便选'
+    ],
+    answer: 2,
+    explain: '<code>v-if</code> 是"创建 / 不创建"，<code>v-show</code> 是"始终存在，只切换显示"。切换不频繁、或希望节点真的不存在（如权限不同的界面、三态列表）用 <code>v-if</code>；频繁切换用 <code>v-show</code>。'
+  },
+  {
+    q: '<b>（多选）</b>关于本章的组合式 API 与代码组织，下面哪些说法正确？',
+    opts: [
+      'Vue 的公开 API（<code>ref</code>、<code>computed</code>、<code>watch</code>、<code>onLoad</code> 等）会被自动引入，不需要写 import',
+      '蒸汽模式只支持组合式 API，不支持选项式，也不支持 mixin',
+      '页面逻辑变长时，可以抽成普通函数文件（composable）在两个页面里复用',
+      '为了代码简洁，可以在 <code>computed</code> 里顺手修改其它状态变量'
+    ],
+    answer: [0, 1, 2],
+    explain: 'A、B、C 都正确。D 错误：<b><code>computed</code> 只负责"算"，不应该修改状态</b>——那属于副作用，应该交给 <code>watch</code> 或事件处理函数，否则会造成难以追踪的更新循环。'
+  }
+];
+
+/* ---------------- 代码 ↔ 手机联动演练区 ---------------- */
+window.PG_DEMOS = {
+  reactivity: {
+    examples: [
+      {
+        name: '① 普通变量（反例）',
+        file: 'pages/demo/state.uvue',
+        navbar: '反例：普通变量',
+        hint: '这里用一个普通 let 变量存计数。点按钮后变量确实变了（看提示），但界面上的数字永远不动——因为它不是响应式数据，框架不知道要更新。',
+        state: { normal: 0 },
+        code: {
+          template: '<template>\n  <view class="page">\n    <text class="num">{{ count }}</text>\n    <button @click="add">+1</button>\n  </view>\n</template>',
+          script: '<script setup>\n  // 反例：普通变量不是响应式数据\n  let count = 0\n\n  const add = () => {\n    count = count + 1        // 变量变了，但界面不会刷新\n    console.log(\'count =\', count)\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; justify-content: center; align-items: center; background-color: #FFFFFF; }\n  .num { font-size: 56px; font-weight: bold; color: #A8B0BF; }\n</style>'
+        },
+        render: function (state) {
+          return '<div class="uv-view" style="flex:1;justify-content:center;align-items:center;background:#fff">' +
+            '<div class="uv-text" style="font-size:56px;font-weight:700;color:#A8B0BF">0</div>' +
+            '<div class="uv-btn primary" style="width:160px;margin-top:16px" data-bind="add">+1</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#B42318;margin-top:14px;text-align:center">界面永远停在 0：变量变了（共点了 ' + state.normal + ' 次），但界面不知道</div></div>';
+        },
+        actions: {
+          add: function (state) {
+            state.normal = (state.normal || 0) + 1;
+            return '普通变量 count 已经是 ' + state.normal + '，但界面没有更新';
+          }
+        }
+      },
+      {
+        name: '② ref + .value',
+        file: 'pages/demo/state.uvue',
+        navbar: 'ref 响应式',
+        hint: '换成 ref 之后，只要在脚本里改 .value，模板里的 {{ count }} 会自动更新。这就是"数据驱动界面"的最小完整例子。',
+        state: { count: 0 },
+        code: {
+          template: '<template>\n  <view class="page">\n    <\!-- 模板里直接写变量名，不用写 .value -->\n    <text class="num">{{ count }}</text>\n    <button @click="add">+1</button>\n  </view>\n</template>',
+          script: '<script setup>\n  // 响应式数据：初值 0，类型由编译器推导\n  const count = ref(0)\n\n  const add = () => {\n    count.value = count.value + 1     // 脚本里必须带 .value\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; justify-content: center; align-items: center; background-color: #FFFFFF; }\n  .num { font-size: 56px; font-weight: bold; color: #2F6BFF; }\n</style>'
+        },
+        render: function (state) {
+          return '<div class="uv-view" style="flex:1;justify-content:center;align-items:center;background:#fff">' +
+            '<div class="uv-text" style="font-size:56px;font-weight:700;color:#2F6BFF">' + (state.count || 0) + '</div>' +
+            '<div class="uv-btn primary" style="width:160px;margin-top:16px" data-bind="add">+1</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#0B8A66;margin-top:14px">✓ 每次点击界面都会自动更新</div></div>';
+        },
+        actions: {
+          add: function (state) {
+            state.count = (state.count || 0) + 1;
+            return 'count.value = ' + state.count + ' → 界面同步更新';
+          }
+        }
+      },
+      {
+        name: '③ reactive 对象',
+        file: 'pages/demo/user.uvue',
+        navbar: 'reactive 对象',
+        hint: '一组互相关联的字段用 reactive 更清爽：改属性不用写 .value，模板里也直接 user.name。注意这里始终用"对象.属性"的方式访问。',
+        state: { userLevel: 3 },
+        code: {
+          template: '<template>\n  <view class="page">\n    <view class="card">\n      <text class="name">{{ user.name }}</text>\n      <text class="muted">等级 Lv.{{ user.level }}</text>\n    </view>\n    <button @click="levelUp">升一级</button>\n  </view>\n</template>',
+          script: '<script setup>\n  type UserState = {\n    name: string,\n    level: number\n  }\n\n  const user = reactive({\n    \'name\': \'汽水同学\',\n    \'level\': 3\n  } as UserState)\n\n  const levelUp = () => {\n    user.level = user.level + 1      // reactive 不用写 .value\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #F5F8FF; }\n  .card { background-color: #FFFFFF; border-radius: 12px; padding: 16px; margin-bottom: 16px; }\n  .name { font-size: 18px; font-weight: bold; margin-bottom: 4px; }\n  .muted { font-size: 13px; color: #5A6B8C; }\n</style>'
+        },
+        render: function (state) {
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#F5F8FF">' +
+            '<div class="uv-card" style="margin-bottom:16px;padding:16px">' +
+            '<div class="uv-text" style="font-size:18px;font-weight:700;margin-bottom:4px">汽水同学</div>' +
+            '<div class="uv-text" style="font-size:13px;color:#5A6B8C">等级 Lv.' + (state.userLevel || 3) + '</div></div>' +
+            '<div class="uv-btn primary" data-bind="up">升一级</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:12px">reactive 对象改属性即可，不需要 .value</div></div>';
+        },
+        actions: {
+          up: function (state) {
+            state.userLevel = (state.userLevel || 3) + 1;
+            return 'user.level = ' + state.userLevel;
+          }
+        }
+      },
+      {
+        name: '④ 解构（反例）',
+        file: 'pages/demo/wrong.uvue',
+        navbar: '反例：解构 reactive',
+        hint: '这里把 user.name 解构成了一个普通变量 name。之后改 user.name，界面显示的 name 不会跟着变——响应式被"摘掉"了。这类问题很难查，所以从一开始就不要解构。',
+        state: { realName: '汽水同学', clicks: 0 },
+        code: {
+          template: '<template>\n  <view class="page">\n    <text class="name">{{ name }}</text>\n    <button @click="rename">改名</button>\n  </view>\n</template>',
+          script: '<script setup>\n  const user = reactive({\n    \'name\': \'汽水同学\'\n  })\n\n  // 反例：解构出来的 name 是一个普通值，失去了响应式\n  const name = user.name\n\n  const rename = () => {\n    user.name = \'新名字\'      // 界面上的 name 不会变\n    console.log(\'user.name =\', user.name)\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; justify-content: center; align-items: center; background-color: #FFFFFF; }\n  .name { font-size: 22px; font-weight: bold; color: #111C33; margin-bottom: 16px; }\n</style>'
+        },
+        render: function (state) {
+          return '<div class="uv-view" style="flex:1;justify-content:center;align-items:center;background:#fff">' +
+            '<div class="uv-text" style="font-size:22px;font-weight:700;color:#111C33;margin-bottom:16px">汽水同学</div>' +
+            '<div class="uv-btn primary" style="width:160px" data-bind="rename">改名</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#B42318;margin-top:14px;text-align:center">真实数据已改成"新名字"共 ' + (state.clicks || 0) + ' 次，<br />但界面上的名字始终没变</div></div>';
+        },
+        actions: {
+          rename: function (state) {
+            state.clicks = (state.clicks || 0) + 1;
+            return 'user.name 已经是"新名字"，但解构出来的变量不会更新';
+          }
+        }
+      }
+    ]
+  },
+
+  'computed.demo': {
+    examples: [
+      {
+        name: '① 关键词过滤（computed）',
+        file: 'pages/demo/filter.uvue',
+        navbar: 'computed 过滤',
+        hint: '点下面的关键词按钮，相当于用户在搜索框里输入。列表与统计都由 computed 算出来：你只维护"原始列表 + 关键词"两个状态，其余全是派生数据。',
+        state: { keyword: '' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <text class="muted">共 {{ filtered.length }} 条 / 已完成 {{ doneCount }} 条</text>\n    <view v-for="item in filtered" :key="item.id" class="item">\n      <text :class="item.done ? \'title done\' : \'title\'">{{ item.title }}</text>\n    </view>\n  </view>\n</template>',
+          script: '<script setup>\n  type Notice = { id: number, title: string, done: boolean }\n\n  const keyword = ref<string>(\'\')\n  const list = ref<Notice[]>([\n    { \'id\': 1, \'title\': \'数据结构作业\', \'done\': false },\n    { \'id\': 2, \'title\': \'英语演讲准备\', \'done\': true },\n    { \'id\': 3, \'title\': \'社团例会\', \'done\': false }\n  ])\n\n  // 派生数据一：过滤后的列表\n  const filtered = computed<Notice[]>(() => {\n    if (keyword.value.length == 0) return list.value\n    return list.value.filter((item) => item.title.includes(keyword.value))\n  })\n\n  // 派生数据二：统计（基于 filtered 再派生）\n  const doneCount = computed(() => filtered.value.filter((item) => item.done).length)\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #F5F8FF; }\n  .muted { font-size: 13px; color: #5A6B8C; margin-bottom: 12px; }\n  .item { background-color: #FFFFFF; border-radius: 10px; padding: 14px; margin-bottom: 8px; }\n  .title { font-size: 15px; color: #111C33; }\n  .done { color: #A8B0BF; text-decoration: line-through; }\n</style>'
+        },
+        render: function (state) {
+          var all = [
+            { id: 1, title: '数据结构作业', done: false },
+            { id: 2, title: '英语演讲准备', done: true },
+            { id: 3, title: '社团例会', done: false }
+          ];
+          var kw = state.keyword || '';
+          var filtered = kw.length === 0 ? all : all.filter(function (i) { return i.title.indexOf(kw) > -1; });
+          var doneCount = filtered.filter(function (i) { return i.done; }).length;
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#F5F8FF">' +
+            '<div style="display:flex;flex-direction:row;margin-bottom:12px">' +
+            ['', '数据', '英语'].map(function (k, idx) {
+              var label = k === '' ? '全部' : k;
+              var active = kw === k;
+              return '<div class="uv-btn' + (active ? ' primary' : '') + '" style="flex:1;margin-right:6px;font-size:13px" data-bind="kw' + idx + '">' + label + '</div>';
+            }).join('') + '</div>' +
+            '<div class="uv-text" style="font-size:13px;color:#5A6B8C;margin-bottom:12px">共 ' + filtered.length + ' 条 / 已完成 ' + doneCount + ' 条（关键词：' + (kw || '无') + '）</div>' +
+            (filtered.length === 0
+              ? '<div class="uv-text" style="font-size:14px;color:#A8B0BF;text-align:center;padding:24px">没有匹配的通知</div>'
+              : filtered.map(function (i) {
+                return '<div class="uv-card" style="padding:14px;margin-bottom:8px">' +
+                  '<span class="uv-text" style="font-size:15px;color:' + (i.done ? '#A8B0BF' : '#111C33') + ';text-decoration:' + (i.done ? 'line-through' : 'none') + '">' + i.title + '</span></div>';
+              }).join('')) + '</div>';
+        },
+        actions: {
+          kw0: function (state) { state.keyword = ''; return 'keyword = \'\' → filtered 自动重算'; },
+          kw1: function (state) { state.keyword = '数据'; return 'keyword = \'数据\' → 只剩 1 条'; },
+          kw2: function (state) { state.keyword = '英语'; return 'keyword = \'英语\' → 只剩 1 条'; }
+        }
+      },
+      {
+        name: '② watch 防抖日志',
+        file: 'pages/demo/watch.uvue',
+        navbar: 'watch 副作用',
+        hint: '每一次关键词变化，watch 都会"顺便记一笔"。真实项目里这里换成发请求（第 8 章）；注意代码里先 clearTimeout 再 setTimeout，这才是防抖。',
+        state: { keyword: '', logs: [] },
+        code: {
+          template: '<template>\n  <view class="page">\n    <text class="muted">当前关键词：{{ keyword }}</text>\n    <view v-for="(log, index) in logs" :key="index" class="log">\n      <text class="log-text">{{ log }}</text>\n    </view>\n  </view>\n</template>',
+          script: '<script setup>\n  const keyword = ref<string>(\'\')\n  const logs = ref<string[]>([])\n  let timer: number | null = null\n\n  // watch：状态变化后"顺便做点事"，不产出新数据\n  watch(keyword, () => {\n    if (timer != null) clearTimeout(timer)\n    timer = setTimeout(() => {\n      const word = keyword.value\n      if (word.length == 0) return\n      logs.value = logs.value.concat(\'搜索：\' + word)\n    }, 400)\n  })\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .muted { font-size: 13px; color: #5A6B8C; margin-bottom: 12px; }\n  .log { background-color: #F5F8FF; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }\n  .log-text { font-size: 13px; color: #111C33; }\n</style>'
+        },
+        render: function (state) {
+          var logs = state.logs || [];
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-text" style="font-size:13px;color:#5A6B8C;margin-bottom:12px">当前关键词：' + (state.keyword || '（空）') + '</div>' +
+            '<div style="display:flex;flex-direction:row;margin-bottom:14px">' +
+            [['数', '输"数"'], ['数据', '输"数据"'], ['', '清空']].map(function (pair, idx) {
+              return '<div class="uv-btn' + (idx === 2 ? '' : ' primary') + '" style="flex:1;margin-right:6px;font-size:13px" data-bind="k' + idx + '">' + pair[1] + '</div>';
+            }).join('') + '</div>' +
+            '<div class="uv-text" style="font-size:13px;color:#111C33;font-weight:700;margin-bottom:8px">副作用日志</div>' +
+            (logs.length === 0
+              ? '<div class="uv-text" style="font-size:13px;color:#A8B0BF">还没有日志，点上面的按钮试试</div>'
+              : logs.map(function (l, i) {
+                return '<div style="background:#F5F8FF;border-radius:8px;padding:10px 12px;margin-bottom:8px"><span class="uv-text" style="font-size:13px;color:#111C33">' + (i + 1) + '. ' + l + '</span></div>';
+              }).join('')) + '</div>';
+        },
+        actions: {
+          k0: function (state) { state.keyword = '数'; state.logs = (state.logs || []).concat('搜索：数'); return 'watch 触发 → 记录一条日志'; },
+          k1: function (state) { state.keyword = '数据'; state.logs = (state.logs || []).concat('搜索：数据'); return 'watch 触发 → 记录一条日志'; },
+          k2: function (state) { state.keyword = ''; return '关键词清空，不发起搜索'; }
+        }
+      }
+    ]
+  },
+
+  directives: {
+    examples: [
+      {
+        name: '① v-if 三态切换',
+        file: 'pages/demo/states.uvue',
+        navbar: 'v-if 三态',
+        hint: '加载中 / 空态 / 有数据，是每个列表页都要处理的三种状态。用 v-if / v-else-if / v-else 表达，比"用变量控制某个文字"清晰得多。点按钮切换状态看效果。',
+        state: { phase: 'empty' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <view v-if="loading" class="tip"><text class="tip-text">加载中…</text></view>\n    <view v-else-if="list.length == 0" class="tip"><text class="tip-text">还没有通知，去创建一条吧</text></view>\n    <view v-else v-for="item in list" :key="item.id" class="item">\n      <text class="title">{{ item.title }}</text>\n    </view>\n  </view>\n</template>',
+          script: '<script setup>\n  type Notice = { id: number, title: string }\n\n  const loading = ref(false)\n  const list = ref<Notice[]>([])\n\n  // 只有 loading 与 list 两个状态，界面由它们推导出来\n  const load = () => {\n    loading.value = true\n    setTimeout(() => {\n      list.value = [\n        { \'id\': 1, \'title\': \'数据结构作业\' },\n        { \'id\': 2, \'title\': \'社团例会\' }\n      ]\n      loading.value = false\n    }, 800)\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #F5F8FF; }\n  .tip { flex: 1; justify-content: center; align-items: center; }\n  .tip-text { font-size: 14px; color: #5A6B8C; }\n  .item { background-color: #FFFFFF; border-radius: 10px; padding: 14px; margin-bottom: 8px; }\n  .title { font-size: 15px; color: #111C33; }\n</style>'
+        },
+        render: function (state) {
+          var phase = state.phase || 'empty';
+          var body;
+          if (phase === 'loading') {
+            body = '<div class="uv-text" style="font-size:14px;color:#5A6B8C;text-align:center;padding:30px">加载中…</div>';
+          } else if (phase === 'empty') {
+            body = '<div class="uv-text" style="font-size:14px;color:#5A6B8C;text-align:center;padding:30px">还没有通知，去创建一条吧</div>';
+          } else {
+            body = ['数据结构作业', '社团例会'].map(function (t) {
+              return '<div class="uv-card" style="padding:14px;margin-bottom:8px"><span class="uv-text" style="font-size:15px;color:#111C33">' + t + '</span></div>';
+            }).join('');
+          }
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#F5F8FF">' + body +
+            '<div style="display:flex;flex-direction:row;margin-top:14px">' +
+            '<div class="uv-btn primary" style="flex:1;margin-right:6px;font-size:13px" data-bind="loading">加载中</div>' +
+            '<div class="uv-btn" style="flex:1;margin-right:6px;font-size:13px" data-bind="empty">空态</div>' +
+            '<div class="uv-btn" style="flex:1;font-size:13px" data-bind="done">有数据</div></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:12px">当前渲染的节点：' + (phase === 'done' ? '两个 .item（列表）' : '一个 .tip（提示）') + '</div></div>';
+        },
+        actions: {
+          loading: function (state) { state.phase = 'loading'; return 'loading = true → 走 v-if 分支'; },
+          empty: function (state) { state.phase = 'empty'; return 'loading = false 且 list 为空 → 走 v-else-if 空态分支'; },
+          done: function (state) { state.phase = 'done'; return 'list 有数据 → 走 v-else 分支并循环渲染'; }
+        }
+      },
+      {
+        name: '② 动态 class：选中态',
+        file: 'pages/demo/tabs.uvue',
+        navbar: ':class 动态样式',
+        hint: '点标签切换选中项。注意：选中的高亮效果不是"手动改样式"，而是 :class 根据数据算出该用哪个类——状态只有一个 activeTab。',
+        state: { activeTab: 'all' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <view class="tabs">\n      <view\n        v-for="tab in tabs"\n        :key="tab.key"\n        class="tab"\n        :class="activeTab == tab.key ? \'tab active\' : \'tab\'"\n        @click="select(tab.key)">\n        <text :class="activeTab == tab.key ? \'tab-text active-text\' : \'tab-text\'">{{ tab.label }}</text>\n      </view>\n    </view>\n  </view>\n</template>',
+          script: '<script setup>\n  type Tab = { key: string, label: string }\n\n  const tabs = ref<Tab[]>([\n    { \'key\': \'all\', \'label\': \'全部\' },\n    { \'key\': \'todo\', \'label\': \'未完成\' },\n    { \'key\': \'done\', \'label\': \'已完成\' }\n  ])\n\n  const activeTab = ref<string>(\'all\')\n\n  const select = (key: string) => {\n    activeTab.value = key\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .tabs { flex-direction: row; }\n  .tab {\n    height: 34px;\n    border-radius: 17px;\n    background-color: #F1F5FD;\n    justify-content: center;\n    align-items: center;\n    padding-left: 16px;\n    padding-right: 16px;\n    margin-right: 10px;\n  }\n  .active { background-color: #2F6BFF; }\n  .tab-text { font-size: 14px; color: #5A6B8C; }\n  .active-text { color: #FFFFFF; font-weight: bold; }\n</style>'
+        },
+        render: function (state) {
+          var tabs = [['all', '全部'], ['todo', '未完成'], ['done', '已完成']];
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div style="display:flex;flex-direction:row">' +
+            tabs.map(function (t) {
+              var active = state.activeTab === t[0];
+              return '<div style="height:34px;border-radius:17px;padding:0 16px;margin-right:10px;display:flex;align-items:center;justify-content:center;background:' + (active ? '#2F6BFF' : '#F1F5FD') + '" data-bind="sel_' + t[0] + '">' +
+                '<span class="uv-text" style="font-size:14px;color:' + (active ? '#fff' : '#5A6B8C') + ';font-weight:' + (active ? '700' : '400') + '">' + t[1] + '</span></div>';
+            }).join('') + '</div>' +
+            '<div class="uv-text" style="font-size:13px;color:#5A6B8C;margin-top:16px">activeTab = \'' + (state.activeTab || 'all') + '\'</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#A8B0BF;margin-top:6px">选中态完全由这一个状态决定</div></div>';
+        },
+        actions: {
+          sel_all: function (state) { state.activeTab = 'all'; return 'activeTab = \'all\''; },
+          sel_todo: function (state) { state.activeTab = 'todo'; return 'activeTab = \'todo\''; },
+          sel_done: function (state) { state.activeTab = 'done'; return 'activeTab = \'done\''; }
+        }
+      },
+      {
+        name: '③ :style 绑定：进度条',
+        file: 'pages/demo/progress.uvue',
+        navbar: ':style 绑定',
+        hint: '宽度这种"值本身就是数据"的样式，用 :style 绑定最合适。点按钮改变 progress，进度条宽度自动跟着变——注意它不会引起布局重排以外的问题，但也不要用它做高频动画。',
+        state: { progress: 30 },
+        code: {
+          template: '<template>\n  <view class="page">\n    <text class="muted">课程完成度：{{ progress }}%</text>\n\n    <\!-- 值来自数据，所以用 :style 绑定 -->\n    <view class="track">\n      <view class="bar" :style="{ width: progress + \'%\' }"></view>\n    </view>\n  </view>\n</template>',
+          script: '<script setup>\n  const progress = ref(30)\n\n  const add = () => {\n    if (progress.value >= 100) return\n    progress.value = progress.value + 10\n  }\n\n  const reset = () => {\n    progress.value = 0\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .muted { font-size: 14px; color: #5A6B8C; margin-bottom: 12px; }\n  .track { height: 10px; border-radius: 5px; background-color: #EDF2FC; overflow: hidden; }\n  .bar { height: 10px; border-radius: 5px; background-color: #2F6BFF; }\n</style>'
+        },
+        render: function (state) {
+          var p = state.progress || 0;
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-text" style="font-size:14px;color:#5A6B8C;margin-bottom:12px">课程完成度：' + p + '%</div>' +
+            '<div style="height:10px;border-radius:5px;background:#EDF2FC;overflow:hidden">' +
+            '<div style="height:10px;border-radius:5px;background:#2F6BFF;width:' + p + '%;transition:width .3s ease"></div></div>' +
+            '<div style="display:flex;flex-direction:row;margin-top:16px">' +
+            '<div class="uv-btn primary" style="flex:1;margin-right:8px" data-bind="add">+10%</div>' +
+            '<div class="uv-btn" style="flex:1" data-bind="reset">清零</div></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#A8B0BF;margin-top:12px">:style="{ width: progress + \'%\' }"</div></div>';
+        },
+        actions: {
+          add: function (state) {
+            state.progress = Math.min(100, (state.progress || 0) + 10);
+            return 'progress = ' + state.progress + ' → 宽度自动更新';
+          },
+          reset: function (state) { state.progress = 0; return 'progress = 0'; }
+        }
+      }
+    ]
+  }
+};
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>
