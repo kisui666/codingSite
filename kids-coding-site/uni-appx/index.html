@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>uni-app x 跨平台应用开发 · 大学生实战课程 | 汽水老师编程课堂</title>
+<meta name="description" content="面向大学生（已具备 H5/CSS3/JavaScript 基础）的 uni-app x 跨平台应用开发课程：4 大模块 13 章，从 UVUE 页面、布局样式、响应式数据到项目实战与多端发布。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<!-- ============ 顶部栏 ============ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">uni-app x 跨平台应用开发</div>
+        <div class="sub">汽水老师 · 大学实战课程 · 36 学时</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip vapor">蒸汽模式 Vapor</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="chapter-01.html">开始学习第 1 章</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ Hero ============ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="chip" style="margin-bottom:16px">🚀 一套代码 · Android / iOS / 鸿蒙 / Web / 小程序</div>
+        <h1>用你已经会的 <span class="grad">Vue + TS + CSS</span><br />写出真正能装到手机上的 App</h1>
+        <p class="lead">
+          这是一门写给<b>大学生</b>的 uni-app x 实战课。你已经学过 H5、CSS3 和 JavaScript，
+          所以这门课不讲"什么是标签、什么是变量"，而是直接回答三个问题：
+          <b>uni-app x 和 Web 有什么不一样？</b>、<b>为什么它能让同一套代码跑成原生 App？</b>、
+          <b>怎么在 4 周内做出一个能写进简历的校园应用？</b>
+        </p>
+        <div class="hero-points">
+          <span class="chip mint">4 大模块 13 章</span>
+          <span class="chip">每章 2–3 学时</span>
+          <span class="chip yellow">随堂测验 + 代码演练</span>
+          <span class="chip gray">2 个综合项目</span>
+        </div>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="chapter-01.html">进入第 1 章 →</a>
+          <a class="btn btn-ghost" href="#outline">查看完整目录</a>
+        </div>
+
+        <div class="stats-strip">
+          <div class="stat"><div class="num">13</div><div class="lbl">章（含 2 章项目实战）</div></div>
+          <div class="stat"><div class="num">36</div><div class="lbl">建议学时（含实验）</div></div>
+          <div class="stat"><div class="num">5</div><div class="lbl">可发布平台</div></div>
+          <div class="stat"><div class="num">100%</div><div class="lbl">代码可直接运行</div></div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <!-- 迷你手机示意 -->
+        <div class="device" style="width:270px">
+          <div class="device-screen" style="height:520px">
+            <div class="device-status"><span>9:41</span><span class="r">▮▮▮ <span class="bat"></span></span></div>
+            <div class="uvue-navbar">校园课程表</div>
+            <div class="uvue-page" style="padding:14px;gap:10px">
+              <div class="uv-view" style="background:#2F6BFF;border-radius:14px;padding:16px;gap:4px">
+                <div class="uv-text" style="color:#fff;font-size:15px;font-weight:700">周一 · 第 3 周</div>
+                <div class="uv-text" style="color:rgba(255,255,255,.85);font-size:12px">今天 4 节课 · 别忘了 8:00 的实验课</div>
+              </div>
+              <div class="uv-card">
+                <div class="uv-view" style="flex-direction:row;justify-content:space-between;align-items:center">
+                  <div class="uv-text" style="font-weight:700">移动应用开发</div>
+                  <span class="uv-text" style="font-size:12px;color:#12B886">08:00–09:40</span>
+                </div>
+                <div class="uv-text" style="font-size:12px;color:#5A6B8C">实验楼 B302 · 张老师</div>
+              </div>
+              <div class="uv-card">
+                <div class="uv-view" style="flex-direction:row;justify-content:space-between;align-items:center">
+                  <div class="uv-text" style="font-weight:700">数据结构</div>
+                  <span class="uv-text" style="font-size:12px;color:#FF7A45">10:00–11:40</span>
+                </div>
+                <div class="uv-text" style="font-size:12px;color:#5A6B8C">教学楼 A201 · 李老师</div>
+              </div>
+              <div class="uv-card">
+                <div class="uv-view" style="flex-direction:row;justify-content:space-between;align-items:center">
+                  <div class="uv-text" style="font-weight:700">英语视听说</div>
+                  <span class="uv-text" style="font-size:12px;color:#7C5CFF">14:00–15:40</span>
+                </div>
+                <div class="uv-text" style="font-size:12px;color:#5A6B8C">外语楼 C105 · 王老师</div>
+              </div>
+              <div class="uv-btn vapor">＋ 添加课程</div>
+            </div>
+          </div>
+        </div>
+        <div class="uvue-caption">第 11 章项目预览：校园课程表（示意图）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 课程定位 ============ -->
+<section class="section" id="position" style="padding-bottom:20px">
+  <div class="container">
+    <div class="section-wrap" style="grid-template-columns:minmax(0,1fr)">
+      <div>
+        <div class="sec-head">
+          <span class="sec-no">先修 & 定位</span>
+          <h2>你会的 Web 知识，在这门课里值多少钱？</h2>
+        </div>
+        <p>
+          本课程<b>默认你已掌握</b>：HTML5 语义标签与表单、CSS3 盒模型 / Flex / 定位与动画、JavaScript 变量与函数 /
+          数组与对象 / 事件与 DOM 操作 / 基础 ES6（箭头函数、解构、模块）。以上内容不会重复讲授，只会被"翻译"成 uni-app x 的写法。
+        </p>
+
+        <div class="table-wrap">
+          <table class="cmp">
+            <thead>
+              <tr><th>你已有的 Web 技能</th><th>在 uni-app x 里的对应物</th><th>迁移难度</th><th>最容易踩的坑</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>HTML 标签（<code>div</code> / <code>span</code> / <code>img</code>）</td>
+                <td>内置组件 <code>view</code> / <code>text</code> / <code>image</code>，书写在 <code>.uvue</code> 文件的 <code>&lt;template&gt;</code> 中</td>
+                <td>低</td>
+                <td>App 端没有"标签",只有组件；文字必须放在 <code>text</code> 里，样式还不继承</td>
+              </tr>
+              <tr>
+                <td>CSS3 选择器、继承、伪类、浮动</td>
+                <td>ucss 子集：<b>只用 class 选择器</b> + flex 布局（默认<b>竖向</b>）</td>
+                <td>中</td>
+                <td>标签选择器 / <code>#id</code> / 伪元素 / <code>float</code> 在 App 端不支持</td>
+              </tr>
+              <tr>
+                <td>DOM 操作：<code>document.querySelector</code>、<code>onclick</code></td>
+                <td>声明式数据绑定：<code>{{ }}</code> + <code>@click</code>，改数据即改界面</td>
+                <td>中</td>
+                <td>没有 <code>window</code> / <code>document</code>，靠改响应式变量驱动 UI</td>
+              </tr>
+              <tr>
+                <td>JavaScript / ES6</td>
+                <td>蒸汽模式直接用 TS/JS；VDOM 模式用 UTS（TS 的超集）</td>
+                <td>低</td>
+                <td>写上类型更省心：<code>ref&lt;string&gt;('')</code> 比裸 JS 更早发现错误</td>
+              </tr>
+              <tr>
+                <td>npm 包 / 第三方库</td>
+                <td><code>uni_modules</code> 插件 + npm（蒸汽模式下纯 JS 库可用）</td>
+                <td>低</td>
+                <td>依赖 <code>window</code>、<code>document</code> 的库不能直接用于 App</td>
+              </tr>
+              <tr>
+                <td>浏览器 DevTools 调试</td>
+                <td>HBuilderX 控制台 + 真机运行日志 + <code>uni.showModal</code> 快速验证</td>
+                <td>低</td>
+                <td>App 端不能按 F12，调试思路要提前建立</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout info">
+          <span class="ci">ⓘ</span>
+          <div>
+            <strong>关于"蒸汽模式"与"UTS/VDOM 模式"：</strong>
+            <p>
+              uni-app x 早期版本用 UTS（强类型语言，可编译为 Kotlin / Swift / ArkTS / JS）开发，称为 VDOM 模式；
+              2026 年推出的<b>蒸汽模式</b>改用标准的 <b>Vue + TS/JS + CSS 子集</b>，渲染性能更高、生态与 AI 工具支持更好，
+              官方推荐新项目使用。本课程主线采用蒸汽模式，同时在第 10 章与附录 C 讲清两种模式的选型与老项目兼容，
+              保证你既写得动新项目，也读得懂企业里在维护的老代码。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 课程目录 ============ -->
+<section class="section" id="outline" style="padding-top:24px">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:38px">
+      <h2 style="font-size:clamp(24px,3.4vw,34px);font-weight:900">课程目录 · <span style="color:var(--primary)">4 大模块 13 章</span></h2>
+      <p class="text-sub" style="margin-top:8px">按"能看见成果"的顺序排列：每 2–3 章就能做出一个可演示的东西，第 11、12 章直接产出作品集项目。</p>
+    </div>
+
+    <!-- 模块一 -->
+    <div class="module-block m1 reveal">
+      <div class="module-head">
+        <div class="module-badge">01</div>
+        <div>
+          <h3>模块一 · 起步：把 Web 思维切换到 uvue</h3>
+          <div class="desc">认识框架 → 跑通第一个工程 → 掌握布局与样式的地基</div>
+        </div>
+        <div class="module-meta">第 1–3 章 · 8–9 学时</div>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card ready" href="chapter-01.html">
+          <div class="cc-top">
+            <span class="cc-no">第 1 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>走进 uni-app x：一次编写，多端原生运行</h4>
+          <div class="cc-goal">理解跨平台编译原理，装好环境，写出并运行人生第一个 uvue 页面。</div>
+          <div class="cc-points"><span>.uvue</span><span>pages.json</span><span>text/view</span><span>UCSS 差异</span><span>运行调试</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 9 节 · 3 处动手演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-02.html">
+          <div class="cc-top">
+            <span class="cc-no">第 2 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>布局与基础组件：view / text / image / scroll-view</h4>
+          <div class="cc-goal">用 flex 六大套路 + px/rpx 适配，做出"任何屏幕都不变形"的移动端布局。</div>
+          <div class="cc-points"><span>flex</span><span>hover-class</span><span>max-lines</span><span>image mode</span><span>scroll-view</span><span>v-for</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 9 节 · 4 处动手演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-03.html">
+          <div class="cc-top">
+            <span class="cc-no">第 3 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>样式进阶：ucss 子集、样式隔离与主题</h4>
+          <div class="cc-goal">把样式"管住"：隔离策略 2.0 与 externalClasses、设计令牌、质感与动效、暗黑模式适配。</div>
+          <div class="cc-points"><span>styleIsolation</span><span>externalClasses</span><span>CSS 变量</span><span>prefers-color-scheme</span><span>theme.json</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">2–3 学时 · 8 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 模块二 -->
+    <div class="module-block m2 reveal">
+      <div class="module-head">
+        <div class="module-badge">02</div>
+        <div>
+          <h3>模块二 · 语法与交互：让界面活起来</h3>
+          <div class="desc">响应式数据 → 事件与表单 → 组件化 → 页面路由与生命周期</div>
+        </div>
+        <div class="module-meta">第 4–7 章 · 12 学时</div>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card ready" href="chapter-04.html">
+          <div class="cc-top">
+            <span class="cc-no">第 4 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>响应式数据与模板语法</h4>
+          <div class="cc-goal">分清状态 / 派生 / 副作用：ref、reactive、computed、watch 各归其位，模板只做展示。</div>
+          <div class="cc-points"><span>ref / .value</span><span>reactive</span><span>computed</span><span>watch 防抖</span><span>:class / :style</span><span>composable</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 8 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-05.html">
+          <div class="cc-top">
+            <span class="cc-no">第 5 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>事件与表单交互</h4>
+          <div class="cc-goal">做出登录页、搜索框、报名表：输入体验、开关滑块单选多选、底部选择器，以及校验与防重复提交。</div>
+          <div class="cc-points"><span>:value + @input</span><span>type 键盘</span><span>switch/slider</span><span>checkbox/radio</span><span>picker</span><span>校验与防重提</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 9 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-06.html">
+          <div class="cc-top">
+            <span class="cc-no">第 6 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>组件化开发与组件通信</h4>
+          <div class="cc-goal">抽出可复用组件：easycom 免注册使用、props 与 attrs 透传、回调向上、ref + defineExpose、插槽。</div>
+          <div class="cc-points"><span>easycom</span><span>defineProps</span><span>attrs 透传</span><span>回调函数</span><span>defineExpose</span><span>插槽</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 9 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-07.html">
+          <div class="cc-top">
+            <span class="cc-no">第 7 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>页面路由与生命周期</h4>
+          <div class="cc-goal">多页面跳转与传参、返回时回传数据、生命周期该放什么逻辑、下拉刷新与触底加载、tabBar 底部导航。</div>
+          <div class="cc-points"><span>页面栈</span><span>navigateTo/switchTab</span><span>onLoad vs onPageShow</span><span>onReachBottom</span><span>tabBar</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 9 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 模块三 -->
+    <div class="module-block m3 reveal">
+      <div class="module-head">
+        <div class="module-badge">03</div>
+        <div>
+          <h3>模块三 · 数据与设备能力：接上真实世界</h3>
+          <div class="desc">网络请求 → 本地存储与状态管理 → 系统与硬件能力</div>
+        </div>
+        <div class="module-meta">第 8–10 章 · 8 学时</div>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card ready" href="chapter-08.html">
+          <div class="cc-top">
+            <span class="cc-no">第 8 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>网络请求与数据展示</h4>
+          <div class="cc-goal">接真实接口：uni.request 参数与错误码、统一请求封装、分页列表三态、上传下载与断网处理。</div>
+          <div class="cc-points"><span>uni.request</span><span>errCode 表</span><span>请求封装</span><span>分页锁</span><span>请求竞态</span><span>网络状态</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 9 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-09.html">
+          <div class="cc-top">
+            <span class="cc-no">第 9 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>本地存储与全局状态管理</h4>
+          <div class="cc-goal">数据放哪里：存储 API 与平台容量差异、store 全局状态、登录态 token 生命周期、先缓存后请求。</div>
+          <div class="cc-points"><span>setStorageSync</span><span>返回 any 要 as</span><span>H5 5MB / App 持久化</span><span>reactive store</span><span>401 跳登录</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">2–3 学时 · 9 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-10.html">
+          <div class="cc-top">
+            <span class="cc-no">第 10 章</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>设备能力与 UTS 插件入门</h4>
+          <div class="cc-goal">调起相机相册、扫码、定位、系统信息与权限处理，并知道何时该写 uts 插件。</div>
+          <div class="cc-points"><span>chooseImage</span><span>scanCode</span><span>getDeviceInfo</span><span>权限四态</span><span>栈顶页面陷阱</span><span>UTS 插件</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 10 节 · 3 处代码演练</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 模块四 -->
+    <div class="module-block m4 reveal">
+      <div class="module-head">
+        <div class="module-badge">04</div>
+        <div>
+          <h3>模块四 · 实战与发布：做出能写进简历的作品</h3>
+          <div class="desc">两个完整项目 + 打包发布全流程</div>
+        </div>
+        <div class="module-meta">第 11–13 章 · 8 学时</div>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card ready" href="chapter-11.html">
+          <div class="cc-top">
+            <span class="cc-no">第 11 章 · 项目</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>项目①：校园课程表 App</h4>
+          <div class="cc-goal">完整项目实战：需求拆解与数据建模、tabBar 骨架、今日课程派生、周课表网格布局、增删改与本地持久化、10 项验收清单。</div>
+          <div class="cc-points"><span>需求拆解</span><span>数据建模</span><span>周次数组</span><span>格子矩阵</span><span>flex 网格</span><span>onPageShow 刷新</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">4 学时 · 10 节 · 10 项验收</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-12.html">
+          <div class="cc-top">
+            <span class="cc-no">第 12 章 · 项目</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>项目②：校园二手交易 App</h4>
+          <div class="cc-goal">联网项目实战：接口字段对齐、request/api 分层、分页与搜索防抖、请求竞态、多图上传与失败重试、登录拦截。</div>
+          <div class="cc-points"><span>DTO → 模型</span><span>三层分层</span><span>防抖与竞态</span><span>逐张上传</span><span>失败保留表单</span><span>登录拦截时机</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">5 学时 · 10 节 · 10 项验收</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+
+        <a class="chapter-card ready" href="chapter-13.html">
+          <div class="cc-top">
+            <span class="cc-no">第 13 章 · 结课</span>
+            <span class="chip mint">可学习</span>
+          </div>
+          <h4>打包与多端发布</h4>
+          <div class="cc-goal">manifest 全解、图标与启动界面规格、权限最小化、隐私合规红线、打包与签名、多端发布要点、20 项上架前检查。</div>
+          <div class="cc-points"><span>uni-app-x 节点</span><span>versionCode 递增</span><span>图标四套 + iOS 1024</span><span>隐私红线</span><span>自定义基座不可上架</span><span>wgt 热更新</span></div>
+          <div class="cc-foot">
+            <span class="cc-hours">3 学时 · 11 节 · 20 项检查</span>
+            <span class="chip">进入 →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 附录 -->
+    <div class="module-block reveal">
+      <div class="module-head">
+        <div class="module-badge" style="background:linear-gradient(135deg,#5A6B8C,#8896B5)">附</div>
+        <div>
+          <h3>附录 · 速查与排错（随时翻）</h3>
+          <div class="desc">写给"忘了怎么写"和"编译报错看不懂"的时刻</div>
+        </div>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card ready" href="appendix-a.html">
+          <div class="cc-top"><span class="cc-no">附录 A</span><span class="chip mint">可查阅</span></div>
+          <h4>Web → uni-app x 写法对照速查表</h4>
+          <div class="cc-goal">结构、样式、DOM 操作、事件、存储、请求、路由、工程配置逐条"翻译"，附危险写法清单与 12 步迁移自查。</div>
+          <div class="cc-foot"><span class="cc-hours">47 条对照 · 支持关键词搜索</span><span class="chip">打开 →</span></div>
+        </a>
+        <a class="chapter-card ready" href="appendix-b.html">
+          <div class="cc-top"><span class="cc-no">附录 B</span><span class="chip mint">可查阅</span></div>
+          <h4>编译错误与真机问题排错手册</h4>
+          <div class="cc-goal">40+ 条"症状 → 原因 → 解决"速查（可搜索/分类），附五步排查流程、四个调试手法、排错记录模板与上交自查。</div>
+          <div class="cc-foot"><span class="cc-hours">40+ 条 · 支持关键词搜索</span><span class="chip">打开 →</span></div>
+        </a>
+        <a class="chapter-card ready" href="appendix-c.html">
+          <div class="cc-top"><span class="cc-no">附录 C</span><span class="chip mint">可查阅</span></div>
+          <h4>模式选型指南：蒸汽模式 / VDOM+UTS / 原生插件</h4>
+          <div class="cc-goal">两条技术路线对照、版本与平台门槛、扩展能力三选一、老项目升级六步，以及官方文档中已知的矛盾与未确认项。</div>
+          <div class="cc-foot"><span class="cc-hours">含选型决策器 · 7 项已知矛盾清单</span><span class="chip">打开 →</span></div>
+        </a>
+        <a class="chapter-card ready" href="appendix-d.html">
+          <div class="cc-top"><span class="cc-no">附录 D</span><span class="chip mint">可查阅</span></div>
+          <h4>课程设计选题库与评分标准</h4>
+          <div class="cc-goal">20 个拆到功能级的校园 App 选题（可按难度/方向筛选）、五维度 100 分评分表、三周迭代时间线、12 题答辩库与 10 项上交自查。</div>
+          <div class="cc-foot"><span class="cc-hours">20 个选题 · 教师与学生通用</span><span class="chip">打开 →</span></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 学习路线 ============ -->
+<section class="section" id="path" style="background:linear-gradient(180deg,transparent,#EEF3FF)">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:34px">
+      <h2 style="font-size:clamp(23px,3.2vw,32px);font-weight:900">能力成长路线</h2>
+      <p class="text-sub" style="margin-top:8px">每一层都有"可展示的成果"，避免学完只会抄代码。</p>
+    </div>
+    <div class="chapter-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div class="chapter-card reveal">
+        <div class="cc-top"><span class="chip">阶段一 · 第 1–3 章</span></div>
+        <h4>能跑、能改、能看清</h4>
+        <div class="cc-goal">独立创建工程并真机运行；看懂 uvue 文件结构；会写 flex 布局与 rpx 适配；能用控制台定位问题。</div>
+        <div class="cc-points"><span>成果：一个多页面个人主页 App</span></div>
+      </div>
+      <div class="chapter-card reveal">
+        <div class="cc-top"><span class="chip vapor">阶段二 · 第 4–7 章</span></div>
+        <h4>会写交互、会拆组件</h4>
+        <div class="cc-goal">熟练使用响应式数据与事件；能抽出复用组件；掌握路由传参与生命周期，写出完整业务流。</div>
+        <div class="cc-points"><span>成果：带表单与列表的记账 / 打卡 App</span></div>
+      </div>
+      <div class="chapter-card reveal">
+        <div class="cc-top"><span class="chip mint">阶段三 · 第 8–10 章</span></div>
+        <h4>接得住数据、用得上硬件</h4>
+        <div class="cc-goal">完成接口联调、错误处理与本地持久化；会调用相机、扫码、定位等设备能力。</div>
+        <div class="cc-points"><span>成果：能联网的资讯 / 二手交易 App</span></div>
+      </div>
+      <div class="chapter-card reveal">
+        <div class="cc-top"><span class="chip yellow">阶段四 · 第 11–13 章</span></div>
+        <h4>做得出作品、发得出去</h4>
+        <div class="cc-goal">独立完成需求拆解、界面设计、编码自测与打包发布，产出可写进简历的作品集。</div>
+        <div class="cc-points"><span>成果：上架 APK + 在线 Web 版</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 教学安排 ============ -->
+<section class="section" id="teaching">
+  <div class="container">
+    <div class="section-wrap" style="grid-template-columns:minmax(0,1fr)">
+      <div>
+        <div class="sec-head">
+          <span class="sec-no">教学建议</span>
+          <h2>怎么用这套材料（教师 / 自学者都适用）</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp">
+            <thead><tr><th>场景</th><th>建议安排</th><th>重点章节</th><th>考核建议</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><b>32 学时选修课</b><br />（16 周 × 2 学时）</td>
+                <td>第 1–10 章每周 1 章（部分章合并），第 11–13 章作为期末项目冲刺</td>
+                <td>1、2、4、5、7、8</td>
+                <td>平时测验 30% + 课堂实验 30% + 期末作品 40%</td>
+              </tr>
+              <tr>
+                <td><b>48 学时专业实践</b></td>
+                <td>每章配 1 次上机实验，第 11、12 章各用 2 周做完整项目迭代</td>
+                <td>全部 + 附录 D 选题库</td>
+                <td>实验报告 30% + 阶段作品 30% + 答辩 40%</td>
+              </tr>
+              <tr>
+                <td><b>学生自学 / 竞赛备赛</b></td>
+                <td>按"能力成长路线"四阶段推进，每章结束完成随堂测验与课后作业</td>
+                <td>1→2→4→5→8→11→12</td>
+                <td>用附录 D 评分表自评，作品发到真机验证</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout ok">
+          <span class="ci">✓</span>
+          <div>
+            <strong>与既有 Scratch / Python 少儿课程的衔接：</strong>
+            <p>
+              本站沿用"汽水老师编程课堂"的课程设计方法（目标卡 → 分环节推进 → 任务清单 → 随堂测验 → 星级作业），
+              但内容完全面向大学阶段：不教"什么是循环"，而是教<b>工程结构、类型思维、跨端差异与发布流程</b>。
+              学过 Scratch 的学员具备清晰的逻辑分解能力，学过 Python 的学员具备代码阅读能力，
+              本课程可以直接从第 1 章进入真实开发工具链。
+            </p>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <span class="ci">!</span>
+          <div>
+            <strong>开始前的环境准备清单：</strong>
+            <p>
+              ① 一台 Windows / macOS 电脑，内存 ≥ 8GB；② 下载安装 HBuilderX（官方 IDE，含 uni-app x 工程模板与真机运行能力）；
+              ③ 一部 Android 手机（或安卓模拟器）并开启"开发者选项—USB 调试"，iOS 真机运行需要 Mac 环境；
+              ④ 注册 DCloud 账号（云打包与部分 API 需要）；⑤ 第 1 章会带你逐项完成，无需提前配置。
+            </p>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ci">✍</span>
+          <div>
+            <strong>新功能：全站可以批注（教师备课 / 学生笔记都适用）</strong>
+            <p>
+              每一页顶部栏都有一个「<b>✍ 批注</b>」按钮，支持三种批注：
+              <b>① 选中文字 → 高亮并写批注</b>；<b>② 鼠标移到某个区块（表格 / 代码卡片 / 提示框）→ 点右上角「＋ 便签」</b>写好整块意见；
+              <b>③ 把某一小节标记为待办</b>。
+              批注<b>自动保存在本机浏览器</b>里，刷新、关掉重开都还在；
+              在「批注 → 导出」里可以<b>导出 / 导入 JSON</b>（备份、换电脑、发给别人），
+              也可以<b>一键复制为 Markdown</b>——直接粘进 Word、微信或备课笔记就能用。
+              想给某段话写意见，不必改 HTML：批注不会动到课程文件本身。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 页脚 ============ -->
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">汽水老师 · uni-app x 大学课堂</div>
+      <div class="fnote">
+        课程内容依据 DCloud 官方文档整理，示例代码可直接在 HBuilderX 中运行。
+        uni-app x 版本迭代较快，若界面或接口有更新，以官方文档为准。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>共 13 章 · 建议 36 学时</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ 目录抽屉 ============ -->
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html', current: true },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

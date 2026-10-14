@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>附录A Web → uni-app x 速查表 | uni-app x 大学课堂</title>
+<meta name="description" content="把 Web 开发经验翻译成 uni-app x：结构、样式、逻辑与 DOM、存储网络、路由、工程配置逐条对照，附危险写法清单与迁移自查清单。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">附录 A · 速查表</div>
+        <div class="sub">随时查阅 · 写作时对照</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip gray nowrap">速查</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#ax-table">开始查找</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">附录 A</span>
+      <span class="chip mint">全课程通用</span>
+      <span class="chip yellow">建议收藏</span>
+    </div>
+    <h1>Web → uni-app x 速查表</h1>
+    <p class="lead">
+      写代码时最常卡住的不是"不会写"，而是"Web 里我是那么写的，这里该写什么"。
+      这一页把结构、样式、逻辑、存储网络、路由、工程配置的对应关系一次列全，并单独标出<b>在 App 端根本不生效</b>的写法。
+      忘记时回来搜关键词即可，例如搜 <code>localStorage</code>、<code>div</code>、<code>float</code>。
+    </p>
+    <div class="chapter-meta">
+      <div>📋 对照条目 <strong id="axTotal">47</strong> 条</div>
+      <div>🚫 危险写法 <strong id="axDanger">13</strong> 类</div>
+      <div>✅ 迁移自查 <strong id="axCheck">12</strong> 项</div>
+    </div>
+  </div>
+</section>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ A.1 速查表 ============ -->
+      <section class="lesson-section" id="ax-table" data-nav="A.1 逐条对照速查">
+        <div class="sec-head">
+          <span class="sec-no">A.1</span>
+          <h2>逐条对照速查</h2>
+          <span class="sec-time">按需查阅</span>
+        </div>
+        <div class="sec-body">
+          <div class="ax-tools">
+            <div class="ax-search-row">
+              <input type="search" id="axSearch" class="ax-search" placeholder="搜索：div、localStorage、flex、请求、跳转、图标…" aria-label="搜索速查表" />
+              <span class="ax-count" id="axCount"></span>
+            </div>
+            <div class="ax-cats" id="axCats">
+              <button class="pg-btn active" data-fcat="all">全部</button>
+              <button class="pg-btn" data-fcat="struct">结构</button>
+              <button class="pg-btn" data-fcat="css">样式</button>
+              <button class="pg-btn" data-fcat="logic">逻辑与 DOM</button>
+              <button class="pg-btn" data-fcat="data">存储与网络</button>
+              <button class="pg-btn" data-fcat="route">路由与页面</button>
+              <button class="pg-btn" data-fcat="build">工程与配置</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="cmp ax">
+              <thead>
+                <tr><th>想做的事</th><th>Web 写法</th><th>uni-app x 写法</th><th>关键差异 / 坑</th></tr>
+              </thead>
+              <tbody id="axBody">
+                <!-- 结构 -->
+                <tr data-cat="struct"><td>页面文件</td><td><code>index.html</code> + <code>.js</code> + <code>.css</code></td><td><code>pages/index/index.uvue</code>（三段式合一）</td><td>页面必须登记到 <code>pages.json</code>，第一项是启动页</td></tr>
+                <tr data-cat="struct"><td>容器</td><td><code>&lt;div&gt;</code></td><td><code>&lt;view&gt;</code></td><td><code>view</code> 天生是 flex 容器，默认<b>纵向</b>排列</td></tr>
+                <tr data-cat="struct"><td>文字</td><td><code>&lt;p&gt;</code> <code>&lt;span&gt;</code></td><td><code>&lt;text&gt;</code></td><td>文字必须放在 <code>text</code> 里；写在 <code>view</code> 里会被自动包一层无样式的 <code>text</code>，样式改不动</td></tr>
+                <tr data-cat="struct"><td>图片</td><td><code>&lt;img src="assets/a.png"&gt;</code></td><td><code>&lt;image src="/static/a.png" mode="aspectFill"&gt;</code></td><td>图片必须放 <code>static/</code> 才会被打包；也可以直接用网络地址</td></tr>
+                <tr data-cat="struct"><td>可滚动区域</td><td><code>overflow: auto</code> + 固定高度</td><td><code>&lt;scroll-view direction="vertical"&gt;</code></td><td>页面本身默认可滚动；<code>scroll-view</code> 需要限定高度（用 <code>flex: 1</code> 或固定高度）</td></tr>
+                <tr data-cat="struct"><td>超链接跳转</td><td><code>&lt;a href="about.html"&gt;</code></td><td><code>&lt;navigator url="/pages/about/about"&gt;</code> 或 <code>@click</code> + <code>uni.navigateTo</code></td><td>url 是"页面路径"，不带后缀，且必须是已注册页面</td></tr>
+                <tr data-cat="struct"><td>列表</td><td><code>ul</code> / <code>li</code> + 拼接 HTML</td><td><code>&lt;view v-for="item in list" :key="item.id"&gt;</code></td><td>用 <code>v-for</code> 渲染，别手动拼字符串；列表项给唯一 <code>:key</code></td></tr>
+
+                <!-- 样式 -->
+                <tr data-cat="css"><td>全局样式</td><td><code>&lt;link rel="stylesheet"&gt;</code></td><td>写在 <code>App.uvue</code> 的 <code>&lt;style&gt;</code> 里</td><td>公共 class 放全局是最稳的做法</td></tr>
+                <tr data-cat="css"><td>页面样式</td><td>页面内的 <code>&lt;style&gt;</code></td><td>页面 <code>.uvue</code> 里的 <code>&lt;style&gt;</code></td><td>非 Web 平台<b>不支持 <code>scoped</code></b>；样式隔离由官方策略控制</td></tr>
+                <tr data-cat="css"><td>页面布局方式</td><td>block 文档流 + <code>float</code></td><td>flex 布局（<code>flex-direction</code> 默认 <code>column</code>）</td><td><code>float</code> 完全不支持；横排必须显式写 <code>flex-direction: row</code></td></tr>
+                <tr data-cat="css"><td>元素间距</td><td><code>margin</code> 或 <code>gap</code></td><td><code>margin</code>（<code>padding</code> 配合）</td><td><b><code>gap</code> / <code>row-gap</code> 不在官方 CSS 属性清单中</b>，别用</td></tr>
+                <tr data-cat="css"><td>尺寸单位</td><td><code>px</code> / <code>rem</code> / <code>em</code> / <code>%</code></td><td><b>优先 <code>px</code></b>（逻辑像素）；<code>rpx</code> 用于按 750px 设计稿等比缩放；支持百分比</td><td>性能 <code>px</code> &gt; <code>rpx</code> &gt; 百分比；<code>rpx</code> 在平板/折叠屏/横屏会偏大</td></tr>
+                <tr data-cat="css"><td>选择器</td><td>标签 / 类 / id / 属性 / 伪类</td><td><b>只用 class 选择器</b>（单一 class 最稳）</td><td>标签、<code>#id</code>、属性、通配符 <code>*</code> 在 App 端都不支持</td></tr>
+                <tr data-cat="css"><td>文字样式继承</td><td>父元素 <code>color</code> 自动传给子元素</td><td>把样式写在 <code>text</code>（或其 class）上</td><td><b>样式不继承</b>，<code>inherit</code> / <code>unset</code> 也不支持</td></tr>
+                <tr data-cat="css"><td>点击态反馈</td><td><code>:active</code> 伪类</td><td>组件的 <code>hover-class</code> 属性</td><td><code>view</code> 的 <code>hover-class</code> 默认是 <code>none</code>，要自己指定才会有点击反馈</td></tr>
+                <tr data-cat="css"><td>字体图标</td><td><code>::before</code> + <code>content: "\e600"</code></td><td>直接把 unicode 字符写在 <code>text</code> 里</td><td>不支持伪元素，图标字体要用 unicode 直显</td></tr>
+                <tr data-cat="css"><td>层级控制</td><td><code>z-index</code> 可任意覆盖</td><td><code>z-index</code> 仅在<b>同一层兄弟节点</b>之间生效</td><td>不能脱离节点树随便"盖住"别人的元素，层级要在结构上设计好</td></tr>
+                <tr data-cat="css"><td>深色模式</td><td><code>@media (prefers-color-scheme: dark)</code></td><td>主题变更 API + CSS 变量</td><td>官方提供暗黑模式专题方案，第 3 章会讲</td></tr>
+
+                <!-- 逻辑与 DOM -->
+                <tr data-cat="logic"><td>获取元素</td><td><code>document.querySelector('.btn')</code></td><td>不需要找元素；改响应式变量即可</td><td>App 端没有 <code>document</code> / <code>window</code></td></tr>
+                <tr data-cat="logic"><td>更新文字</td><td><code>el.textContent = name</code></td><td><code>&lt;text&gt;{{ name }}&lt;/text&gt;</code></td><td>声明式渲染：描述结果，不指挥过程</td></tr>
+                <tr data-cat="logic"><td>声明数据</td><td><code>let count = 0</code></td><td><code>const count = ref(0)</code> → <code>count.value</code></td><td>只有响应式数据变化才会触发界面更新</td></tr>
+                <tr data-cat="logic"><td>点击事件</td><td><code>el.addEventListener('click', fn)</code></td><td><code>&lt;button @click="fn"&gt;</code></td><td>写函数名，不加括号；需要传参时用 <code>@click="fn(item)"</code></td></tr>
+                <tr data-cat="logic"><td>显示 / 隐藏</td><td><code>el.style.display = 'none'</code></td><td><code>v-if</code>（销毁）或 <code>v-show</code>（隐藏）</td><td><code>v-if</code> 不渲染节点，<code>v-show</code> 只切换显示，按开销选择</td></tr>
+                <tr data-cat="logic"><td>循环渲染</td><td><code>list.forEach(...innerHTML += ...)</code></td><td><code>v-for="(item, i) in list"</code></td><td>同时需要 <code>v-if</code> 与 <code>v-for</code> 时，优先用计算属性先过滤</td></tr>
+                <tr data-cat="logic"><td>表单双向绑定</td><td><code>input.value</code> + <code>oninput</code></td><td><code>&lt;input :value="kw" @input="onInput" /&gt;</code>（需要完全受控再加 <code>controlled</code>）</td><td>官方 input 属性表给的是 <code>value</code> + <code>@input</code>；<code>v-model</code> 属内置指令，未出现在组件属性表中，本课程统一用前者</td></tr>
+                <tr data-cat="logic"><td>定时器</td><td><code>setInterval / setTimeout</code></td><td><code>setInterval / setTimeout</code>（同 JS 内置）</td><td>页面卸载时记得 <code>clearInterval</code>，否则回调里访问已销毁页面会出问题</td></tr>
+                <tr data-cat="logic"><td>弹窗确认</td><td><code>alert()</code> / <code>confirm()</code></td><td><code>uni.showModal({ title, content })</code></td><td>真机调试时非常好用；<code>showCancel: false</code> 就是 alert 效果</td></tr>
+                <tr data-cat="logic"><td>轻提示</td><td>自己写一个 toast 组件</td><td><code>uni.showToast({ title: '已保存' })</code></td><td>记得配 <code>icon: 'none'</code> 才是纯文字提示</td></tr>
+                <tr data-cat="logic"><td>页面滚到顶部</td><td><code>window.scrollTo(0, 0)</code></td><td><code>uni.pageScrollTo({ scrollTop: 0 })</code></td><td>跨端 API 统一用 <code>uni.</code> 前缀</td></tr>
+
+                <!-- 存储与网络 -->
+                <tr data-cat="data"><td>本地存储</td><td><code>localStorage.setItem(k, v)</code></td><td><code>uni.setStorageSync(k, v)</code> / <code>uni.getStorageSync(k)</code></td><td>异步版是 <code>uni.setStorage</code>；同步版写起来更省事，注意别存超大对象</td></tr>
+                <tr data-cat="data"><td>网络请求</td><td><code>fetch(url).then(r =&gt; r.json())</code></td><td><code>uni.request({ url, method, data, success, fail })</code></td><td>返回结构是 <code>res.data</code>；域名要在 <code>manifest.json</code> 里配置合法域名（小程序端必须）</td></tr>
+                <tr data-cat="data"><td>请求封装</td><td>axios 实例 + 拦截器</td><td>自己包一层 <code>request()</code> 返回 Promise</td><td>第 8 章会写一份带统一错误处理的请求封装</td></tr>
+                <tr data-cat="data"><td>图片上传</td><td><code>FormData</code> + <code>fetch</code></td><td><code>uni.uploadFile({ url, filePath, name })</code></td><td>先 <code>uni.chooseImage</code> 拿到本地路径，再上传</td></tr>
+                <tr data-cat="data"><td>读写剪贴板</td><td><code>navigator.clipboard</code></td><td><code>uni.setClipboardData</code> / <code>uni.getClipboardData</code></td><td>各端都支持，比浏览器的 clipboard API 更一致</td></tr>
+
+                <!-- 路由与页面 -->
+                <tr data-cat="route"><td>跳转新页面</td><td><code>location.href = 'about.html'</code></td><td><code>uni.navigateTo({ url: '/pages/about/about' })</code></td><td>路径以 <code>/</code> 开头，不带 <code>.uvue</code> 后缀</td></tr>
+                <tr data-cat="route"><td>替换当前页</td><td><code>location.replace(...)</code></td><td><code>uni.redirectTo({ url })</code></td><td>登录页跳主页常用 <code>reLaunch</code>（清空页面栈）</td></tr>
+                <tr data-cat="route"><td>切换 tabBar 页</td><td>—</td><td><code>uni.switchTab({ url })</code></td><td>tabBar 页面只能用 <code>switchTab</code> 跳转</td></tr>
+                <tr data-cat="route"><td>返回上一页</td><td><code>history.back()</code></td><td><code>uni.navigateBack()</code></td><td>可以在返回前把参数回传给上一页（第 7 章讲）</td></tr>
+                <tr data-cat="route"><td>页面之间传参</td><td>URL query / <code>sessionStorage</code></td><td><code>uni.navigateTo({ url: '?id=3' })</code> + <code>onLoad((options) =&gt; {})</code></td><td>参数值记得 <code>encodeURIComponent</code>；复杂对象建议用全局状态或存储</td></tr>
+                <tr data-cat="route"><td>页面标题</td><td><code>&lt;title&gt;</code></td><td><code>pages.json</code> 里该页面的 <code>style.navigationBarTitleText</code></td><td>也可以在运行时用 <code>uni.setNavigationBarTitle</code> 动态改</td></tr>
+                <tr data-cat="route"><td>底部导航栏</td><td>自己写固定定位的 nav</td><td><code>pages.json</code> 的 <code>tabBar</code> 配置</td><td>图标需要普通态与选中态两张图，放 <code>static/</code></td></tr>
+                <tr data-cat="route"><td>页面生命周期</td><td><code>DOMContentLoaded</code> / <code>onload</code></td><td><code>onLoad</code> / <code>onReady</code> / <code>onPageShow</code> / <code>onUnload</code></td><td>组合式 API 中页面的 show/hide 写作 <code>onPageShow</code> / <code>onPageHide</code></td></tr>
+
+                <!-- 工程与配置 -->
+                <tr data-cat="build"><td>静态资源目录</td><td><code>assets/</code> 或任意路径</td><td><b>必须放 <code>static/</code></b></td><td>其他目录里的图片不会被打包；引用路径写 <code>/static/xxx.png</code></td></tr>
+                <tr data-cat="build"><td>引入第三方库</td><td><code>npm install</code> + <code>import</code></td><td>插件市场装 <code>uni_modules</code>；蒸汽模式下纯 JS 库也可直接用 npm</td><td>依赖 <code>window</code> / <code>document</code> 的库不能用于 App 端</td></tr>
+                <tr data-cat="build"><td>应用名 / 图标</td><td><code>&lt;meta&gt;</code> + favicon</td><td><code>manifest.json</code></td><td>包名、版本号、权限声明都在这里；打包前务必检查</td></tr>
+                <tr data-cat="build"><td>生产构建</td><td>构建静态文件并部署</td><td>云打包 / 本地打包生成 APK、IPA、HAP</td><td>Android 可自签安装；iOS 需要证书；鸿蒙需对应工具链</td></tr>
+                <tr data-cat="build"><td>调试方式</td><td>浏览器 F12</td><td>HBuilderX 控制台 + 真机基座运行</td><td>App 端没有 F12；改样式用浏览器预览，验效果必须真机</td></tr>
+              </tbody>
+            </table>
+            <div class="ax-empty" id="axEmpty">没有匹配的条目，换个关键词试试（例如 <b>text</b>、<b>请求</b>、<b>图标</b>）。</div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>搜索小技巧：</strong>
+              <p>直接搜 Web 里的写法（<code>div</code>、<code>alert</code>、<code>localStorage</code>）比搜中文更快命中；点分类按钮可以只看某一类。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ A.2 危险写法 ============ -->
+      <section class="lesson-section" id="ax-danger" data-nav="A.2 危险写法清单">
+        <div class="sec-head">
+          <span class="sec-no">A.2</span>
+          <h2>危险写法清单：这些在 App 端不生效</h2>
+          <span class="sec-time">写代码前扫一眼</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            下面这些写法有个共同特点：<b>在浏览器里看起来完全正常，一上真机就悄悄失效</b>（通常不报错，只是没效果），
+            所以比语法错误更难查。写完页面请逐条排查。
+          </p>
+          <div class="table-wrap">
+            <table class="cmp ax">
+              <thead><tr><th>写法</th><th>状态</th><th>为什么</th><th>正确做法</th></tr></thead>
+              <tbody id="axDangerBody">
+                <tr><td><code>gap: 12px</code></td><td><span class="ax-badge no">不支持</span></td><td>不在官方 CSS 属性清单内</td><td>用 <code>margin</code>（配合 <code>padding</code>）制造间距</td></tr>
+                <tr><td><code>float: left</code></td><td><span class="ax-badge no">不支持</span></td><td>App 端只支持 flex 与绝对定位</td><td>改成 flex 布局</td></tr>
+                <tr><td><code>display: grid</code></td><td><span class="ax-badge no">不支持</span></td><td>不在官方属性清单内</td><td>用 flex 换行（<code>flex-wrap: wrap</code> + 百分比宽度）做网格</td></tr>
+                <tr><td><code>text { color: red }</code>（标签选择器）</td><td><span class="ax-badge no">不支持</span></td><td>App 端只支持 class 选择器</td><td>给组件加 class，写 <code>.title { color: red }</code></td></tr>
+                <tr><td><code>#app { ... }</code>（id 选择器）</td><td><span class="ax-badge no">不支持</span></td><td>同上</td><td>统一用 class</td></tr>
+                <tr><td><code>* { box-sizing: border-box }</code></td><td><span class="ax-badge no">不支持</span></td><td>通配符选择器不支持；而且 ucss 默认就是 border-box</td><td>什么都不用写</td></tr>
+                <tr><td><code>::before</code> / <code>::after</code> / <code>::placeholder</code></td><td><span class="ax-badge no">不支持</span></td><td>不支持伪元素</td><td>多写一个真实 <code>view</code> 节点；占位符样式用 <code>placeholder-class</code></td></tr>
+                <tr><td><code>:active</code> / <code>:hover</code> / <code>:first-child</code></td><td><span class="ax-badge no">不支持</span></td><td>不支持伪类</td><td>点击态用组件的 <code>hover-class</code> 属性；"首尾项"用数据判断后动态 class</td></tr>
+                <tr><td><code>color: inherit</code> / <code>unset</code></td><td><span class="ax-badge no">不支持</span></td><td>样式不继承</td><td>显式写出具体值</td></tr>
+                <tr><td><code>&lt;style scoped&gt;</code></td><td><span class="ax-badge no">非 Web 不支持</span></td><td>App 端没有 scoped 概念，改用官方样式隔离策略</td><td>直接写 <code>&lt;style&gt;</code>，公共样式放 <code>App.uvue</code></td></tr>
+                <tr><td><code>window</code> / <code>document</code> / <code>localStorage</code> / <code>alert</code></td><td><span class="ax-badge no">不存在</span></td><td>App 端不是浏览器环境（DOM API 仅有极少数可用）</td><td>用 <code>uni.</code> 系列 API，界面靠改响应式数据</td></tr>
+                <tr><td><code>rem</code> / <code>em</code></td><td><span class="ax-badge maybe">官方未列出</span></td><td>官方长度单位文档只列了 px、rpx、百分比</td><td>优先 <code>px</code>，需要等比缩放时用 <code>rpx</code></td></tr>
+                <tr><td><code>vh</code> / <code>vw</code></td><td><span class="ax-badge maybe">谨慎使用</span></td><td>官方长度单位文档未列出，各端行为可能不一致</td><td>撑满屏用 <code>flex: 1</code>，比例用百分比</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>最容易漏掉的一类：</strong>
+              <p>
+                以上大多是"不报错但没效果"。如果你的样式在浏览器正常、真机没反应，
+                先按这张表核对一遍，再去怀疑别的地方。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ A.3 迁移自查 ============ -->
+      <section class="lesson-section" id="ax-checklist" data-nav="A.3 迁移自查清单">
+        <div class="sec-head">
+          <span class="sec-no">A.3</span>
+          <h2>把一个 Web 页面迁移过来的 12 步</h2>
+          <span class="sec-time">动手时对照打勾</span>
+        </div>
+        <div class="sec-body">
+          <p>拿到一个写好的 Web 页面（或自己的课程作业），按这个顺序改造，能避免反复返工。点一下即可打勾，进度会保存在浏览器本地。</p>
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 迁移自查
+            <span class="chip" id="taskCounter">0 / 12 已完成</span>
+          </h3>
+          <div class="task-list">
+            <div class="task-item" data-task-id="axa-1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把 HTML 拆成 <code>.uvue</code> 文件，并在 <code>pages.json</code> 注册页面路径</div><div class="task-hint">路径不带后缀，第一项是启动页</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把 <code>div</code>/<code>span</code>/<code>p</code> 全部换成 <code>view</code> 与 <code>text</code>（文字一律进 <code>text</code>）</div><div class="task-hint">文字留在 view 里会导致样式不可控</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把全局 CSS 移到 <code>App.uvue</code> 的 <code>&lt;style&gt;</code>，页面样式留在页面里</div><div class="task-hint">顺手删掉 <code>scoped</code> 属性</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">删除 <code>float</code> / <code>gap</code> / <code>grid</code> / 伪元素写法，改用 flex + margin</div><div class="task-hint">用 A.2 的清单逐条核对</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把标签选择器、id 选择器、属性选择器全部改成 class 选择器</div><div class="task-hint">顺手检查 class 名里没有特殊符号（只允许字母数字下划线短横线）</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-6">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把所有文字相关样式（颜色、字号、粗细、行高）搬到 <code>text</code> 的 class 上</div><div class="task-hint">父级 view 上的文字样式不会生效</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-7">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把 <code>querySelector</code> + 直接改 DOM 的代码，全部改成"改响应式变量 + <code>{{ }}</code>"</div><div class="task-hint">这是迁移中最需要思维转换的一步</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-8">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把 <code>onclick</code> / <code>addEventListener</code> 改成 <code>@click</code>，表单改成 <code>v-model</code></div><div class="task-hint">事件里写函数名，不加括号（除非要传参）</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-9">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">替换浏览器 API：<code>localStorage</code>→<code>uni.setStorageSync</code>，<code>fetch</code>→<code>uni.request</code>，<code>alert</code>→<code>uni.showModal</code>，<code>location</code>→<code>uni.navigateTo</code></div><div class="task-hint">对照 A.1 的"存储与网络""路由与页面"两栏</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-10">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">把图片等静态资源移入 <code>static/</code>，并用 <code>image</code> 组件替换 <code>img</code></div><div class="task-hint">放错目录会导致真机上图片不显示</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-11">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">给列表补上 <code>v-for</code> 与唯一 <code>:key</code>，长列表考虑交给 <code>scroll-view</code></div><div class="task-hint">避免"能用但一滚动就卡"</div></div>
+            </div>
+            <div class="task-item" data-task-id="axa-12">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div><div class="task-text">在浏览器与 Android 真机各跑一遍，逐项对比界面差异并记录原因</div><div class="task-hint">差异清单就是你自己的排错手册（对应附录 B）</div></div>
+            </div>
+          </div>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>迁移心法一句话：</strong>
+              <p>
+                Web 是"用 JS 指挥 DOM 去做事"，uni-app x 是"用数据描述界面应该长什么样"。
+                凡是需要"找到元素再操作"的代码，迁移时都要先问一句：<b>这个状态能不能用变量表示？</b>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="chapter-01.html">
+          <div class="dir">← 回到</div>
+          <div class="ttl">第 1 章 · 走进 uni-app x</div>
+        </a>
+        <a class="next" href="appendix-b.html">
+          <div class="dir">下一篇 →</div>
+          <div class="ttl">附录 B · 编译错误排错手册</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">附录 A · Web → uni-app x 速查表</div>
+      <div class="fnote">
+        对照条目依据 DCloud 官方文档整理。官方 CSS 支持范围与 API 会随版本变化，
+        遇到"文档里没写"的写法，最稳的做法是先在真机上验证一次再使用。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>建议配合第 1 章 1.6 节使用</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html', current: true },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+
+/* 速查表：关键词搜索 + 分类筛选 */
+(function () {
+  function init() {
+    var body = document.getElementById('axBody');
+    if (!body) return;
+    var rows = Array.prototype.slice.call(body.querySelectorAll('tr[data-cat]'));
+    var input = document.getElementById('axSearch');
+    var countEl = document.getElementById('axCount');
+    var emptyEl = document.getElementById('axEmpty');
+    var cats = document.getElementById('axCats');
+    var totalEl = document.getElementById('axTotal');
+    var state = { q: '', cat: 'all' };
+
+    if (totalEl) totalEl.textContent = String(rows.length);
+
+    // 页头统计数字全部由内容自动计算，避免"改了内容忘了改数字"
+    var dangerBody = document.getElementById('axDangerBody');
+    var dangerEl = document.getElementById('axDanger');
+    if (dangerBody && dangerEl) dangerEl.textContent = String(dangerBody.querySelectorAll('tr').length);
+    var checkEl = document.getElementById('axCheck');
+    if (checkEl) checkEl.textContent = String(document.querySelectorAll('.task-item[data-task-id]').length);
+
+    function apply() {
+      var q = state.q.trim().toLowerCase();
+      var shown = 0;
+      rows.forEach(function (tr) {
+        var catOk = state.cat === 'all' || tr.getAttribute('data-cat') === state.cat;
+        var textOk = !q || tr.textContent.toLowerCase().indexOf(q) > -1;
+        var show = catOk && textOk;
+        tr.classList.toggle('ax-hidden', !show);
+        if (show) shown++;
+      });
+      if (countEl) countEl.textContent = '显示 ' + shown + ' / ' + rows.length + ' 条';
+      if (emptyEl) emptyEl.classList.toggle('show', shown === 0);
+    }
+
+    if (input) {
+      input.addEventListener('input', function () { state.q = input.value; apply(); });
+      input.addEventListener('search', function () { state.q = input.value; apply(); });
+    }
+    if (cats) {
+      cats.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('[data-fcat]') : null;
+        if (!btn) return;
+        state.cat = btn.getAttribute('data-fcat');
+        Array.prototype.forEach.call(cats.querySelectorAll('[data-fcat]'), function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+        apply();
+      });
+    }
+    apply();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

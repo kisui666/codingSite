@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第5章 事件与表单交互 | uni-app x 大学课堂</title>
+<meta name="description" content="uni-app x 第5章：事件绑定与传参、input/textarea 输入体验与 type/confirm-type、switch/slider、checkbox/radio、picker 五种模式、form 提交与手写校验、活动报名表实战。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">第 5 章 · 事件与表单交互</div>
+        <div class="sub">模块二 · 语法与交互 · 建议 3 学时</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip vapor nowrap">蒸汽模式</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#sec-quiz">去做随堂测验</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">模块二 · 语法与交互</span>
+      <span class="chip mint">第 5 章 / 共 13 章</span>
+      <span class="chip yellow">难度 ★★★</span>
+      <span class="chip gray">前置：第 3–4 章</span>
+    </div>
+    <h1>事件与表单交互：让用户把数据交给你</h1>
+    <p class="lead">
+      界面会显示、数据会联动之后，最大的缺口是"用户怎么把数据填进来"。
+      这一章把移动端的表单组件一次讲透：<b>输入框的键盘与体验细节</b>、<b>开关 / 滑块 / 单选 / 多选</b>、
+      <b>底部滚动选择器</b>，以及最容易被忽略却最容易出 bug 的一环——<b>校验与重复提交</b>。
+      学完这一章，你就能独立完成"报名表 / 反馈表 / 发布信息"这类真实需求。
+    </p>
+    <div class="chapter-meta">
+      <div>⏱ 建议 <strong>3</strong> 学时（讲授约 95 分钟 + 上机约 60 分钟）</div>
+      <div>🧩 教学内容 <strong>9</strong> 节</div>
+      <div>📝 随堂测验 <strong>8</strong> 题</div>
+      <div>🏠 课后作业 <strong>4</strong> 项</div>
+      <div>📱 代码演练 <strong>3</strong> 处</div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="goals-card">
+    <h2>🎯 这一章我们要达到什么</h2>
+    <div class="goal-grid">
+      <div class="goal-item">
+        <div class="icon">👆</div>
+        <h4>事件写得规范</h4>
+        <p>分清"方法引用"与"内联传参"两种写法，知道什么时候需要事件对象。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">⌨️</div>
+        <h4>输入体验到位</h4>
+        <p>会给输入框选对 <code>type</code> 与 <code>confirm-type</code>，会处理键盘遮挡、字数限制与输入过滤。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">🎚</div>
+        <h4>选对控件</h4>
+        <p>在开关、滑块、单选、多选、选择器之间做出合理选择，并拿到正确的返回值类型。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">✅</div>
+        <h4>表单能上线</h4>
+        <p>会写校验规则、禁用提交按钮、防重复提交——这三件事决定表单能不能给真实用户用。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ 5.1 ============ -->
+      <section class="lesson-section" id="sec-5-1" data-nav="5.1 事件绑定与传参">
+        <div class="sec-head">
+          <span class="sec-no">5.1</span>
+          <h2>事件绑定：方法引用、内联传参、长按</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            uni-app x 的事件绑定统一用 <code>@事件名</code>。移动端最常用的四个事件是
+            <b>点击 <code>@click</code></b>、<b>长按 <code>@longpress</code></b>、
+            <b>输入 <code>@input</code></b>（表单组件）、<b>值变化 <code>@change</code></b>（开关 / 滑块 / 选择器）。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>写法</th><th>用法</th><th>什么时候用</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code>@click="onTap"</code></td>
+                  <td><b>方法引用</b>：直接写函数名，不加括号</td>
+                  <td>最常用，函数不需要外部参数时一律用这种</td>
+                </tr>
+                <tr>
+                  <td><code>@click="remove(item.id)"</code></td>
+                  <td><b>内联调用</b>：在模板里直接传参</td>
+                  <td>列表里"删这一条""打开这一条"这类需要行内数据的场景</td>
+                </tr>
+                <tr>
+                  <td><code>@longpress="onLongPress"</code></td>
+                  <td>长按触发</td>
+                  <td>移动端高频交互：长按复制、长按删除、长按多选</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/demo/event.uvue —— 三种事件写法</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- ① 方法引用：不加括号 --&gt;
+    &lt;button @click="addOne"&gt;新增一条&lt;/button&gt;
+
+    &lt;!-- ② 内联传参：把行内数据带给函数 --&gt;
+    &lt;view v-for="item in list" :key="item.id" class="item"&gt;
+      &lt;text class="item-text"&gt;{{ item.title }}&lt;/text&gt;
+      &lt;text class="del" @click="remove(item.id)"&gt;删除&lt;/text&gt;
+    &lt;/view&gt;
+
+    &lt;!-- ③ 长按：移动端特有的交互方式 --&gt;
+    &lt;view class="item" hover-class="pressed" @longpress="copyAll"&gt;
+      &lt;text class="item-text"&gt;长按复制全部标题&lt;/text&gt;
+    &lt;/view&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  type Notice = { id: number, title: string }
+
+  const list = ref&lt;Notice[]&gt;([
+    { 'id': 1, 'title': '数据结构作业' },
+    { 'id': 2, 'title': '社团例会' }
+  ])
+
+  const addOne = () =&gt; {
+    const nextId = list.value.length + 1
+    // 整体赋值，最可靠
+    list.value = list.value.concat({ 'id': nextId, 'title': '新通知 ' + nextId })
+  }
+
+  const remove = (id: number) =&gt; {
+    list.value = list.value.filter((item) =&gt; item.id != id)
+  }
+
+  const copyAll = () =&gt; {
+    const text = list.value.map((item) =&gt; item.title).join('、')
+    uni.setClipboardData({ 'data': text })          // 复制到剪贴板
+    uni.showToast({ 'title': '已复制', 'icon': 'none' })
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>两条经验：</strong>
+              <p>
+                ① <b>能用方法引用就别用内联调用</b>——内联写法在循环里会为每一项生成一个新函数，列表长时有额外开销；
+                ② 移动端没有鼠标悬停，<b>点击反馈靠 <code>hover-class</code></b>（第 3 章讲过，它的默认值是 <code>none</code>，必须显式指定）。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5.2 ============ -->
+      <section class="lesson-section" id="sec-5-2" data-nav="5.2 input 与 textarea">
+        <div class="sec-head">
+          <span class="sec-no">5.2</span>
+          <h2>输入框：input 与 textarea 的体验细节</h2>
+          <span class="sec-time">30 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            输入框是表单里最需要"抠细节"的组件。同一段文字，键盘类型选错，用户就要多切换两次输入法——
+            这是移动端体验里最容易被用户感知、也最容易改好的地方。
+          </p>
+
+          <h3>先解决一个关键问题：双向绑定怎么写</h3>
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>官方 input 属性表里<b>没有 <code>v-model</code></b>。</strong>
+              <p>
+                官方给出的写法是 <code>:value</code> 绑定数据 + <code>@input</code> 接收输入：
+                <code>&lt;input :value="keyword" @input="onInput" /&gt;</code>。
+                <code>v-model</code> 出现在 Vue 的「内置指令」清单里，属于语法糖；但组件属性表中并未列出它，
+                所以<b>本课程统一使用 <code>:value</code> + <code>@input</code></b>：
+                写法明确、各端行为一致、出错时也更容易定位。
+                如果确实想用 <code>v-model</code>，请先在真机上验证再写进项目。
+              </p>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/demo/input.uvue —— 官方写法的双向绑定</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- :value 显示数据；@input 接收用户输入并写回数据 --&gt;
+    &lt;input
+      class="field"
+      :value="keyword"
+      placeholder="搜索课程"
+      placeholder-class="ph"
+      confirm-type="search"
+      @input="onInput"
+      @confirm="onConfirm" /&gt;
+
+    &lt;text class="muted"&gt;输入内容：{{ keyword }}（{{ keyword.length }} 个字）&lt;/text&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  const keyword = ref&lt;string&gt;('')
+
+  // 事件对象里带着当前输入值：event.detail = { value, cursor }
+  const onInput = (event: UniInputEvent) =&gt; {
+    keyword.value = event.detail.value
+  }
+
+  const onConfirm = () =&gt; {
+    // 用户按下键盘右下角的"搜索"时触发
+    uni.showToast({ 'title': '搜索：' + keyword.value, 'icon': 'none' })
+  }
+&lt;/script&gt;
+
+&lt;style&gt;
+  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }
+  .field { height: 44px; background-color: #F5F8FF; border-radius: 10px; padding-left: 12px; padding-right: 12px; }
+  .ph { color: #A8B0BF; font-size: 14px; }
+  .muted { font-size: 13px; color: #5A6B8C; margin-top: 10px; }
+&lt;/style&gt;</pre></div>
+          </div>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>一个非常好用、但很多人不知道的特性：</strong>
+              <p>
+                <code>@input</code> 的处理函数<b>可以直接 <code>return</code> 一个字符串来替换输入框内容</b>。
+                于是"只允许输入数字""自动转大写""去掉空格"这类需求，不用再手动改数据，一行 return 就够：
+              </p>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">输入过滤：手机号只允许数字</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  const phone = ref&lt;string&gt;('')
+
+  // return 出去的字符串会直接替换输入框里的内容
+  const onPhoneInput = (event: UniInputEvent): string =&gt; {
+    const cleaned = event.detail.value.replace(/[^0-9]/g, '')   // 只保留数字
+    phone.value = cleaned
+    return cleaned
+  }
+
+  // 需要"受控"时，再给 input 加 controlled 属性：
+  // value 将完全由数据决定，避免出现"数据与输入框不一致"
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;input
+    class="field"
+    type="number"
+    maxlength="11"
+    :value="phone"
+    controlled
+    placeholder="请输入手机号"
+    @input="onPhoneInput" /&gt;
+&lt;/template&gt;</pre></div>
+          </div>
+
+          <h3>input 的属性速查</h3>
+          <div class="table-wrap">
+            <table class="cmp ax">
+              <thead><tr><th>属性</th><th>作用</th><th>怎么用</th></tr></thead>
+              <tbody>
+                <tr><td><code>type</code></td><td>决定弹出哪种虚拟键盘</td><td>取值：<code>text</code>（默认）/ <code>number</code> / <code>digit</code>（带小数点）/ <code>idcard</code> / <code>tel</code> / <code>email</code> / <code>url</code> / <code>safe-password</code> / <code>nickname</code> / <code>none</code>（不弹键盘）</td></tr>
+                <tr><td><code>password</code></td><td>密码类型（显示为圆点）</td><td>布尔属性，配合 <code>type="text"</code> 或 <code>safe-password</code> 使用</td></tr>
+                <tr><td><code>confirm-type</code></td><td>键盘右下角按钮上的文字</td><td>取值 <code>send</code> / <code>search</code> / <code>next</code> / <code>go</code> / <code>done</code>（默认 done），<b>仅在 <code>type="text"</code> 时生效</b></td></tr>
+                <tr><td><code>maxlength</code></td><td>最大输入长度</td><td>默认 <code>-1</code> 表示不限制；手机号写 11、验证码写 6</td></tr>
+                <tr><td><code>placeholder</code> / <code>placeholder-class</code></td><td>占位文字与它的样式</td><td>占位文字样式要单独用一个 class（样式不继承）</td></tr>
+                <tr><td><code>adjust-position</code></td><td>键盘弹起时是否自动上推页面</td><td>默认 <code>true</code>；表单在页面底部被键盘挡住时优先检查它</td></tr>
+                <tr><td><code>cursor-spacing</code> / <code>cursor-color</code></td><td>光标与键盘的距离 / 光标颜色</td><td>输入框贴屏幕底部时给 <code>cursor-spacing</code> 一点余量</td></tr>
+                <tr><td><code>auto-focus</code> / <code>focus</code></td><td>自动聚焦</td><td><code>auto-focus</code> 只在首次生效；需要反复控制焦点用 <code>focus</code></td></tr>
+                <tr><td><code>disabled</code></td><td>禁用</td><td>注意：在 <code>form</code> 里 <b>被禁用的表单项仍然会被提交</b>（见 5.6）</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>textarea：多行输入的三个专属属性</h3>
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>属性 / 事件</th><th>作用</th><th>注意</th></tr></thead>
+              <tbody>
+                <tr><td><code>auto-height</code></td><td>高度随内容自动增长</td><td>开启后 <b><code>style</code> 里的 <code>height</code> 不生效</b>——写留言框、评论框最常用</td></tr>
+                <tr><td><code>show-confirm-bar</code></td><td>是否显示键盘上方的"完成"栏</td><td>iOS 上默认显示，写长文本时可关掉争取空间</td></tr>
+                <tr><td><code>adjust-keyboard-to</code></td><td>键盘弹出时的对齐方式</td><td>取值 <code>cursor</code>（对齐光标，默认）/ <code>bottom</code>（对齐底部）</td></tr>
+                <tr><td><code>@linechange</code></td><td>行数变化时触发（可拿到高度）</td><td>做"展开全文"这类效果时有用</td></tr>
+                <tr><td>无 <code>type</code> / <code>password</code></td><td>—</td><td>多行输入不需要键盘类型，所以这两个属性不存在</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>input 与 textarea 的一个行为差异：</strong>
+              <p>
+                <code>input</code> 的 <code>@input</code> 处理函数 <b>可以 <code>return</code> 字符串替换内容</b>；
+                而 <code>textarea</code> 的 <code>@input</code> <b>返回值不生效</b>。
+                所以在 textarea 上做输入过滤时，必须老老实实"先清洗数据、再赋回去"。
+              </p>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="inputlab"></div>
+        </div>
+      </section>
+
+      <!-- ============ 5.3 ============ -->
+      <section class="lesson-section" id="sec-5-3" data-nav="5.3 switch 与 slider">
+        <div class="sec-head">
+          <span class="sec-no">5.3</span>
+          <h2>开关与滑块：switch / slider</h2>
+          <span class="sec-time">15 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>组件</th><th>关键属性</th><th>事件返回值</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b><code>switch</code></b></td>
+                  <td><code>checked</code>、<code>disabled</code>、<code>foreColor</code>（滑块颜色）、<code>activeForeColor</code>、<code>backgroundColor</code>、<code>activeBackgroundColor</code>、<code>thumb-class</code> / <code>thumb-active-class</code> / <code>switch-active-class</code>、<code>type</code></td>
+                  <td><code>@change</code> → <code>event.detail.value</code> 是 <b>boolean</b></td>
+                </tr>
+                <tr>
+                  <td><b><code>slider</code></b></td>
+                  <td><code>min</code> / <code>max</code> / <code>step</code>、<code>value</code>、<code>disabled</code>、<code>show-value</code>、<code>block-size</code>、<code>activeBackgroundColor</code> / <code>backgroundColor</code>、<code>foreColor</code>、<code>track-class</code> / <code>track-active-class</code> / <code>thumb-class</code></td>
+                  <td><code>@change</code>（拖动结束）→ <b>number</b>；<code>@changing</code>（拖动中）→ number</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>三个已经废弃的属性名（老教程里很常见）：</strong>
+              <p>
+                <code>switch</code> 的 <code>color</code> → 改用 <b><code>foreColor</code></b>；
+                <code>slider</code> 的 <code>activeColor</code> / <code>block-color</code> / <code>color</code> / <code>selected-color</code> → 改用
+                <b><code>activeBackgroundColor</code> / <code>thumb-class</code> / <code>foreColor</code> / <code>track-active-class</code></b>。
+                官方还特别注明：<b>蒸汽模式下 slider 的颜色请用 <code>track-class</code> / <code>thumb-class</code> 这类 class 来定制</b>。
+              </p>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/demo/switch-slider.uvue</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;view class="row"&gt;
+      &lt;text class="label"&gt;接收通知&lt;/text&gt;
+      &lt;!-- 开关：值来自数据，变化后写回数据 --&gt;
+      &lt;switch :checked="notifyOn" foreColor="#2F6BFF" @change="onNotifyChange" /&gt;
+    &lt;/view&gt;
+
+    &lt;view class="row"&gt;
+      &lt;text class="label"&gt;每天学习时长（{{ hours }} 小时）&lt;/text&gt;
+    &lt;/view&gt;
+    &lt;!-- 滑块：step 必须能整除 max - min --&gt;
+    &lt;slider :value="hours" :min="0" :max="8" :step="1" show-value @change="onHoursChange" /&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  const notifyOn = ref&lt;boolean&gt;(true)
+  const hours = ref&lt;number&gt;(2)
+
+  const onNotifyChange = (event: UniSwitchChangeEvent) =&gt; {
+    notifyOn.value = event.detail.value          // boolean
+  }
+
+  const onHoursChange = (event: UniSliderChangeEvent) =&gt; {
+    hours.value = event.detail.value             // number
+  }
+&lt;/script&gt;
+
+&lt;style&gt;
+  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }
+  .row { flex-direction: row; justify-content: space-between; align-items: center; height: 48px; }
+  .label { font-size: 15px; color: #111C33; }
+&lt;/style&gt;</pre></div>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>两条实践提醒：</strong>
+              <p>
+                ① <code>slider</code> 的 <code>step</code> 必须大于 0 且能整除 <code>max - min</code>，
+                否则在部分平台"拖不到最右端"（官方说明：该问题在 iOS 4.33 起已一致，Android / Web 需自己注意）；
+                ② iOS 端的 <code>switch</code> / <code>slider</code> <b>不支持 <code>padding</code></b>，
+                要靠 <code>margin</code> 做位置微调，否则会出现双端间距不一致。
+              </p>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="choices"></div>
+        </div>
+      </section>
+
+      <!-- ============ 5.4 ============ -->
+      <section class="lesson-section" id="sec-5-4" data-nav="5.4 checkbox 与 radio">
+        <div class="sec-head">
+          <span class="sec-no">5.4</span>
+          <h2>多选与单选：checkbox-group / radio-group</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            移动端做"选一个"和"选多个"，规范做法是<b>用组组件包住单项组件</b>：
+            <code>radio-group</code> 包 <code>radio</code>、<code>checkbox-group</code> 包 <code>checkbox</code>。
+            变化事件绑在<b>组</b>上，而不是单项上——这是最容易写错的地方。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>组件</th><th>写法要点</th><th><code>@change</code> 的返回值</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b><code>radio-group</code></b><br />+ <code>radio</code></td>
+                  <td>事件绑在 <code>radio-group</code> 上；每个 <code>radio</code> 用 <code>value</code> 标识自己，用 <code>checked</code> 控制选中</td>
+                  <td><code>event.detail.value</code> 是被选中项的 <b>string</b></td>
+                </tr>
+                <tr>
+                  <td><b><code>checkbox-group</code></b><br />+ <code>checkbox</code></td>
+                  <td>同样绑在组上；支持一次选中多个，通常配合"最多选 3 个"这类限制逻辑</td>
+                  <td><code>event.detail.value</code> 是选中项的 <b>string 数组</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/demo/choice.uvue —— 单选 + 多选（带选择上限）</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- 单选：事件绑在 radio-group 上 --&gt;
+    &lt;text class="section-title"&gt;选择年级&lt;/text&gt;
+    &lt;radio-group @change="onGradeChange"&gt;
+      &lt;label class="opt" v-for="g in grades" :key="g"&gt;
+        &lt;radio :value="g" :checked="grade == g" color="#2F6BFF" /&gt;
+        &lt;text class="opt-text"&gt;{{ g }}&lt;/text&gt;
+      &lt;/label&gt;
+    &lt;/radio-group&gt;
+
+    &lt;!-- 多选：事件同样绑在 group 上，返回值是数组 --&gt;
+    &lt;text class="section-title"&gt;选择感兴趣的社团（最多 2 个）&lt;/text&gt;
+    &lt;checkbox-group @change="onClubChange"&gt;
+      &lt;label class="opt" v-for="c in clubs" :key="c"&gt;
+        &lt;checkbox :value="c" :checked="pickedClubs.indexOf(c) &gt;= 0" /&gt;
+        &lt;text class="opt-text"&gt;{{ c }}&lt;/text&gt;
+      &lt;/label&gt;
+    &lt;/checkbox-group&gt;
+
+    &lt;text class="muted"&gt;已选：{{ pickedClubs.join('、') }}&lt;/text&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  const grades = ref&lt;string[]&gt;(['大一', '大二', '大三', '大四'])
+  const clubs = ref&lt;string[]&gt;(['编程社', '摄影社', '篮球队', '志愿者协会'])
+
+  const grade = ref&lt;string&gt;('')
+  const pickedClubs = ref&lt;string[]&gt;([])
+
+  const onGradeChange = (event: UniRadioGroupChangeEvent) =&gt; {
+    grade.value = event.detail.value                    // string
+  }
+
+  const onClubChange = (event: UniCheckboxGroupChangeEvent) =&gt; {
+    const picked = event.detail.value                   // string[]
+    if (picked.length &gt; 2) {
+      uni.showToast({ 'title': '最多选 2 个', 'icon': 'none' })
+      // 通过"不改数据"来拒绝这次修改，界面会回到原状态
+      return
+    }
+    pickedClubs.value = picked
+  }
+&lt;/script&gt;
+
+&lt;style&gt;
+  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }
+  .section-title { font-size: 15px; font-weight: bold; margin-top: 18px; margin-bottom: 6px; }
+  .opt { flex-direction: row; align-items: center; height: 44px; }
+  .opt-text { font-size: 14px; color: #111C33; margin-left: 8px; }
+  .muted { font-size: 13px; color: #5A6B8C; margin-top: 10px; }
+&lt;/style&gt;</pre></div>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>两个跨端注意点：</strong>
+              <p>
+                ① <code>checkbox</code> / <code>radio</code> 的颜色属性 <code>color</code> / <code>iconColor</code> 已废弃，
+                现在用 <code>foreColor</code>、<code>backgroundColor</code>、<code>borderColor</code>、<code>activeBackgroundColor</code>、<code>activeBorderColor</code> 等，
+                或直接用 <code>icon-class</code> / <code>checkbox-class</code> / <code>radio-class</code> 定制；
+                ② 在支付宝小程序里，<code>checkbox</code> / <code>radio</code> <b>不能内嵌 <code>text</code></b>，
+                文字要像上面的例子那样写在 <code>label</code> 里的同级位置。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5.5 ============ -->
+      <section class="lesson-section" id="sec-5-5" data-nav="5.5 picker 选择器">
+        <div class="sec-head">
+          <span class="sec-no">5.5</span>
+          <h2>picker：底部弹出的滚动选择器</h2>
+          <span class="sec-time">20 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            在手机上"选一个值"的最优解不是下拉框，而是<b>从底部弹出一列滚动选择</b>——
+            这就是 <code>picker</code>。它用一个 <code>mode</code> 属性切换五种模式：
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th><code>mode</code></th><th>用途</th><th>常用属性</th><th><code>@change</code> 返回</th></tr></thead>
+              <tbody>
+                <tr><td><code>selector</code>（默认）</td><td>从一维数组里选一项</td><td><code>range</code>、<code>value</code>（下标）、<code>range-key</code>（对象数组时指定显示字段）</td><td>下标（number）</td></tr>
+                <tr><td><code>multiSelector</code></td><td>多列联动选择（如"学院 + 专业"）</td><td><code>range</code> 是二维数组、<code>@columnchange</code> 处理列变化</td><td>下标数组</td></tr>
+                <tr><td><code>time</code></td><td>选时间</td><td><code>value</code>、<code>start</code>、<code>end</code></td><td>时间字符串</td></tr>
+                <tr><td><code>date</code></td><td>选日期</td><td><code>value</code>、<code>start</code>、<code>end</code>、<code>fields</code>（<code>year</code>/<code>month</code>/<code>day</code>）</td><td>日期字符串</td></tr>
+                <tr><td><code>region</code></td><td>省市区三级联动</td><td><code>value</code>、<code>level</code>（<code>province</code>/<code>city</code>/<code>region</code>/<code>sub-district</code>）</td><td>地名数组</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/demo/picker.uvue —— 课程选择 + 日期选择</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- ① selector：从数组里选一项；range-key 用于对象数组 --&gt;
+    &lt;picker mode="selector" :range="courses" range-key="name" :value="courseIndex" @change="onCourseChange"&gt;
+      &lt;view class="field"&gt;
+        &lt;text class="field-text"&gt;{{ courseIndex &gt;= 0 ? courses[courseIndex].name : '请选择课程' }}&lt;/text&gt;
+        &lt;text class="arrow"&gt;›&lt;/text&gt;
+      &lt;/view&gt;
+    &lt;/picker&gt;
+
+    &lt;!-- ② date：选日期，fields 控制精度 --&gt;
+    &lt;picker mode="date" :value="date" :start="'2026-01-01'" :end="'2026-12-31'" fields="day" @change="onDateChange"&gt;
+      &lt;view class="field"&gt;
+        &lt;text class="field-text"&gt;{{ date.length &gt; 0 ? date : '请选择日期' }}&lt;/text&gt;
+        &lt;text class="arrow"&gt;›&lt;/text&gt;
+      &lt;/view&gt;
+    &lt;/picker&gt;
+  &lt;/view&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  type Course = { 'name': string }
+
+  const courses = ref&lt;Course[]&gt;([
+    { 'name': '移动应用开发' },
+    { 'name': '数据结构' },
+    { 'name': '计算机网络' }
+  ])
+
+  const courseIndex = ref&lt;number&gt;(-1)
+  const date = ref&lt;string&gt;('')
+
+  const onCourseChange = (event: UniPickerChangeEvent) =&gt; {
+    // selector 模式返回的是下标（number）
+    courseIndex.value = event.detail.value as number
+  }
+
+  const onDateChange = (event: UniPickerChangeEvent) =&gt; {
+    // date 模式返回的是字符串；注意不同平台的分隔符可能不同（见下方提示）
+    date.value = event.detail.value as string
+  }
+&lt;/script&gt;
+
+&lt;style&gt;
+  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }
+  .field {
+    height: 48px; flex-direction: row; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #E2E9F7;
+  }
+  .field-text { font-size: 15px; color: #111C33; }
+  .arrow { font-size: 18px; color: #A8B0BF; }
+&lt;/style&gt;</pre></div>
+          </div>
+
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>三个必须知道的坑：</strong>
+              <p>
+                ① <b>日期返回值在不同平台格式不同</b>：官方注明支付宝小程序的日期 change 返回 <code>"2026/10/11"</code>，
+                而微信返回 <code>"2026-10-11"</code>。要存库或比较大小，请先统一格式再处理；
+                ② <code>picker</code> 在 Android / iOS 需要 <b>HBuilderX 5.08+</b>；更低版本请改用 <code>picker-view</code>
+                或 <code>uni.showActionSheet</code>；
+                ③ <code>picker</code> 本身不显示内容，<b>你必须自己在里面放一个 <code>view</code> 当"触发器"</b>——
+                所以它的样式要按普通 <code>view</code> 来设计。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5.6 ============ -->
+      <section class="lesson-section" id="sec-5-6" data-nav="5.6 form 提交与校验">
+        <div class="sec-head">
+          <span class="sec-no">5.6</span>
+          <h2>表单提交与校验：form 组件与手写校验两条路</h2>
+          <span class="sec-time">20 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            官方提供了 <code>form</code> 组件，用 <code>name</code> 收集字段、用 <code>@submit</code> 一次性拿到所有值。
+            但它有明确的适用边界，先看清楚规则再决定用哪条路。
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>规则</th><th>官方说明</th><th>对你的影响</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>能放进 form 的表单项</td>
+                  <td>只支持 <code>input</code> / <code>textarea</code> / <code>checkbox</code> / <code>radio</code> / <code>switch</code> / <code>slider</code>，配合 <code>button</code> 的 <code>form-type</code></td>
+                  <td><b>不支持把自定义组件当表单项</b>——封装了输入控件就要自己收集数据</td>
+                </tr>
+                <tr>
+                  <td><code>@submit</code> 的返回值</td>
+                  <td><code>event.detail.value</code> 是一个对象，键是各表单项的 <code>name</code></td>
+                  <td>取值时用 <code>value['phone']</code> 这样的方式读</td>
+                </tr>
+                <tr>
+                  <td>同名字段</td>
+                  <td>同名 <code>name</code> 只保留<b>最后一个</b></td>
+                  <td>不要给不同字段起相同的 name</td>
+                </tr>
+                <tr>
+                  <td>被禁用的表单项</td>
+                  <td><b>仍然会被提交</b></td>
+                  <td>想让字段"不提交"，就不要放进 form，或者自己收集数据</td>
+                </tr>
+                <tr>
+                  <td>重置</td>
+                  <td><code>@reset</code>（App 3.97+ / Web 4.0+ 起为"还原"）</td>
+                  <td>重置会还原到初始值，不只是清空</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>怎么选：</strong>
+              <p>
+                <b>纯原生控件、字段简单</b>（比如"姓名 + 留言"）→ 用 <code>form</code> + <code>name</code> + <code>@submit</code>，省事；
+                <b>需要即时校验、联动、或者用了自定义组件</b> → 用 <code>ref</code> 自己收集数据 + 自己校验。
+                真实项目里第二种更常见，因为"什么时候允许提交"本身就是一类派生数据，正好用得上第 4 章的 <code>computed</code>。
+              </p>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">两条路的代码对照</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="form">用 form 组件</button>
+              <button class="code-tab" data-tab="manual">自己校验（推荐）</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="form"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;form @submit="onSubmit"&gt;
+    &lt;input name="username" placeholder="姓名" /&gt;
+    &lt;input name="phone" type="number" placeholder="手机号" /&gt;
+    &lt;switch name="agree" /&gt;
+    &lt;button form-type="submit" type="primary"&gt;提交&lt;/button&gt;
+    &lt;button form-type="reset"&gt;重置&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+  const onSubmit = (event: UniFormSubmitEvent) =&gt; {
+    // detail.value 是一个对象：{ username: '...', phone: '...', agree: true }
+    const form = event.detail.value
+    console.log('name =', form['username'])
+    console.log('phone =', form['phone'])
+  }
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="manual"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  const name = ref&lt;string&gt;('')
+  const phone = ref&lt;string&gt;('')
+
+  // 错误信息也由数据推导：没填过就不报错（避免一进页面满屏红字）
+  const nameError = computed(() =&gt; {
+    if (name.value.length == 0) return ''
+    return name.value.length &lt; 2 ? '姓名至少 2 个字' : ''
+  })
+
+  const phoneError = computed(() =&gt; {
+    if (phone.value.length == 0) return ''
+    return phone.value.length == 11 ? '' : '手机号应为 11 位'
+  })
+
+  // 只有全部合法才允许提交
+  const canSubmit = computed(() =&gt; {
+    return name.value.length &gt;= 2 &amp;&amp; phone.value.length == 11
+  })
+
+  const submitting = ref(false)
+
+  const submit = () =&gt; {
+    if (!canSubmit.value || submitting.value) return   // 双保险：防重复提交
+    submitting.value = true
+    setTimeout(() =&gt; {
+      submitting.value = false
+      uni.showToast({ 'title': '提交成功', 'icon': 'none' })
+    }, 600)
+  }
+&lt;/script&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>上线前必做的三件事：</strong>
+              <p>
+                ① <b>校验</b>：必填、长度、格式（手机号、邮箱）至少各有一条；
+                ② <b>禁用提交按钮</b>：<code>canSubmit</code> 为 false 时给按钮加 <code>disabled</code>，不要让用户点了才被告知不合格；
+                ③ <b>防重复提交</b>：提交期间把 <code>submitting</code> 置为 true 并挡住再次点击——
+                没有这一步的表单，在网络慢的时候会产生重复订单，是最常见的线上事故之一。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5.7 ============ -->
+      <section class="lesson-section" id="sec-5-7" data-nav="5.7 实战：活动报名表">
+        <div class="sec-head">
+          <span class="sec-no">5.7</span>
+          <h2>实战：一个可上线的"活动报名表"</h2>
+          <span class="sec-time">30 分钟 · 全程动手</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            把本章所有组件拼起来，做一个真实场景：<b>社团活动报名</b>。
+            需求：姓名（输入）、手机号（数字键盘 + 只允许数字 + 11 位）、年级（底部选择器）、
+            参加人数（滑块 1–5）、同意须知（开关），校验通过才允许提交，提交中禁止重复点击。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/signup/signup.uvue</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="template">template</button>
+              <button class="code-tab" data-tab="script">script</button>
+              <button class="code-tab" data-tab="style">style</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="template"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- 姓名 --&gt;
+    &lt;view class="form-item"&gt;
+      &lt;text class="label"&gt;姓名&lt;/text&gt;
+      &lt;input class="field" :value="name" placeholder="请输入真实姓名" @input="onNameInput" /&gt;
+    &lt;/view&gt;
+    &lt;text v-if="nameError.length &gt; 0" class="error"&gt;{{ nameError }}&lt;/text&gt;
+
+    &lt;!-- 手机号：数字键盘 + 输入过滤 + 长度限制 --&gt;
+    &lt;view class="form-item"&gt;
+      &lt;text class="label"&gt;手机号&lt;/text&gt;
+      &lt;input class="field" type="number" maxlength="11" :value="phone"
+             placeholder="11 位手机号" @input="onPhoneInput" /&gt;
+    &lt;/view&gt;
+    &lt;text v-if="phoneError.length &gt; 0" class="error"&gt;{{ phoneError }}&lt;/text&gt;
+
+    &lt;!-- 年级：底部选择器 --&gt;
+    &lt;view class="form-item"&gt;
+      &lt;text class="label"&gt;年级&lt;/text&gt;
+      &lt;picker mode="selector" :range="grades" :value="gradeIndex" @change="onGradeChange"&gt;
+        &lt;view class="field picker-field"&gt;
+          &lt;text :class="gradeIndex &gt;= 0 ? 'field-text' : 'field-text placeholder-text'"&gt;
+            {{ gradeIndex &gt;= 0 ? grades[gradeIndex] : '请选择' }}
+          &lt;/text&gt;
+        &lt;/view&gt;
+      &lt;/picker&gt;
+    &lt;/view&gt;
+
+    &lt;!-- 参加人数：滑块 --&gt;
+    &lt;view class="form-item column"&gt;
+      &lt;text class="label"&gt;参加人数：{{ people }} 人&lt;/text&gt;
+      &lt;slider :value="people" :min="1" :max="5" :step="1" activeBackgroundColor="#2F6BFF"
+              @change="onPeopleChange" /&gt;
+    &lt;/view&gt;
+
+    &lt;!-- 同意须知：开关 --&gt;
+    &lt;view class="form-item"&gt;
+      &lt;text class="label"&gt;我已阅读并同意活动须知&lt;/text&gt;
+      &lt;switch :checked="agreed" foreColor="#2F6BFF" @change="onAgreeChange" /&gt;
+    &lt;/view&gt;
+
+    &lt;!-- 提交：禁用态 + 加载态 + 防重复 --&gt;
+    &lt;button class="submit" type="primary" :disabled="!canSubmit || submitting"
+            :loading="submitting" @click="submit"&gt;
+      {{ submitting ? '提交中…' : '提交报名' }}
+    &lt;/button&gt;
+    &lt;text class="muted"&gt;{{ canSubmit ? '信息已填完整，可以提交' : '请先补全信息' }}&lt;/text&gt;
+  &lt;/view&gt;
+&lt;/template&gt;</pre></div>
+              <div class="code-pane" data-pane="script"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  const grades = ref&lt;string[]&gt;(['大一', '大二', '大三', '大四'])
+
+  const name = ref&lt;string&gt;('')
+  const phone = ref&lt;string&gt;('')
+  const gradeIndex = ref&lt;number&gt;(-1)
+  const people = ref&lt;number&gt;(1)
+  const agreed = ref&lt;boolean&gt;(false)
+
+  const submitting = ref(false)
+
+  /* ---------- 输入处理：input 的 @input 可以直接 return 清洗后的内容 ---------- */
+  const onNameInput = (event: UniInputEvent) =&gt; {
+    name.value = event.detail.value
+  }
+
+  const onPhoneInput = (event: UniInputEvent): string =&gt; {
+    const cleaned = event.detail.value.replace(/[^0-9]/g, '')
+    phone.value = cleaned
+    return cleaned
+  }
+
+  const onGradeChange = (event: UniPickerChangeEvent) =&gt; {
+    gradeIndex.value = event.detail.value as number
+  }
+
+  const onPeopleChange = (event: UniSliderChangeEvent) =&gt; {
+    people.value = event.detail.value
+  }
+
+  const onAgreeChange = (event: UniSwitchChangeEvent) =&gt; {
+    agreed.value = event.detail.value
+  }
+
+  /* ---------- 校验：全部用 computed 推导，不手动维护 ---------- */
+  const nameError = computed(() =&gt; {
+    if (name.value.length == 0) return ''
+    return name.value.length &lt; 2 ? '姓名至少 2 个字' : ''
+  })
+
+  const phoneError = computed(() =&gt; {
+    if (phone.value.length == 0) return ''
+    return phone.value.length == 11 ? '' : '手机号应为 11 位数字'
+  })
+
+  const canSubmit = computed(() =&gt; {
+    return name.value.length &gt;= 2
+      &amp;&amp; phone.value.length == 11
+      &amp;&amp; gradeIndex.value &gt;= 0
+      &amp;&amp; agreed.value
+  })
+
+  /* ---------- 提交 ---------- */
+  const submit = () =&gt; {
+    if (!canSubmit.value || submitting.value) return
+    submitting.value = true
+
+    // 真实项目里这里是 uni.request（第 8 章）
+    setTimeout(() =&gt; {
+      submitting.value = false
+      uni.showModal({
+        'title': '报名成功',
+        'content': name.value + '，' + grades.value[gradeIndex.value] + '，' + people.value + ' 人',
+        'showCancel': false
+      })
+    }, 800)
+  }
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="style"><pre class="code-block" data-lang="css">
+&lt;style&gt;
+  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }
+  .form-item {
+    flex-direction: row; align-items: center; justify-content: space-between;
+    min-height: 54px; border-bottom: 1px solid #EEF3FB;
+  }
+  .column { flex-direction: column; align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
+  .label { font-size: 15px; color: #111C33; }
+  .field { flex: 1; height: 44px; margin-left: 12px; font-size: 15px; text-align: right; }
+  .picker-field { justify-content: flex-end; align-items: center; }
+  .field-text { font-size: 15px; color: #111C33; }
+  .placeholder-text { color: #A8B0BF; }
+  .error { font-size: 12px; color: #E5484D; margin-top: 6px; }
+  .muted { font-size: 12px; color: #5A6B8C; margin-top: 8px; }
+  .submit { margin-top: 24px; }
+&lt;/style&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="formdemo"></div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>这段代码里值得记住的四个模式：</strong>
+              <p>
+                ① <b>数据只存"源状态"</b>（姓名、手机号、下标、人数、开关），错误信息与"能否提交"全部由 <code>computed</code> 推导；
+                ② <b>错误提示只在用户开始输入之后才显示</b>（没填过就不报错），避免一进页面满屏红字；
+                ③ <b>输入过滤用 <code>@input</code> 的 return 值</b>，比事后在提交时清洗体验更好；
+                ④ <b>提交按钮同时受 <code>disabled</code> 与 <code>submitting</code> 控制</b>，这是防重复提交的标准做法。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5.8 测验 ============ -->
+      <section class="lesson-section" id="sec-quiz" data-nav="5.8 随堂测验">
+        <div class="sec-head">
+          <span class="sec-no">5.8</span>
+          <h2>随堂测验：表单组件的返回值与坑</h2>
+          <span class="sec-time">10 分钟 · 独立完成</span>
+        </div>
+        <div class="sec-body">
+          <div class="quiz">
+            <div class="quiz-head">
+              <h3>📝 第 5 章随堂测验（8 题）</h3>
+              <span class="quiz-score" id="quizScore">得分 0 / 8</span>
+            </div>
+            <div id="quizMount"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5.9 小结与作业 ============ -->
+      <section class="lesson-section" id="sec-summary" data-nav="5.9 小结与作业">
+        <div class="sec-head">
+          <span class="sec-no">5.9</span>
+          <h2>本章小结 · 动手任务 · 课后作业</h2>
+          <span class="sec-time">10 分钟 · 总结 + 布置</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="summary-card">
+            <h3>📌 今天你学到的，浓缩成 6 句话</h3>
+            <p style="color:#33445F">
+              事件用 <code>@事件名</code>：方法引用不加括号，需要行内数据时用 <code>@click="fn(item)"</code>，长按用 <code>@longpress</code>；
+              输入框官方写法是 <b><code>:value</code> + <code>@input</code></b>（<code>v-model</code> 未出现在官方属性表中），
+              <code>@input</code> <b>可以直接 return 字符串替换内容</b>，这是做输入过滤最优雅的方式；
+              选对 <code>type</code>（键盘类型）与 <code>confirm-type</code>（回车键文字）能明显提升输入体验，
+              <code>type</code> 里的 <code>number</code> / <code>digit</code> / <code>tel</code> 各有用途；
+              开关、滑块、单选、多选、选择器的变化事件统一是 <code>@change</code>，
+              <b>值分别落在 <code>detail.value</code> 的 boolean / number / string / string[] 上</b>，取值类型必须分清；
+              <code>form</code> 组件能一次性收表，但不支持自定义组件当表单项、<b>禁用的字段也会被提交</b>；
+              真实项目建议自己收集 + <code>computed</code> 校验，并做到<b>校验、禁用提交、防重复提交</b>三件事。
+            </p>
+            <div class="kp-chips">
+              <span class="kp-chip">@click / @longpress</span>
+              <span class="kp-chip">方法引用 vs 内联传参</span>
+              <span class="kp-chip">:value + @input</span>
+              <span class="kp-chip">@input return 过滤</span>
+              <span class="kp-chip">type 键盘类型</span>
+              <span class="kp-chip">confirm-type</span>
+              <span class="kp-chip">controlled 受控</span>
+              <span class="kp-chip">textarea auto-height</span>
+              <span class="kp-chip">switch @change boolean</span>
+              <span class="kp-chip">slider step</span>
+              <span class="kp-chip">radio-group 单选</span>
+              <span class="kp-chip">checkbox-group 多选</span>
+              <span class="kp-chip">picker 五种 mode</span>
+              <span class="kp-chip">form + name</span>
+              <span class="kp-chip">computed 校验</span>
+              <span class="kp-chip">防重复提交</span>
+            </div>
+          </div>
+
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 课堂动手任务
+            <span class="chip" id="taskCounter">0 / 5 已完成</span>
+          </h3>
+          <p class="text-sub" style="margin-top:6px">点一下即可打勾，进度保存在你的浏览器里。</p>
+
+          <div class="task-list">
+            <div class="task-item" data-task-id="c5-t1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>:value</code> + <code>@input</code> 做一个搜索框，实时显示"已输入 N 个字"，并用 <code>confirm-type="search"</code></div>
+                <div class="task-hint">验收：在真机上确认键盘右下角显示的是"搜索"</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c5-t2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">做一个手机号输入框：<code>type="number"</code>、<code>maxlength="11"</code>、用 <code>@input</code> 的 return 过滤掉非数字</div>
+                <div class="task-hint">验证方式：尝试输入字母，观察是否被自动过滤</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c5-t3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>radio-group</code> + <code>checkbox-group</code> 做"选年级 + 选社团（最多 2 个）"，并把选择结果实时显示出来</div>
+                <div class="task-hint">注意事件绑在"组"上，不是绑在单个 radio / checkbox 上</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c5-t4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>picker</code> 做"课程选择 + 日期选择"两个入口，并把返回值打印出来观察类型</div>
+                <div class="task-hint">重点看 <code>@change</code> 返回的是下标、字符串还是数组</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c5-t5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">把 5.7 的报名表敲一遍，然后人为制造三个问题并修好：① 不填也能提交；② 网络慢时连点提交出现两次成功提示；③ 手机号能输入字母</div>
+                <div class="task-hint">每个问题写一句"为什么会出现"</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="homework" style="margin-top:22px">
+            <h3 style="margin-bottom:6px">🏠 课后作业（按星级自选，鼓励全做）</h3>
+            <p class="text-sub" style="font-size:13.5px;margin-bottom:14px">下节课开始前提交到课程群，作业计入平时成绩。</p>
+
+            <div class="hw-item">
+              <span class="hw-star">⭐</span>
+              <div>
+                <h4>基础：组件返回值清单</h4>
+                <p>把本章五个组件（input / switch / slider / checkbox-group / radio-group / picker）的 <code>@change</code> 或 <code>@input</code> 返回值类型整理成一张表，并各写一行取值代码。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐</span>
+              <div>
+                <h4>进阶：意见反馈表单</h4>
+                <p>字段：类型（picker：功能建议 / Bug 反馈 / 其他）、标题（input，最多 30 字）、详情（textarea，auto-height，最多 200 字并显示剩余字数）、是否愿意被联系（switch，打开时才显示联系方式输入框）、评分（slider 1–5）。要求：校验 + 禁用提交 + 防重复提交三件套齐全。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐</span>
+              <div>
+                <h4>挑战：把表单封装成可复用组件</h4>
+                <p>把"带标签 + 输入框 + 错误提示"封装成一个自定义组件（第 6 章会正式讲组件），在表单页里复用 3 次以上。注意：<b>自定义组件不能作为 <code>form</code> 的表单项</b>，所以数据要自己收集——请说明你如何处理这一点。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐+</span>
+              <div>
+                <h4>拓展：跨端验证</h4>
+                <p>把报名表分别运行到浏览器与 Android 真机，记录至少 3 处差异（键盘类型、picker 返回值格式、iOS 上 switch / slider 的间距等），并给出你的统一处理方案。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout info" style="margin-top:22px">
+            <span class="ci">➡️</span>
+            <div>
+              <strong>下一章预告 · 第 6 章《组件化开发与组件通信》</strong>
+              <p>
+                到这里，你已经能独立写出一个功能完整的单页应用了。但如果每个页面都复制一遍"卡片 + 标签 + 按钮"，
+                项目会迅速失控。第 6 章要解决的就是这个：<b>如何把界面与逻辑封装成可复用组件</b>——
+                easycom 自动引入规则、props 传值与类型、事件向上传递、插槽、以及在组件里获取元素与暴露方法。
+                带着你这一章的报名表来，我们把它拆成组件。
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="chapter-04.html">
+          <div class="dir">← 上一章</div>
+          <div class="ttl">第 4 章 · 响应式数据与模板语法</div>
+        </a>
+        <a class="next" href="chapter-06.html">
+          <div class="dir">下一章 →</div>
+          <div class="ttl">第 6 章 · 组件化开发与组件通信</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">模块二 · 语法与交互 · 第 5 章</div>
+      <div class="fnote">
+        本章组件属性、事件与返回值类型均依据 DCloud 官方组件文档（input / textarea / switch / slider / checkbox / radio / picker / form / button）整理。
+        表单组件的暗黑模式适配、平台差异（iOS 的 padding、支付宝小程序的内嵌限制等）请以官方兼容性表格为准。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>下一章：组件化开发与组件通信</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+/* 编码约定（重要）：示例代码字符串里如果出现 HTML 注释起始符或 script 结束标签，
+   必须写成带反斜杠的形式（<\!-- 与 <\/），否则浏览器会把本脚本块提前截断，页面直接白屏。 */
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html', current: true },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html' },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+
+/* ---------------- 随堂测验数据 ---------------- */
+window.QUIZ_DATA = [
+  {
+    q: '官方 <code>input</code> 组件文档里给出的"双向绑定"写法是？',
+    opts: [
+      '<code>&lt;input v-model="keyword" /&gt;</code>',
+      '<code>&lt;input :value="keyword" @input="onInput" /&gt;</code>',
+      '<code>&lt;input value="{{ keyword }}" /&gt;</code>',
+      '用 <code>document</code> 找到输入框再读写它的值'
+    ],
+    answer: 1,
+    explain: '官方属性表列出的是 <code>value</code> 属性与 <code>@input</code> 事件，所以写法是 <code>:value</code> + <code>@input</code>（需要完全受控时再加 <code>controlled</code>）。<code>v-model</code> 出现在 Vue 内置指令清单里，但未出现在组件属性表中，本课程统一使用前者，行为更可预期。'
+  },
+  {
+    q: '想让输入框只接受数字（字母自动被过滤掉），最简洁的做法是？',
+    opts: [
+      '在提交时统一清洗数据',
+      '在 <code>@input</code> 的处理函数里 <code>return</code> 过滤后的字符串',
+      '给输入框加 <code>disabled</code>',
+      '用正则替换掉用户已经输入的内容，但界面不会更新'
+    ],
+    answer: 1,
+    explain: '<code>input</code> 的 <code>@input</code> 处理函数<b>可以直接 return 一个字符串来替换输入框内容</b>，这是官方特性。<b>注意</b>：<code>textarea</code> 的 <code>@input</code> 返回值不生效，那种情况必须先清洗数据再赋回去。'
+  },
+  {
+    q: '一个"手机号"输入框，下面哪种属性组合最合适？',
+    opts: [
+      '<code>type="text"</code> + <code>confirm-type="done"</code>',
+      '<code>type="number"</code> + <code>maxlength="11"</code>',
+      '<code>password</code> + <code>maxlength="11"</code>',
+      '<code>type="nickname"</code> + <code>maxlength="11"</code>'
+    ],
+    answer: 1,
+    explain: '手机号用 <code>type="number"</code> 弹出数字键盘（需要带小数点的金额用 <code>digit</code>），并限制长度 11。另外注意 <code>confirm-type</code> <b>只在 <code>type="text"</code> 时生效</b>，所以 A 里的键盘按钮文字设置其实不会起作用。'
+  },
+  {
+    q: '<code>switch</code> 的 <code>@change</code>、<code>slider</code> 的 <code>@change</code>、<code>checkbox-group</code> 的 <code>@change</code>，返回值类型依次是？',
+    opts: [
+      'boolean / number / string 数组',
+      'string / number / boolean',
+      'boolean / string / number',
+      '都是字符串'
+    ],
+    answer: 0,
+    explain: '开关返回 <b>boolean</b>，滑块返回 <b>number</b>，多选组返回 <b>string 数组</b>（单选组 <code>radio-group</code> 返回单个 string）。取值统一从 <code>event.detail.value</code> 拿，但类型必须分清。'
+  },
+  {
+    q: '关于 <code>slider</code> 的 <code>step</code>，下面说法正确的是？',
+    opts: [
+      '可以随意设置，不影响使用',
+      '<code>step</code> 必须大于 0 且能整除 <code>max - min</code>，否则部分平台拖不到末端',
+      '<code>step</code> 只能是 1',
+      '<code>step</code> 是小数就一定会报错'
+    ],
+    answer: 1,
+    explain: '官方说明：<code>step</code> 须大于 0 且整除 <code>max - min</code>，否则 Android / Web 上可能出现"滑不到最右端"（iOS 4.33 起已一致）。另外 <code>slider</code> 的 <code>activeColor</code> / <code>block-color</code> 等已废弃，蒸汽模式推荐用 <code>track-class</code> / <code>thumb-class</code>。'
+  },
+  {
+    q: '关于 <code>form</code> 组件，下面哪个说法<b>不正确</b>？',
+    opts: [
+      '<code>@submit</code> 的 <code>detail.value</code> 是一个以 <code>name</code> 为键的对象',
+      '被 <code>disabled</code> 禁用的表单项不会被提交',
+      '同名 <code>name</code> 只会保留最后一个值',
+      '自定义组件不能作为 <code>form</code> 的表单项'
+    ],
+    answer: 1,
+    explain: '<b>被禁用的表单项仍然会被提交</b>——这是官方明确说明的行为，也是最容易踩的坑。其余三项都正确：<code>submit</code> 返回 <code>name:value</code> 对象、同名只留最后一个、表单项仅支持内置的那几个组件（不支持自定义组件）。'
+  },
+  {
+    q: '在网络很慢的情况下，用户连点两次"提交"导致产生两条记录。最直接的解决方式是？',
+    opts: [
+      '把按钮颜色改成灰色',
+      '提交期间用一个 <code>submitting</code> 标记挡住重复点击，并让按钮进入 loading / disabled 状态',
+      '提示用户不要连续点击',
+      '把提交逻辑放到 <code>onLoad</code> 里'
+    ],
+    answer: 1,
+    explain: '标准做法是"状态锁"：进入提交就把 <code>submitting</code> 置为 true，函数开头 <code>if (submitting.value) return</code>，同时按钮绑定 <code>disabled</code> 与 <code>loading</code>。只靠提示文字无法避免重复提交。'
+  },
+  {
+    q: '<b>（多选）</b>关于本章的组件与平台差异，下面哪些说法正确？',
+    opts: [
+      '<code>picker</code> 的 <code>date</code> 模式在不同平台返回的日期分隔符可能不同（如 <code>/</code> 与 <code>-</code>）',
+      '<code>checkbox-group</code> / <code>radio-group</code> 的变化事件应绑定在"组"组件上',
+      'iOS 端的 <code>switch</code> / <code>slider</code> 不支持 <code>padding</code>，要用 <code>margin</code> 调整位置',
+      '<code>picker</code> 需要自己放一个 <code>view</code> 作为触发器，并且它可以作为 <code>form</code> 的表单项'
+    ],
+    answer: [0, 1, 2],
+    explain: 'A、B、C 都正确。D 前半句对（<code>picker</code> 确实要自己放触发器），但<b>后半句错</b>：<code>form</code> 的表单项只支持 input / textarea / checkbox / radio / switch / slider，<code>picker</code> 不在其中，需要自己收集它的值。'
+  }
+];
+
+/* ---------------- 代码 ↔ 手机联动演练区 ---------------- */
+window.PG_DEMOS = {
+  inputlab: {
+    examples: [
+      {
+        name: '① type 与键盘类型',
+        file: 'pages/demo/input-type.uvue',
+        navbar: '键盘类型',
+        hint: 'type 决定弹出哪种键盘：文本、数字、电话、邮箱……选对了用户少切换两次输入法。注意 confirm-type（右下角按钮文字）只在 type="text" 时生效。',
+        state: { typeIndex: 0 },
+        code: {
+          template: '<template>\n  <view class="page">\n    <\!-- type 决定键盘类型；confirm-type 决定右下角按钮文字 -->\n    <input class="field" :type="types[current].type" confirm-type="done"\n           placeholder="点下面按钮切换 type" @input="onInput" />\n  </view>\n</template>',
+          script: '<script setup>\n  type TypeItem = { \'label\': string, \'type\': string, \'tip\': string }\n\n  const types = ref<TypeItem[]>([\n    { \'label\': \'文本\', \'type\': \'text\', \'tip\': \'普通文本键盘，confirm-type 生效\' },\n    { \'label\': \'整数\', \'type\': \'number\', \'tip\': \'数字键盘，适合手机号/验证码\' },\n    { \'label\': \'小数\', \'type\': \'digit\', \'tip\': \'带小数点的数字键盘，适合金额\' },\n    { \'label\': \'电话\', \'type\': \'tel\', \'tip\': \'电话键盘，适合座机/传真\' }\n  ])\n\n  const current = ref<number>(0)\n  const onInput = (event: UniInputEvent) => {\n    console.log(\'当前输入：\', event.detail.value)\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .field { height: 44px; background-color: #F5F8FF; border-radius: 10px; padding-left: 12px; padding-right: 12px; }\n</style>'
+        },
+        render: function (state) {
+          var types = [
+            ['文本 text', '普通文本键盘，confirm-type 才生效'],
+            ['整数 number', '数字键盘，适合手机号 / 验证码'],
+            ['小数 digit', '带小数点的数字键盘，适合金额'],
+            ['电话 tel', '电话键盘，适合座机 / 传真']
+          ];
+          var i = state.typeIndex || 0;
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-input" style="height:44px">' + '<span class="ph">请输入…</span><span class="uv-caret"></span></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:14px">当前 type：<b>' + types[i][0].split(' ')[1] + '</b></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:4px">' + types[i][1] + '</div>' +
+            '<div style="margin-top:14px">' + types.map(function (t, idx) {
+              return '<div class="uv-btn' + (idx === i ? ' primary' : '') + '" style="margin-bottom:8px;font-size:13px" data-bind="t' + idx + '">' + t[0] + '</div>';
+            }).join('') + '</div></div>';
+        },
+        actions: {
+          t0: function (state) { state.typeIndex = 0; return 'type="text" → 普通键盘，confirm-type 生效'; },
+          t1: function (state) { state.typeIndex = 1; return 'type="number" → 数字键盘'; },
+          t2: function (state) { state.typeIndex = 2; return 'type="digit" → 带小数点的数字键盘'; },
+          t3: function (state) { state.typeIndex = 3; return 'type="tel" → 电话键盘'; }
+        }
+      },
+      {
+        name: '② @input 输入过滤（return 替换）',
+        file: 'pages/demo/input-filter.uvue',
+        navbar: '输入过滤',
+        hint: '官方特性：@input 的处理函数可以直接 return 一个字符串，用来替换输入框内容。下面模拟输入"12a3b"——字母会被立刻过滤掉，用户根本打不出非法字符。',
+        state: { phone: '' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <input class="field" type="number" maxlength="11" :value="phone"\n           placeholder="只允许数字" @input="onPhoneInput" />\n  </view>\n</template>',
+          script: '<script setup>\n  const phone = ref<string>(\'\')\n\n  // return 出去的字符串会直接替换输入框的内容\n  const onPhoneInput = (event: UniInputEvent): string => {\n    const cleaned = event.detail.value.replace(/[^0-9]/g, \'\')\n    phone.value = cleaned\n    return cleaned\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .field { height: 44px; background-color: #F5F8FF; border-radius: 10px; padding-left: 12px; padding-right: 12px; }\n</style>'
+        },
+        render: function (state) {
+          var v = state.phone || '';
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-input" style="height:44px">' + (v.length ? '<span>' + v + '</span>' : '<span class="ph">只允许数字</span>') + '<span class="uv-caret"></span></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:14px">当前值：' + (v || '（空）') + '　长度：' + v.length + '</div>' +
+            '<div style="margin-top:14px">' +
+            '<div class="uv-btn primary" style="margin-bottom:8px;font-size:13px" data-bind="type132">模拟输入 "12a3b"</div>' +
+            '<div class="uv-btn" style="margin-bottom:8px;font-size:13px" data-bind="type9">模拟输入 "9x8"</div>' +
+            '<div class="uv-btn" style="font-size:13px" data-bind="clear">清空</div></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#0B8A66;margin-top:14px">✓ 字母在输入瞬间就被 return 的过滤结果替换掉了</div></div>';
+        },
+        actions: {
+          type132: function (state) { state.phone = '123'; return '输入 "12a3b" → @input 过滤后变成 "123"'; },
+          type9: function (state) { state.phone = '98'; return '输入 "9x8" → 过滤后变成 "98"'; },
+          clear: function (state) { state.phone = ''; return '已清空'; }
+        }
+      },
+      {
+        name: '③ 字数统计与 maxlength',
+        file: 'pages/demo/input-count.uvue',
+        navbar: '字数统计',
+        hint: '留言/反馈这类输入，实时显示"还能写多少字"是很重要的体验细节。maxlength 限制输入，剩余字数用 computed 推导即可。',
+        state: { text: '' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <textarea class="area" :value="text" maxlength="50" auto-height\n              placeholder="说点什么…" @input="onInput" />\n    <\!-- 剩余字数由数据推导，不手动维护 -->\n    <text class="muted">{{ text.length }} / 50</text>\n  </view>\n</template>',
+          script: '<script setup>\n  const text = ref<string>(\'\')\n  const MAX = 50\n\n  const onInput = (event: UniInputEvent) => {\n    // 注意：textarea 的 @input 返回值不生效，所以要显式赋回去\n    text.value = event.detail.value\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .area { min-height: 80px; background-color: #F5F8FF; border-radius: 10px; padding: 12px; font-size: 14px; }\n  .muted { font-size: 12px; color: #5A6B8C; margin-top: 8px; }\n</style>'
+        },
+        render: function (state) {
+          var t = state.text || '';
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div style="min-height:74px;background:#F5F8FF;border-radius:10px;padding:12px">' +
+            (t.length ? '<span class="uv-text" style="font-size:14px">' + t + '</span>' : '<span class="uv-text" style="font-size:14px;color:#A8B0BF">说点什么…</span>') + '</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:8px">' + t.length + ' / 50</div>' +
+            '<div style="margin-top:14px">' +
+            '<div class="uv-btn primary" style="margin-bottom:8px;font-size:13px" data-bind="short">输入一句短留言</div>' +
+            '<div class="uv-btn" style="margin-bottom:8px;font-size:13px" data-bind="long">输入一段长留言（超过 50 字会被截断）</div>' +
+            '<div class="uv-btn" style="font-size:13px" data-bind="clear">清空</div></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:14px">textarea 需要自己把值赋回去（返回值不生效）</div></div>';
+        },
+        actions: {
+          short: function (state) { state.text = '这门课的案例还挺实用的。'; return '输入 15 个字'; },
+          long: function (state) {
+            state.text = '这门课的案例很实用，尤其是表单校验那一节，讲清楚了为什么要禁用提交按钮和防止重复提交，以前写表单从来没考虑过这些细节。'.slice(0, 50);
+            return '超出部分的输入被 maxlength 挡住了（当前 50 字，已达上限）';
+          },
+          clear: function (state) { state.text = ''; return '已清空'; }
+        }
+      }
+    ]
+  },
+
+  choices: {
+    examples: [
+      {
+        name: '① switch 开关',
+        file: 'pages/demo/switch.uvue',
+        navbar: 'switch 开关',
+        hint: '开关的值是 boolean。注意官方已把 color 废弃，改用 foreColor（滑块颜色）；iOS 上 switch 不支持 padding，要用 margin 调位置。',
+        state: { on: true },
+        code: {
+          template: '<template>\n  <view class="page">\n    <view class="row">\n      <text class="label">接收通知</text>\n      <switch :checked="notifyOn" foreColor="#2F6BFF" @change="onChange" />\n    </view>\n    <text class="muted">notifyOn = {{ notifyOn }}</text>\n  </view>\n</template>',
+          script: '<script setup>\n  const notifyOn = ref<boolean>(true)\n\n  const onChange = (event: UniSwitchChangeEvent) => {\n    notifyOn.value = event.detail.value      // boolean\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .row { flex-direction: row; justify-content: space-between; align-items: center; height: 48px; }\n  .label { font-size: 15px; color: #111C33; }\n  .muted { font-size: 12px; color: #5A6B8C; margin-top: 8px; }\n</style>'
+        },
+        render: function (state) {
+          var on = state.on !== false;
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;height:48px">' +
+            '<span class="uv-text" style="font-size:15px">接收通知</span>' +
+            '<div data-bind="toggle" style="width:52px;height:32px;border-radius:16px;background:' + (on ? '#12B886' : '#E2E9F7') + ';display:flex;align-items:center;padding:3px;box-sizing:border-box;transition:background .2s">' +
+            '<div style="width:26px;height:26px;border-radius:13px;background:#fff;margin-left:' + (on ? '20px' : '0') + ';transition:margin .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:12px">notifyOn = ' + on + '（boolean 类型）</div></div>';
+        },
+        actions: {
+          toggle: function (state) { state.on = state.on === false; return '@change 返回值：' + state.on + '（boolean）'; }
+        }
+      },
+      {
+        name: '② slider 滑块',
+        file: 'pages/demo/slider.uvue',
+        navbar: 'slider 滑块',
+        hint: '拖动结束触发 @change，拖动过程中触发 @changing。step 必须大于 0 且能整除 max - min，否则可能出现"拖不到末端"。',
+        state: { value: 2 },
+        code: {
+          template: '<template>\n  <view class="page">\n    <text class="label">每天学习时长：{{ hours }} 小时</text>\n    <slider :value="hours" :min="0" :max="8" :step="1" show-value\n            activeBackgroundColor="#2F6BFF" @change="onChange" @changing="onChanging" />\n  </view>\n</template>',
+          script: '<script setup>\n  const hours = ref<number>(2)\n\n  const onChange = (event: UniSliderChangeEvent) => {\n    hours.value = event.detail.value       // number（拖动结束）\n  }\n\n  const onChanging = (event: UniSliderChangeEvent) => {\n    // 拖动过程中频繁触发，适合做实时预览，不适合发请求\n    console.log(\'拖动中：\', event.detail.value)\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .label { font-size: 15px; color: #111C33; margin-bottom: 8px; }\n</style>'
+        },
+        render: function (state) {
+          var v = state.value === undefined ? 2 : state.value;
+          var pct = Math.round((v / 8) * 100);
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-text" style="font-size:15px;margin-bottom:8px">每天学习时长：' + v + ' 小时</div>' +
+            '<div style="height:6px;border-radius:3px;background:#EDF2FC;position:relative;margin:14px 0">' +
+            '<div style="height:6px;border-radius:3px;background:#2F6BFF;width:' + pct + '%"></div>' +
+            '<div style="position:absolute;top:-8px;left:calc(' + pct + '% - 11px);width:22px;height:22px;border-radius:11px;background:#fff;border:2px solid #2F6BFF;box-shadow:0 1px 4px rgba(0,0,0,.15)"></div></div>' +
+            '<div style="display:flex;flex-direction:row;margin-top:20px">' +
+            '<div class="uv-btn" style="flex:1;margin-right:8px;font-size:13px" data-bind="minus">-1</div>' +
+            '<div class="uv-btn primary" style="flex:1;font-size:13px" data-bind="plus">+1</div></div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:14px">@change → detail.value = ' + v + '（number）</div></div>';
+        },
+        actions: {
+          minus: function (state) { state.value = Math.max(0, (state.value === undefined ? 2 : state.value) - 1); return 'hours = ' + state.value; },
+          plus: function (state) { state.value = Math.min(8, (state.value === undefined ? 2 : state.value) + 1); return 'hours = ' + state.value; }
+        }
+      },
+      {
+        name: '③ checkbox-group 多选',
+        file: 'pages/demo/checkbox.uvue',
+        navbar: '多选',
+        hint: '事件绑在 checkbox-group 上，返回的是被选中项 value 组成的字符串数组。别忘了加"最多选几个"的限制——限制的实现方式是"不改数据"。',
+        state: { picked: ['编程社'] },
+        code: {
+          template: '<template>\n  <view class="page">\n    <checkbox-group @change="onClubChange">\n      <label class="opt" v-for="c in clubs" :key="c">\n        <checkbox :value="c" :checked="picked.indexOf(c) >= 0" />\n        <text class="opt-text">{{ c }}</text>\n      </label>\n    </checkbox-group>\n    <text class="muted">已选：{{ picked.join(\'、\') }}</text>\n  </view>\n</template>',
+          script: '<script setup>\n  const clubs = ref<string[]>([\'编程社\', \'摄影社\', \'篮球队\', \'志愿者协会\'])\n  const picked = ref<string[]>([\'编程社\'])\n\n  const onClubChange = (event: UniCheckboxGroupChangeEvent) => {\n    const array = event.detail.value            // string[]\n    if (array.length > 2) {\n      uni.showToast({ \'title\': \'最多选 2 个\', \'icon\': \'none\' })\n      return                                    // 不改数据 → 界面回到原状态\n    }\n    picked.value = array\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .opt { flex-direction: row; align-items: center; height: 44px; }\n  .opt-text { font-size: 14px; color: #111C33; margin-left: 8px; }\n  .muted { font-size: 12px; color: #5A6B8C; margin-top: 10px; }\n</style>'
+        },
+        render: function (state) {
+          var clubs = ['编程社', '摄影社', '篮球队', '志愿者协会'];
+          var picked = state.picked || [];
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            clubs.map(function (c) {
+              var on = picked.indexOf(c) > -1;
+              return '<div style="display:flex;flex-direction:row;align-items:center;height:44px" data-bind="pick_' + c + '">' +
+                '<div style="width:20px;height:20px;border-radius:5px;background:' + (on ? '#2F6BFF' : '#fff') + ';border:2px solid ' + (on ? '#2F6BFF' : '#C6D2E8') + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px">' + (on ? '✓' : '') + '</div>' +
+                '<span class="uv-text" style="font-size:14px;margin-left:8px">' + c + '</span></div>';
+            }).join('') +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:10px">已选：' + (picked.length ? picked.join('、') : '（未选）') + '　（最多 2 个）</div></div>';
+        },
+        actions: {
+          pick_编程社: function (state) { return togglePick(state, '编程社'); },
+          pick_摄影社: function (state) { return togglePick(state, '摄影社'); },
+          pick_篮球队: function (state) { return togglePick(state, '篮球队'); },
+          pick_志愿者协会: function (state) { return togglePick(state, '志愿者协会'); }
+        }
+      },
+      {
+        name: '④ radio-group 单选',
+        file: 'pages/demo/radio.uvue',
+        navbar: '单选',
+        hint: '单选组返回的是被选中项的 value（字符串），不是数组——这是它与多选组最容易混淆的地方。',
+        state: { grade: '' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <radio-group @change="onGradeChange">\n      <label class="opt" v-for="g in grades" :key="g">\n        <radio :value="g" :checked="grade == g" />\n        <text class="opt-text">{{ g }}</text>\n      </label>\n    </radio-group>\n    <text class="muted">当前年级：{{ grade.length > 0 ? grade : \'未选择\' }}</text>\n  </view>\n</template>',
+          script: '<script setup>\n  const grades = ref<string[]>([\'大一\', \'大二\', \'大三\', \'大四\'])\n  const grade = ref<string>(\'\')\n\n  const onGradeChange = (event: UniRadioGroupChangeEvent) => {\n    grade.value = event.detail.value         // string（不是数组）\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .opt { flex-direction: row; align-items: center; height: 44px; }\n  .opt-text { font-size: 14px; color: #111C33; margin-left: 8px; }\n  .muted { font-size: 12px; color: #5A6B8C; margin-top: 10px; }\n</style>'
+        },
+        render: function (state) {
+          var grades = ['大一', '大二', '大三', '大四'];
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            grades.map(function (g) {
+              var on = state.grade === g;
+              return '<div style="display:flex;flex-direction:row;align-items:center;height:44px" data-bind="g_' + g + '">' +
+                '<div style="width:20px;height:20px;border-radius:10px;border:2px solid ' + (on ? '#2F6BFF' : '#C6D2E8') + ';display:flex;align-items:center;justify-content:center">' +
+                '<div style="width:10px;height:10px;border-radius:5px;background:' + (on ? '#2F6BFF' : 'transparent') + '"></div></div>' +
+                '<span class="uv-text" style="font-size:14px;margin-left:8px">' + g + '</span></div>';
+            }).join('') +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:10px">当前年级：' + (state.grade || '未选择') + '（string 类型）</div></div>';
+        },
+        actions: {
+          g_大一: function (state) { state.grade = '大一'; return 'radio-group @change → "大一"（string）'; },
+          g_大二: function (state) { state.grade = '大二'; return 'radio-group @change → "大二"（string）'; },
+          g_大三: function (state) { state.grade = '大三'; return 'radio-group @change → "大三"（string）'; },
+          g_大四: function (state) { state.grade = '大四'; return 'radio-group @change → "大四"（string）'; }
+        }
+      }
+    ]
+  },
+
+  formdemo: {
+    examples: [
+      {
+        name: '① 校验与提交门禁',
+        file: 'pages/signup/signup.uvue',
+        navbar: '报名表校验',
+        hint: '这里模拟真实的报名表：姓名、手机号、年级、同意须知。注意"能否提交"是由 computed 推导的——数据不齐时提交按钮就是禁用的，而不是点了才报错。',
+        state: { name: '', phone: '', gradeIndex: -1, agreed: false, submitted: false },
+        code: {
+          template: '<template>\n  <view class="page">\n    <input class="field" :value="name" placeholder="姓名" @input="onNameInput" />\n    <text v-if="nameError.length > 0" class="error">{{ nameError }}</text>\n\n    <input class="field" type="number" maxlength="11" :value="phone"\n           placeholder="11 位手机号" @input="onPhoneInput" />\n    <text v-if="phoneError.length > 0" class="error">{{ phoneError }}</text>\n\n    <picker mode="selector" :range="grades" :value="gradeIndex" @change="onGradeChange">\n      <view class="field"><text>{{ gradeIndex >= 0 ? grades[gradeIndex] : \'选择年级\' }}</text></view>\n    </picker>\n\n    <view class="row">\n      <text>我已阅读并同意活动须知</text>\n      <switch :checked="agreed" @change="onAgreeChange" />\n    </view>\n\n    <button type="primary" :disabled="!canSubmit || submitting" :loading="submitting" @click="submit">\n      {{ submitting ? \'提交中…\' : \'提交报名\' }}\n    </button>\n  </view>\n</template>',
+          script: '<script setup>\n  const grades = ref<string[]>([\'大一\', \'大二\', \'大三\', \'大四\'])\n  const name = ref<string>(\'\')\n  const phone = ref<string>(\'\')\n  const gradeIndex = ref<number>(-1)\n  const agreed = ref<boolean>(false)\n  const submitting = ref(false)\n\n  const onNameInput = (event: UniInputEvent) => { name.value = event.detail.value }\n\n  const onPhoneInput = (event: UniInputEvent): string => {\n    const cleaned = event.detail.value.replace(/[^0-9]/g, \'\')\n    phone.value = cleaned\n    return cleaned\n  }\n\n  const onGradeChange = (event: UniPickerChangeEvent) => { gradeIndex.value = event.detail.value as number }\n  const onAgreeChange = (event: UniSwitchChangeEvent) => { agreed.value = event.detail.value }\n\n  // 错误信息：用户没填过就不提示，避免一进页面满屏红字\n  const nameError = computed(() => name.value.length > 0 && name.value.length < 2 ? \'姓名至少 2 个字\' : \'\')\n  const phoneError = computed(() => phone.value.length > 0 && phone.value.length != 11 ? \'手机号应为 11 位\' : \'\')\n\n  // 门禁：全部合法才允许提交\n  const canSubmit = computed(() => {\n    return name.value.length >= 2 && phone.value.length == 11 && gradeIndex.value >= 0 && agreed.value\n  })\n\n  const submit = () => {\n    if (!canSubmit.value || submitting.value) return    // 防重复提交\n    submitting.value = true\n    setTimeout(() => {\n      submitting.value = false\n      uni.showToast({ \'title\': \'报名成功\', \'icon\': \'none\' })\n    }, 600)\n  }\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .field { height: 46px; background-color: #F5F8FF; border-radius: 10px; padding-left: 12px; padding-right: 12px; margin-top: 12px; }\n  .error { font-size: 12px; color: #E5484D; margin-top: 6px; }\n  .row { flex-direction: row; justify-content: space-between; align-items: center; height: 52px; }\n</style>'
+        },
+        render: function (state) {
+          var name = state.name || '';
+          var phone = state.phone || '';
+          var gi = state.gradeIndex === undefined ? -1 : state.gradeIndex;
+          var grades = ['大一', '大二', '大三', '大四'];
+          var agreed = state.agreed === true;
+          var canSubmit = name.length >= 2 && phone.length === 11 && gi >= 0 && agreed;
+          var nameError = name.length > 0 && name.length < 2 ? '姓名至少 2 个字' : '';
+          var phoneError = phone.length > 0 && phone.length !== 11 ? '手机号应为 11 位' : '';
+
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-input" style="margin-top:4px">' + (name ? '<span>' + name + '</span>' : '<span class="ph">姓名</span>') + '</div>' +
+            (nameError ? '<div class="uv-text" style="font-size:12px;color:#E5484D;margin-top:6px">' + nameError + '</div>' : '') +
+            '<div class="uv-input" style="margin-top:12px">' + (phone ? '<span>' + phone + '</span>' : '<span class="ph">11 位手机号</span>') + '</div>' +
+            (phoneError ? '<div class="uv-text" style="font-size:12px;color:#E5484D;margin-top:6px">' + phoneError + '</div>' : '') +
+            '<div class="uv-input" style="margin-top:12px"><span style="color:' + (gi >= 0 ? '#111C33' : '#A8B0BF') + '">' + (gi >= 0 ? grades[gi] : '选择年级') + '</span></div>' +
+            '<div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;height:52px">' +
+            '<span class="uv-text" style="font-size:14px">我已阅读并同意活动须知</span>' +
+            '<div data-bind="agree" style="width:52px;height:32px;border-radius:16px;background:' + (agreed ? '#12B886' : '#E2E9F7') + ';display:flex;align-items:center;padding:3px;box-sizing:border-box">' +
+            '<div style="width:26px;height:26px;border-radius:13px;background:#fff;margin-left:' + (agreed ? '20px' : '0') + '"></div></div></div>' +
+            '<div class="uv-btn ' + (canSubmit ? 'primary' : '') + '" style="margin-top:8px;' + (canSubmit ? '' : 'opacity:.5') + '"' + (canSubmit ? ' data-bind="submit"' : '') + '>' +
+            (state.submitting ? '提交中…' : '提交报名') + '</div>' +
+            '<div class="uv-text" style="font-size:12px;color:' + (canSubmit ? '#0B8A66' : '#A8B0BF') + ';margin-top:8px">' +
+            (canSubmit ? '✓ 信息完整，可以提交' : '请补全信息后提交（按钮当前是禁用态）') + '</div>' +
+            '<div style="display:flex;flex-direction:row;margin-top:12px">' +
+            '<div class="uv-btn" style="flex:1;margin-right:6px;font-size:12px" data-bind="fill">一键填好</div>' +
+            '<div class="uv-btn" style="flex:1;font-size:12px" data-bind="reset">重置</div></div></div>';
+        },
+        actions: {
+          fill: function (state) {
+            state.name = '汽水同学'; state.phone = '13800001111'; state.gradeIndex = 1; state.agreed = true;
+            return '填好全部字段 → canSubmit 变成 true，按钮解除禁用';
+          },
+          agree: function (state) { state.agreed = !(state.agreed === true); return 'agreed = ' + (state.agreed === true); },
+          submit: function (state) {
+            if (state.submitting) return '正在提交中，这次点击被忽略了（防重复提交）';
+            state.submitting = true;
+            return '提交中…（真实项目里这里调 uni.request，第 8 章）';
+          },
+          reset: function (state) {
+            state.name = ''; state.phone = ''; state.gradeIndex = -1; state.agreed = false; state.submitting = false;
+            return '已重置';
+          }
+        }
+      },
+      {
+        name: '② 校验失败的样子',
+        file: 'pages/signup/signup.uvue',
+        navbar: '校验提示',
+        hint: '错误提示只在"用户已经开始填"之后才出现：没填过不报错，填了但不合格才提示。这样既不会一进页面满屏红字，也能让用户及时得到反馈。',
+        state: { name: '', phone: '', gradeIndex: -1, agreed: false, submitting: false, demo: 'bad' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <input class="field" :value="name" placeholder="姓名" @input="onNameInput" />\n    <\!-- 只在"填过但不合格"时提示 -->\n    <text v-if="nameError.length > 0" class="error">{{ nameError }}</text>\n\n    <input class="field" type="number" maxlength="11" :value="phone" placeholder="手机号" @input="onPhoneInput" />\n    <text v-if="phoneError.length > 0" class="error">{{ phoneError }}</text>\n  </view>\n</template>',
+          script: '<script setup>\n  const nameError = computed(() => {\n    if (name.value.length == 0) return \'\'                       // 没填：不提示\n    return name.value.length < 2 ? \'姓名至少 2 个字\' : \'\'        // 填了但不合格：提示\n  })\n\n  const phoneError = computed(() => {\n    if (phone.value.length == 0) return \'\'\n    return phone.value.length == 11 ? \'\' : \'手机号应为 11 位\'\n  })\n<\/script>',
+          style: '<style>\n  .page { flex: 1; padding: 16px; background-color: #FFFFFF; }\n  .field { height: 46px; background-color: #F5F8FF; border-radius: 10px; padding-left: 12px; margin-top: 12px; }\n  .error { font-size: 12px; color: #E5484D; margin-top: 6px; }\n</style>'
+        },
+        render: function (state) {
+          var bad = state.demo !== 'ok';
+          var name = bad ? '汽' : '汽水同学';
+          var phone = bad ? '13800' : '13800001111';
+          var nameError = name.length > 0 && name.length < 2 ? '姓名至少 2 个字' : '';
+          var phoneError = phone.length > 0 && phone.length !== 11 ? '手机号应为 11 位' : '';
+          return '<div class="uv-view" style="flex:1;padding:16px;background:#fff">' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C">下面两种状态的对比</div>' +
+            '<div class="uv-input" style="margin-top:12px">' + '<span>' + name + '</span></div>' +
+            (nameError ? '<div class="uv-text" style="font-size:12px;color:#E5484D;margin-top:6px">' + nameError + '</div>' : '<div class="uv-text" style="font-size:12px;color:#0B8A66;margin-top:6px">✓ 姓名没有问题</div>') +
+            '<div class="uv-input" style="margin-top:12px">' + '<span>' + phone + '</span></div>' +
+            (phoneError ? '<div class="uv-text" style="font-size:12px;color:#E5484D;margin-top:6px">' + phoneError + '</div>' : '<div class="uv-text" style="font-size:12px;color:#0B8A66;margin-top:6px">✓ 手机号没有问题</div>') +
+            '<div style="margin-top:16px">' +
+            '<div class="uv-btn' + (bad ? ' primary' : '') + '" style="margin-bottom:8px;font-size:13px" data-bind="bad">看不合格的样子</div>' +
+            '<div class="uv-btn' + (bad ? '' : ' primary') + '" style="font-size:13px" data-bind="ok">看合格的样子</div></div></div>';
+        },
+        actions: {
+          bad: function (state) { state.demo = 'bad'; return '姓名 1 个字、手机号 5 位 → 两条错误提示'; },
+          ok: function (state) { state.demo = 'ok'; return '全部合格 → 错误提示自动消失'; }
+        }
+      }
+    ]
+  }
+};
+
+/* 多选切换的辅助函数（放在演示数据里共用） */
+function togglePick(state, name) {
+  var picked = (state.picked || []).slice();
+  var idx = picked.indexOf(name);
+  if (idx > -1) {
+    picked.splice(idx, 1);
+  } else {
+    if (picked.length >= 2) return '最多选 2 个：这次点击被拒绝（数据没变，界面回到原状态）';
+    picked.push(name);
+  }
+  state.picked = picked;
+  return 'checkbox-group @change → [' + picked.join(', ') + ']（string[]）';
+}
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第8章 网络请求与数据展示 | uni-app x 大学课堂</title>
+<meta name="description" content="uni-app x 第8章：uni.request 参数与返回全解、statusCode 与业务码判断、errCode 错误码表、RequestTask.abort 取消请求、统一请求封装、分页列表三态实战、上传下载与网络状态。" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../assets/annotate.css" />
+</head>
+<body>
+
+<div class="read-progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">UX</div>
+      <div class="brand-text">
+        <div class="name">第 8 章 · 网络请求与数据展示</div>
+        <div class="sub">模块三 · 数据与设备 · 建议 3 学时</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="chip vapor nowrap">蒸汽模式</span>
+      <button class="btn btn-ghost btn-sm" data-drawer-open>☰ 课程目录</button>
+      <a class="btn btn-primary btn-sm" href="#sec-quiz">去做随堂测验</a>
+    </div>
+  </div>
+</header>
+
+<section class="chapter-hero">
+  <div class="container">
+    <div class="eyebrow">
+      <span class="chip">模块三 · 数据与设备</span>
+      <span class="chip mint">第 8 章 / 共 13 章</span>
+      <span class="chip yellow">难度 ★★★</span>
+      <span class="chip gray">前置：第 4–7 章</span>
+    </div>
+    <h1>网络请求与数据展示：让 App 接上真实世界</h1>
+    <p class="lead">
+      前七章的 App 都是"自给自足"的：数据要么写死，要么存在本地。
+      这一章把数据换成<b>真实接口</b>，同时解决随之而来的一整套问题：
+      <b>加载中该显示什么、失败了怎么告诉用户、分页怎么不重复请求、页面离开时未完成的请求怎么办</b>。
+      学完这一章，你就具备了把任何后端接口接进 App 的能力。
+    </p>
+    <div class="chapter-meta">
+      <div>⏱ 建议 <strong>3</strong> 学时（讲授约 95 分钟 + 上机约 60 分钟）</div>
+      <div>🧩 教学内容 <strong>9</strong> 节</div>
+      <div>📝 随堂测验 <strong>8</strong> 题</div>
+      <div>🏠 课后作业 <strong>4</strong> 项</div>
+      <div>📱 代码演练 <strong>3</strong> 处</div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="goals-card">
+    <h2>🎯 这一章我们要达到什么</h2>
+    <div class="goal-grid">
+      <div class="goal-item">
+        <div class="icon">🔌</div>
+        <h4>会用 uni.request</h4>
+        <p>参数怎么传、返回值里有什么、状态码怎么判断，做到不查文档也能写对。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">🛡</div>
+        <h4>会处理失败</h4>
+        <p>超时、断网、服务端错误各有不同的提示与重试策略，而不是"只会转圈"。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">🧰</div>
+        <h4>会封装</h4>
+        <p>写一个统一的请求工具：统一域名、超时、错误提示与返回类型，页面里只关心业务。</p>
+      </div>
+      <div class="goal-item">
+        <div class="icon">📄</div>
+        <h4>会做分页列表</h4>
+        <p>三态齐全、能下拉刷新、能触底加载、没有更多时给提示，并避免重复请求。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc-strip"><div class="toc-strip-inner" id="tocStrip"></div></nav>
+
+<div class="container">
+  <div class="section-wrap">
+    <main>
+
+      <!-- ============ 8.1 ============ -->
+      <section class="lesson-section" id="sec-8-1" data-nav="8.1 请求-响应与三态思维">
+        <div class="sec-head">
+          <span class="sec-no">8.1</span>
+          <h2>先建立思维：请求一定有"三种结局"</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            前端请求后端，本质是一次"发出去 → 等一会儿 → 拿回结果"的异步过程。
+            新手写请求时只想着"成功怎么办"，于是代码就长成这样：把 <code>success</code> 回调写得很完整，
+            <code>fail</code> 完全不管。结果一断网，用户看到的就是一个永远转圈的空白页面。
+          </p>
+          <p>
+            <b>任何一次请求都只有三种结局，界面也必须准备好三种状态：</b>
+          </p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>结局</th><th>技术上是什么</th><th>界面必须表现</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>① 加载中</b></td>
+                  <td>请求已发出，结果还没回来</td>
+                  <td>骨架屏或 loading 提示（<b>不要留白</b>，用户会以为卡死）</td>
+                </tr>
+                <tr>
+                  <td><b>② 成功但有数据 / 成功但空</b></td>
+                  <td><code>success</code> 回调，<code>statusCode</code> 正常</td>
+                  <td>渲染列表；如果数组为空，要显示<b>空态文案</b>（第 4 章强调过）</td>
+                </tr>
+                <tr>
+                  <td><b>③ 失败</b></td>
+                  <td><code>fail</code> 回调（网络断了、超时），或业务码表示出错</td>
+                  <td>明确的错误提示 + <b>重试入口</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>一个容易被忽略的区分：HTTP 状态码 ≠ 业务状态码</strong>
+              <p>
+                <code>statusCode</code> 是 HTTP 层的（200 表示"服务器正常回复了"），
+                但服务器可能在 200 的响应体里告诉你"<code>{"code": 401, "msg": "登录已过期"}</code>"。
+                所以判断成功要<b>两层都看</b>：先看 <code>statusCode</code> 是否在 2xx，
+                再看业务字段（通常叫 <code>code</code> / <code>errCode</code> / <code>success</code>）。
+                只判断其中一层，都会出现"命令式成功、结果什么也没显示"的诡异情况。
+              </p>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="apirequest"></div>
+        </div>
+      </section>
+
+      <!-- ============ 8.2 ============ -->
+      <section class="lesson-section" id="sec-8-2" data-nav="8.2 uni.request 参数全解">
+        <div class="sec-head">
+          <span class="sec-no">8.2</span>
+          <h2>uni.request：参数怎么传，返回里有什么</h2>
+          <span class="sec-time">25 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            <code>uni.request</code> 的用法和浏览器的 <code>fetch</code> 思路一样，但它是跨端统一的：
+            在 App、Web、小程序里写法完全相同。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/demo/request.uvue —— 最常用的两种请求</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  // ① GET：参数用 data 传，会自动拼到 url 后面
+  const loadList = () =&gt; {
+    uni.request({
+      'url': 'https://api.example.com/notices',
+      'method': 'GET',
+      'data': { 'page': 1, 'size': 10 },
+      'timeout': 8000,                        // 默认 60000ms，建议显式设短一点
+      'success': (res) =&gt; {
+        // res.statusCode 是 HTTP 状态码
+        if (res.statusCode == 200) {
+          // res.data 默认已经做过一次 JSON.parse（dataType 默认就是 'json'）
+          console.log('返回数据：', res.data)
+        }
+      },
+      'fail': (err) =&gt; {
+        // 网络层失败：超时、断网、地址不合法等
+        console.log('请求失败：', err.errCode, err.errMsg)
+      },
+      'complete': () =&gt; {
+        // 成功或失败都会走这里，适合关闭 loading
+        console.log('请求结束')
+      }
+    })
+  }
+
+  // ② POST：data 放在请求体里
+  const submitForm = () =&gt; {
+    uni.request({
+      'url': 'https://api.example.com/signup',
+      'method': 'POST',
+      'header': { 'Content-Type': 'application/json' },
+      'data': { 'name': '汽水同学', 'phone': '13800001111' },
+      'success': (res) =&gt; {
+        console.log('提交结果：', res.statusCode, res.data)
+      }
+    })
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <h3>参数速查表（按重要性排序）</h3>
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>参数</th><th>默认值</th><th>说明与坑</th></tr></thead>
+              <tbody>
+                <tr><td><code>url</code></td><td>必填</td><td>接口地址，建议写完整地址（http/https）</td></tr>
+                <tr><td><code>method</code></td><td><code>"GET"</code></td><td>合法值：<code>GET</code> / <code>POST</code> / <code>PUT</code> / <code>PATCH</code> / <code>DELETE</code> / <code>HEAD</code> / <code>OPTIONS</code></td></tr>
+                <tr>
+                  <td><code>data</code></td><td><code>null</code></td>
+                  <td><b>App-Android 端只支持 <code>UTSJSONObject</code> 或 <code>string</code> 类型</b>——
+                  传数组、数字等基本类型可能报"data 参数类型不合法"（<code>errCode 600008</code>）。<br />
+                  Android 4.51+ / iOS 4.61+ 起支持 <code>ArrayBuffer</code>（传二进制）</td>
+                </tr>
+                <tr><td><code>header</code></td><td><code>null</code></td><td>类型是 <code>UTSJSONObject</code>；<b>header 里不能设置 <code>Referer</code></b></td></tr>
+                <tr><td><code>timeout</code></td><td><code>60000</code></td><td>单位毫秒。移动网络建议 8000–15000，太长用户会以为卡死</td></tr>
+                <tr>
+                  <td><code>dataType</code></td><td><code>"json"</code></td>
+                  <td>设为 <code>json</code> 时框架会<b>对返回数据做一次 <code>JSON.parse</code></b>，所以 <code>res.data</code> 通常已经是对象；
+                  返回的不是合法 JSON 时会失败（<code>errCode 100001</code>），此时可改成非 json</td>
+                </tr>
+                <tr><td><code>responseType</code></td><td>—</td><td>设置响应数据类型（需要拿二进制时用）</td></tr>
+                <tr><td><code>sslVerify</code></td><td>—</td><td>是否验证 SSL 证书。自签证书的测试环境才需要动它，<b>生产环境不要关</b></td></tr>
+                <tr><td><code>withCredentials</code></td><td>—</td><td>跨域请求是否携带 cookies</td></tr>
+                <tr><td><code>firstIpv4</code></td><td><code>false</code></td><td>DNS 解析优先使用 IPv4；某些网络环境下能缓解连接慢</td></tr>
+                <tr><td><code>enableQuic</code> / <code>enableChunked</code></td><td><code>false</code></td><td>协议层优化与分块传输，属于进阶项（<code>Android 5.23+</code> 默认开启 Brotli 压缩）</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>成功回调里能拿到什么（<code>RequestSuccess</code>）：</strong>
+              <p>
+                <code>data</code>（服务器返回的数据，已按 <code>dataType</code> 处理）、
+                <code>statusCode</code>（HTTP 状态码）、<code>header</code>（响应头）、<code>cookies</code>（字符串数组）。
+                调试时最简单有效的做法是：<b>先把整个 <code>res</code> 打印出来</b>（<code>JSON.stringify(res.data)</code>），
+                确认字段结构之后再写渲染代码——第 4 章说过，接口结构与假设不一致是渲染报错的头号原因。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8.3 ============ -->
+      <section class="lesson-section" id="sec-8-3" data-nav="8.3 失败处理与取消请求">
+        <div class="sec-head">
+          <span class="sec-no">8.3</span>
+          <h2>失败处理：错误码、重试与取消请求</h2>
+          <span class="sec-time">20 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>官方给 <code>fail</code> 回调提供了明确的错误码，用它可以给出"人话"提示，而不是把英文错误甩给用户。</p>
+
+          <div class="table-wrap">
+            <table class="cmp ax">
+              <thead><tr><th><code>errCode</code></th><th>含义</th><th>建议的界面表现</th></tr></thead>
+              <tbody id="axDangerBody">
+                <tr><td><code>5</code></td><td>接口超时</td><td>"网络较慢，请重试" + 重试按钮</td></tr>
+                <tr><td><code>600003</code></td><td>网络中断</td><td>"当前无网络连接，请检查网络"（可配合网络状态监听）</td></tr>
+                <tr><td><code>600009</code></td><td>URL 格式不合法</td><td>开发期问题：检查 url 拼写与协议头</td></tr>
+                <tr><td><code>600008</code></td><td><code>data</code> 参数类型不合法</td><td>开发期问题：App-Android 端请传对象或字符串</td></tr>
+                <tr><td><code>100001</code></td><td>json 数据解析错误</td><td>服务器返回的不是合法 JSON；确认 <code>dataType</code> 与接口格式</td></tr>
+                <tr><td><code>1000</code></td><td>服务端系统错误</td><td>"服务暂时不可用，请稍后再试"</td></tr>
+                <tr><td><code>602001</code></td><td>request 系统错误</td><td>记录日志，提供重试</td></tr>
+                <tr><td><code>600010</code></td><td>Cronet 模块加载失败</td><td>多为运行环境问题，重试或重启基座</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">把错误码翻译成人话 + 取消未完成的请求</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  // ① 错误码 → 用户能看懂的提示
+  const friendlyError = (code: number): string =&gt; {
+    if (code == 5) return '网络较慢，加载超时，请重试'
+    if (code == 600003) return '当前无网络连接，请检查网络设置'
+    if (code == 1000) return '服务暂时不可用，请稍后再试'
+    if (code == 100001) return '数据格式异常，请联系管理员'
+    return '加载失败，请稍后重试'
+  }
+
+  // ② 请求任务与取消：uni.request 会返回一个 RequestTask
+  let task: RequestTask | null = null
+
+  const load = () =&gt; {
+    task = uni.request({
+      'url': 'https://api.example.com/notices',
+      'timeout': 8000,
+      'success': (res) =&gt; {
+        if (res.statusCode != 200) {
+          uni.showToast({ 'title': '服务异常（' + res.statusCode + '）', 'icon': 'none' })
+          return
+        }
+        // 业务码也要判断
+        console.log('数据：', res.data)
+      },
+      'fail': (err) =&gt; {
+        uni.showToast({ 'title': friendlyError(err.errCode), 'icon': 'none' })
+      }
+    })
+  }
+
+  // ③ 页面离开时取消未完成的请求，避免"回来还在跑"与回调里访问已销毁页面
+  onUnload(() =&gt; {
+    if (task != null) {
+      task.abort()                    // 中断网络请求
+      task = null
+    }
+  })
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong><code>RequestTask</code> 还能做什么？</strong>
+              <p>
+                除了 <code>abort()</code> 取消请求，它还支持
+                <code>onHeadersReceived</code>（监听响应头，可用于读取 token、判断是否需要刷新登录态）
+                与 <code>onChunkReceived</code>（监听分块数据，做流式输出）。
+                这两个能力从 <b>HBuilderX 4.71</b> 起支持，属于进阶用法。
+              </p>
+            </div>
+          </div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>三个平台相关的注意点：</strong>
+              <p>
+                ① <b>小程序端必须配置合法域名</b>（在对应平台后台把 request / uploadFile / downloadFile 的域名加入白名单），
+                否则请求会被直接拦截；App 端一般不受此限制，但请使用 HTTPS 并保持 <code>sslVerify</code> 开启；
+                ② <b>App-Android 的 <code>data</code> 只支持对象或字符串</b>（见 8.2 表格）；
+                ③ <b>不要在前端代码里硬编码密钥</b>（AppSecret、数据库密码之类）——
+                客户端代码是可以被反编译的，敏感操作必须由服务端完成。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8.4 ============ -->
+      <section class="lesson-section" id="sec-8-4" data-nav="8.4 封装统一请求工具">
+        <div class="sec-head">
+          <span class="sec-no">8.4</span>
+          <h2>封装：把"每次都要写的东西"收进一个文件</h2>
+          <span class="sec-time">25 分钟 · 讲授 + 演练</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            如果每个页面都直接写一遍 <code>uni.request</code>，你会发现这些东西在重复：
+            域名前缀、超时时间、token 请求头、错误提示、<code>statusCode</code> 判断、loading 开关。
+            正确做法是<b>抽成一个请求工具</b>，页面里只写"请求哪个接口、拿到什么数据"。
+          </p>
+
+          <div class="callout danger">
+            <span class="ci">✕</span>
+            <div>
+              <strong>先看"不封装"的代价：</strong>
+              <p>
+                某天要把接口域名从测试环境换到生产环境——你需要在 <b>20 个页面</b>里各改一次 url；
+                某天要加一个 token 请求头——又是 20 处。
+                而封装之后，这些都只改<b>一个文件</b>。这也是"能用"和"能维护"的分界线。
+              </p>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">utils/request.ts —— 一个够用的请求封装</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+// 统一配置：换环境只改这一行
+const BASE_URL = 'https://api.example.com'
+
+type RequestOptions = {
+  url: string,
+  method?: string,
+  data?: UTSJSONObject | null,        // 注意 App-Android 只支持对象或字符串
+  showError?: boolean                 // 是否自动弹错误提示
+}
+
+// 把回调式 API 包装成"能 await"的形式，页面里写起来更顺
+export const request = &lt;T&gt;(options: RequestOptions): Promise&lt;T | null&gt; =&gt; {
+  return new Promise&lt;T | null&gt;((resolve) =&gt; {
+    uni.request({
+      'url': BASE_URL + options.url,
+      'method': options.method ?? 'GET',
+      'data': options.data ?? null,
+      'timeout': 10000,
+      'header': {
+        'Content-Type': 'application/json',
+        // 登录后把 token 放进请求头（实际 token 从本地存储读，第 9 章）
+        'Authorization': 'Bearer ' + (uni.getStorageSync('token') ?? '')
+      },
+      'success': (res) =&gt; {
+        // 第一层：HTTP 状态码
+        if (res.statusCode != 200) {
+          if (options.showError !== false) {
+            uni.showToast({ 'title': '服务异常（' + res.statusCode + '）', 'icon': 'none' })
+          }
+          resolve(null)
+          return
+        }
+        // 第二层：业务码（这里假设后端返回 { code, data, msg }）
+        const body = res.data as UTSJSONObject
+        const code = body['code'] as number
+        if (code != 0) {
+          if (options.showError !== false) {
+            uni.showToast({ 'title': (body['msg'] as string) ?? '请求失败', 'icon': 'none' })
+          }
+          resolve(null)
+          return
+        }
+        resolve(body['data'] as T)
+      },
+      'fail': (err) =&gt; {
+        if (options.showError !== false) {
+          uni.showToast({ 'title': friendlyError(err.errCode), 'icon': 'none' })
+        }
+        resolve(null)
+      }
+    })
+  })
+}
+
+// 页面里调用：只关心"要什么数据"
+// const list = await request&lt;Notice[]&gt;({ url: '/notices', data: { page: 1 } })</pre></div>
+          </div>
+
+          <div class="playground" data-playground="requestwrap"></div>
+
+          <div class="callout tip">
+            <span class="ci">💡</span>
+            <div>
+              <strong>封装时值得留意的四件事：</strong>
+              <p>
+                ① <b>统一错误提示，但留一个开关</b>（<code>showError: false</code>）——
+                有些请求失败不需要打扰用户（例如后台静默刷新）；
+                ② <b>返回 <code>null</code> 而不是抛异常</b>——页面里用 <code>if (data != null)</code> 判断即可，逻辑更平；
+                ③ <b>把 token 从存储里读，不要硬编码</b>，并留好"token 失效统一跳登录"的位置；
+                ④ 官方 <code>request</code> 示例里还演示了 <b>请求拦截器</b>的用法（统一加 header、统一打日志），
+                需要更"框架化"的做法时可以对照官方示例实现。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8.5 ============ -->
+      <section class="lesson-section" id="sec-8-5" data-nav="8.5 实战：分页列表">
+        <div class="sec-head">
+          <span class="sec-no">8.5</span>
+          <h2>实战：一个真正的分页列表页</h2>
+          <span class="sec-time">30 分钟 · 全程动手</span>
+        </div>
+        <div class="sec-body">
+          <p>
+            把第 7 章的下拉刷新 / 触底加载骨架，换成真实请求，并把三态补齐。
+            这是移动端最高频的页面形态，写熟一次，后面每个列表页都能套。
+          </p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">pages/notice/list.uvue</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="template">template</button>
+              <button class="code-tab" data-tab="script">script</button>
+              <button class="code-tab" data-tab="style">style</button>
+            </div>
+            <div>
+              <div class="code-pane active" data-pane="template"><pre class="code-block" data-lang="html">
+&lt;template&gt;
+  &lt;view class="page"&gt;
+    &lt;!-- ① 加载中：首次加载显示骨架，避免白屏 --&gt;
+    &lt;view v-if="loading &amp;&amp; list.length == 0" class="tip-box"&gt;
+      &lt;text class="tip-text"&gt;正在加载…&lt;/text&gt;
+    &lt;/view&gt;
+
+    &lt;!-- ② 失败：给错误原因 + 重试按钮（不是只提示一下） --&gt;
+    &lt;view v-else-if="error.length &gt; 0 &amp;&amp; list.length == 0" class="tip-box"&gt;
+      &lt;text class="tip-text"&gt;{{ error }}&lt;/text&gt;
+      &lt;button size="mini" class="retry" @click="reload"&gt;重新加载&lt;/button&gt;
+    &lt;/view&gt;
+
+    &lt;!-- ③ 空态：真实用户最常遇到的界面 --&gt;
+    &lt;view v-else-if="list.length == 0" class="tip-box"&gt;
+      &lt;text class="tip-text"&gt;还没有通知&lt;/text&gt;
+    &lt;/view&gt;
+
+    &lt;!-- ④ 正常数据 --&gt;
+    &lt;view v-else&gt;
+      &lt;view v-for="item in list" :key="item.id" class="item"&gt;
+        &lt;text class="item-title"&gt;{{ item.title }}&lt;/text&gt;
+        &lt;text class="item-time"&gt;{{ item.time }}&lt;/text&gt;
+      &lt;/view&gt;
+
+      &lt;!-- 底部状态：三种文案都要有 --&gt;
+      &lt;view class="footer-tip"&gt;
+        &lt;text class="tip-text"&gt;{{ loading ? '加载中…' : (noMore ? '没有更多了' : '上拉加载更多') }}&lt;/text&gt;
+      &lt;/view&gt;
+    &lt;/view&gt;
+  &lt;/view&gt;
+&lt;/template&gt;</pre></div>
+              <div class="code-pane" data-pane="script"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  import { request } from '@/utils/request'
+
+  type Notice = { id: number, title: string, time: string }
+
+  const list = ref&lt;Notice[]&gt;([])
+  const page = ref&lt;number&gt;(1)
+  const loading = ref(false)
+  const noMore = ref(false)
+  const error = ref&lt;string&gt;('')
+
+  const loadPage = (p: number): Promise&lt;void&gt; =&gt; {
+    return new Promise((done) =&gt; {
+      // 演示：这里换成真实的 request 调用
+      // request&lt;Notice[]&gt;({ url: '/notices', data: { page: p, size: 10 } }).then((rows) =&gt; {
+      //   if (rows == null) { error.value = '加载失败，请重试'; done(); return }
+      //   list.value = p == 1 ? rows : list.value.concat(rows)
+      //   noMore.value = rows.length &lt; 10
+      //   done()
+      // })
+      setTimeout(() =&gt; {
+        const rows: Notice[] = []
+        for (let i = 0; i &lt; 10; i++) {
+          const id = (p - 1) * 10 + i + 1
+          rows.push({ 'id': id, 'title': '校园通知 ' + id, 'time': '2026-10-11' })
+        }
+        list.value = p == 1 ? rows : list.value.concat(rows)
+        noMore.value = p &gt;= 3
+        done()
+      }, 400)
+    })
+  }
+
+  const reload = async () =&gt; {
+    if (loading.value) return
+    loading.value = true
+    error.value = ''
+    page.value = 1
+    noMore.value = false
+    await loadPage(1)
+    loading.value = false
+  }
+
+  // 下拉刷新
+  onPullDownRefresh(async () =&gt; {
+    await reload()
+    uni.stopPullDownRefresh()        // 别忘了停止刷新动画
+  })
+
+  // 触底加载：必须加锁，否则会重复请求
+  onReachBottom(async () =&gt; {
+    if (loading.value || noMore.value) return
+    loading.value = true
+    const next = page.value + 1
+    await loadPage(next)
+    page.value = next
+    loading.value = false
+  })
+
+  // 每次显示都重新加载：保证从详情页返回时数据是最新的（第 7 章）
+  onPageShow(() =&gt; {
+    if (list.value.length == 0) reload()
+  })
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="style"><pre class="code-block" data-lang="css">
+&lt;style&gt;
+  .page { flex: 1; background-color: #F5F8FF; }
+  .tip-box { flex: 1; justify-content: center; align-items: center; padding: 40px 20px; }
+  .tip-text { font-size: 14px; color: #5A6B8C; }
+  .retry { margin-top: 14px; }
+  .item { background-color: #FFFFFF; border-radius: 12px; padding: 16px; margin: 8px 12px; }
+  .item-title { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+  .item-time { font-size: 12px; color: #5A6B8C; }
+  .footer-tip { padding: 16px; justify-content: center; align-items: center; }
+&lt;/style&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="playground" data-playground="pagination"></div>
+
+          <div class="callout warn">
+            <span class="ci">!</span>
+            <div>
+              <strong>分页最容易出的三个问题：</strong>
+              <p>
+                ① <b>重复请求</b>：触底会连续触发，必须用 <code>loading</code> 锁 + <code>noMore</code> 标记；
+                ② <b>页码错乱</b>：请求是异步的，如果不等结果回来就 <code>page + 1</code>，会出现跳页；
+                正确做法是<b>拿到结果再推进页码</b>（示例中的写法）；
+                ③ <b>数据拼接错误</b>：第一页要"替换"、后续页要"追加"（<code>concat</code>），写成一样就会只看到最后一页。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8.6 ============ -->
+      <section class="lesson-section" id="sec-8-6" data-nav="8.6 上传下载与网络状态">
+        <div class="sec-head">
+          <span class="sec-no">8.6</span>
+          <h2>上传、下载与网络状态</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <p>官方网络模块除了 <code>request</code>，还有一套配套能力，做"发布二手商品""下载文件""断网提示"时都会用到。</p>
+
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>API</th><th>用途</th><th>关键点</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code>uni.uploadFile</code></td>
+                  <td>上传文件（图片、音频等）</td>
+                  <td>通常先用 <code>uni.chooseImage</code> 拿到本地路径，再上传；比 <code>request</code> 多一个 <code>name</code>（表单字段名）与 <code>filePath</code></td>
+                </tr>
+                <tr>
+                  <td><code>uni.downloadFile</code></td>
+                  <td>下载文件到本地</td>
+                  <td>拿到临时路径后可用 <code>uni.saveFile</code> / <code>uni.openDocument</code> 处理</td>
+                </tr>
+                <tr>
+                  <td><code>uni.getNetworkType</code></td>
+                  <td>获取当前网络类型</td>
+                  <td>返回 wifi / 4g / 5g / none 等，可用于"仅在 WiFi 下下载"</td>
+                </tr>
+                <tr>
+                  <td><code>uni.onNetworkStatusChange</code></td>
+                  <td>监听网络状态变化</td>
+                  <td><b>断网时给出离线提示</b>，恢复后自动重试，体验提升明显</td>
+                </tr>
+                <tr>
+                  <td><code>uni.connectSocket</code> / <code>connectEventSource</code></td>
+                  <td>WebSocket 与服务端推送</td>
+                  <td>做聊天、实时通知时用；课程项目里一般为加分项</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">图片上传 + 断网监听（各 10 行左右）</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="upload">上传图片</button>
+              <button class="code-tab" data-tab="network">网络状态</button>
+            </div>
+            <div>
+              <div class="code-pane" data-pane="upload"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  const uploadAvatar = () =&gt; {
+    // 第一步：选择图片，拿到本地临时路径
+    uni.chooseImage({
+      'count': 1,
+      'success': (res) =&gt; {
+        const filePath = res.tempFilePaths[0]
+
+        // 第二步：上传
+        uni.uploadFile({
+          'url': BASE_URL + '/upload',
+          'filePath': filePath,
+          'name': 'file',                        // 后端接收的字段名
+          'formData': { 'type': 'avatar' },      // 附加表单字段
+          'header': { 'Authorization': 'Bearer ' + token },
+          'success': (up) =&gt; {
+            console.log('上传返回：', up.statusCode, up.data)
+          },
+          'fail': (err) =&gt; {
+            uni.showToast({ 'title': '上传失败', 'icon': 'none' })
+          }
+        })
+      }
+    })
+  }
+&lt;/script&gt;</pre></div>
+              <div class="code-pane" data-pane="network"><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  const online = ref&lt;boolean&gt;(true)
+
+  onLoad(() =&gt; {
+    // 进入页面先查一次当前网络类型
+    uni.getNetworkType({
+      'success': (res) =&gt; {
+        online.value = res.networkType != 'none'
+      }
+    })
+
+    // 监听变化：断网提示、恢复自动重试
+    uni.onNetworkStatusChange((res) =&gt; {
+      online.value = res.isConnected
+      if (!res.isConnected) {
+        uni.showToast({ 'title': '网络已断开', 'icon': 'none' })
+      } else {
+        // 联网恢复后可以在这里自动重试上一次失败的请求
+        console.log('网络已恢复：', res.networkType)
+      }
+    })
+  })
+
+  // 记得清理监听，避免重复注册（第 7 章的教训）
+  onUnload(() =&gt; {
+    uni.offNetworkStatusChange()
+  })
+&lt;/script&gt;</pre></div>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <span class="ci">ⓘ</span>
+            <div>
+              <strong>关于"离线优先"的一个实用建议：</strong>
+              <p>
+                移动端的网络是"不可靠"的常态。一个成本很低但体验提升很大的做法是：
+                <b>把上一次成功的列表数据缓存到本地</b>（第 9 章的本地存储），
+                下次进入页面先用缓存渲染，再去请求更新——用户就再也不会看到空白页。
+                这也是很多成熟 App 的做法。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8.7 ============ -->
+      <section class="lesson-section" id="sec-8-7" data-nav="8.7 调试与避坑">
+        <div class="sec-head">
+          <span class="sec-no">8.7</span>
+          <h2>调试与避坑：六个高频问题</h2>
+          <span class="sec-time">15 分钟 · 讲授</span>
+        </div>
+        <div class="sec-body">
+          <div class="table-wrap">
+            <table class="cmp">
+              <thead><tr><th>现象</th><th>原因</th><th>解决</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>浏览器能请求，小程序请求被拒</td>
+                  <td>小程序有域名白名单</td>
+                  <td>到小程序后台把接口域名加入 request 合法域名（uploadFile / downloadFile 要分别加）</td>
+                </tr>
+                <tr>
+                  <td>请求一直失败，<code>errCode 600003</code></td>
+                  <td>设备没网或接口域名不可达</td>
+                  <td>用 <code>getNetworkType</code> 先判断；确认手机与服务器网络互通（内网地址在真机上通常访问不到）</td>
+                </tr>
+                <tr>
+                  <td>请求很慢直到超时（<code>errCode 5</code>）</td>
+                  <td>默认超时 60 秒，且后端未响应</td>
+                  <td>显式设 <code>timeout: 8000</code>，并给用户"重试"入口</td>
+                </tr>
+                <tr>
+                  <td><code>errCode 600008</code>：data 参数类型不合法</td>
+                  <td>App-Android 端 <code>data</code> 只支持对象或字符串</td>
+                  <td>把参数包成对象：<code>{ id: 3 }</code>；不要直接传数字或数组</td>
+                </tr>
+                <tr>
+                  <td>快速切换分类，列表显示的是上一次的结果</td>
+                  <td><b>请求竞态</b>：后发的请求先回来了</td>
+                  <td>用"请求序号"或 <code>abort()</code>：只接受最后一次请求的结果</td>
+                </tr>
+                <tr>
+                  <td>离开页面后回调还在执行、报错</td>
+                  <td>未取消未完成的请求</td>
+                  <td>在 <code>onUnload</code> 里 <code>task.abort()</code>，并在回调开头判断页面状态</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-dots"><i></i><i></i><i></i></span>
+              <span class="code-file">解决"请求竞态"：只认最后一次请求</span>
+              <button class="code-copy">复制</button>
+            </div>
+            <div><pre class="code-block" data-lang="ts">
+&lt;script setup&gt;
+  let seq = 0                     // 请求序号
+
+  const search = async (keyword: string) =&gt; {
+    seq = seq + 1
+    const current = seq           // 记下本次请求的序号
+
+    const data = await request&lt;Notice[]&gt;({ url: '/search', data: { 'kw': keyword } })
+
+    // 回来时如果序号已经变了，说明有更新的请求发出，本次结果直接丢弃
+    if (current != seq) {
+      console.log('丢弃过期结果')
+      return
+    }
+    list.value = data ?? []
+  }
+&lt;/script&gt;</pre></div>
+          </div>
+
+          <div class="callout ok">
+            <span class="ci">✓</span>
+            <div>
+              <strong>本节验收标准：</strong>
+              <p>
+                给你任何一个 REST 接口（GET 列表 / GET 详情 / POST 提交），你能在 10 分钟内接进页面，
+                并且做到：有三态、有错误提示、有重试、分页不重复、离开页面会取消请求。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8.8 测验 ============ -->
+      <section class="lesson-section" id="sec-quiz" data-nav="8.8 随堂测验">
+        <div class="sec-head">
+          <span class="sec-no">8.8</span>
+          <h2>随堂测验：请求参数、错误码与分页</h2>
+          <span class="sec-time">10 分钟 · 独立完成</span>
+        </div>
+        <div class="sec-body">
+          <div class="quiz">
+            <div class="quiz-head">
+              <h3>📝 第 8 章随堂测验（8 题）</h3>
+              <span class="quiz-score" id="quizScore">得分 0 / 8</span>
+            </div>
+            <div id="quizMount"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8.9 小结与作业 ============ -->
+      <section class="lesson-section" id="sec-summary" data-nav="8.9 小结与作业">
+        <div class="sec-head">
+          <span class="sec-no">8.9</span>
+          <h2>本章小结 · 动手任务 · 课后作业</h2>
+          <span class="sec-time">10 分钟 · 总结 + 布置</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="summary-card">
+            <h3>📌 今天你学到的，浓缩成 6 句话</h3>
+            <p style="color:#33445F">
+              任何请求都有<b>加载中 / 成功（可能为空）/ 失败</b>三种结局，界面必须三种都准备好；
+              <code>uni.request</code> 的 <code>method</code> 默认 <code>GET</code>、<code>timeout</code> 默认 60000ms、
+              <code>dataType</code> 默认 <code>json</code>（<b>会帮你做一次 JSON.parse</b>）；
+              <b>App-Android 端的 <code>data</code> 只能是对象或字符串</b>，<code>header</code> 里不能设 <code>Referer</code>；
+              判断成功要<b>两层都看</b>：<code>statusCode</code> 与业务码；
+              <code>fail</code> 回调的 <code>errCode</code> 能翻译成人话（5 超时、600003 断网、1000 服务端错误、600008 参数类型错、100001 JSON 解析错）；
+              <b>把重复的东西封进请求工具</b>（域名、超时、token、错误提示、类型），页面只关心业务；
+              分页要<b>加锁防重复、结果回来再推页码、首页替换后续追加</b>，
+              并在 <code>onUnload</code> 里 <code>abort()</code> 取消未完成的请求。
+            </p>
+            <div class="kp-chips">
+              <span class="kp-chip">三态思维</span>
+              <span class="kp-chip">statusCode vs 业务码</span>
+              <span class="kp-chip">uni.request</span>
+              <span class="kp-chip">dataType json</span>
+              <span class="kp-chip">App-Android data 限制</span>
+              <span class="kp-chip">errCode 错误码</span>
+              <span class="kp-chip">RequestTask.abort</span>
+              <span class="kp-chip">请求封装</span>
+              <span class="kp-chip">token 请求头</span>
+              <span class="kp-chip">分页锁</span>
+              <span class="kp-chip">空态与重试</span>
+              <span class="kp-chip">请求竞态</span>
+              <span class="kp-chip">uploadFile</span>
+              <span class="kp-chip">网络状态监听</span>
+            </div>
+          </div>
+
+          <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            ✅ 课堂动手任务
+            <span class="chip" id="taskCounter">0 / 5 已完成</span>
+          </h3>
+          <p class="text-sub" style="margin-top:6px">点一下即可打勾，进度保存在你的浏览器里。</p>
+
+          <div class="task-list">
+            <div class="task-item" data-task-id="c8-t1">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">随便找一个公开接口（或用你学校/社团的接口），用 <code>uni.request</code> 把结果打印到控制台</div>
+                <div class="task-hint">第一步永远是"先打印完整返回结构"，再写渲染代码</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c8-t2">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">写一个 <code>utils/request.ts</code>：统一域名、超时、错误提示，并把它用到至少两个页面</div>
+                <div class="task-hint">验收：改域名只需要改一个文件</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c8-t3">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">做一个分页列表：每页 10 条、触底加载、没有更多时提示、下拉刷新回到第一页</div>
+                <div class="task-hint">重点验证：快速连续触底会不会重复请求</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c8-t4">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">把 <code>errCode</code> 映射成中文提示，并做到"超时"与"断网"给出不同文案</div>
+                <div class="task-hint">可以用开发者工具模拟慢网/断网，或直接把接口地址改错来复现</div>
+              </div>
+            </div>
+            <div class="task-item" data-task-id="c8-t5">
+              <div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+              <div>
+                <div class="task-text">用 <code>getNetworkType</code> + <code>onNetworkStatusChange</code> 实现"断网时显示离线提示，恢复后自动重试"</div>
+                <div class="task-hint">别忘了 <code>onUnload</code> 里取消监听（第 7 章的教训）</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="homework" style="margin-top:22px">
+            <h3 style="margin-bottom:6px">🏠 课后作业（按星级自选，鼓励全做）</h3>
+            <p class="text-sub" style="font-size:13.5px;margin-bottom:14px">下节课开始前提交到课程群，作业计入平时成绩。</p>
+
+            <div class="hw-item">
+              <span class="hw-star">⭐</span>
+              <div>
+                <h4>基础：请求速查表</h4>
+                <p>整理 <code>uni.request</code> 的常用参数（url / method / data / header / timeout / dataType）、<code>RequestSuccess</code> 的四个字段、以及至少 5 个 <code>errCode</code> 的含义与对应提示语。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐</span>
+              <div>
+                <h4>进阶：请求工具 + 两个页面接入</h4>
+                <p>把封装好的 <code>request</code> 用到一个列表页与一个详情页：列表页带分页与三态，详情页按 id 请求并在失败时给出重试。提交封装文件与两个页面的关键代码。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐</span>
+              <div>
+                <h4>挑战：资讯 App（含离线优先）</h4>
+                <p>要求：① 首页列表（分页 + 下拉刷新 + 触底加载 + 三态）；② 详情页按 id 请求；③ 把上一次成功的数据缓存到本地，进入页面先用缓存渲染（配合第 9 章，也可以先自己试）；④ 断网时显示离线提示。</p>
+              </div>
+            </div>
+            <div class="hw-item">
+              <span class="hw-star">⭐⭐⭐+</span>
+              <div>
+                <h4>拓展：请求竞态实验</h4>
+                <p>做一个带搜索框的列表：快速连续输入并触发请求（可以用 <code>watch</code> 防抖），对比"不做处理"与"用请求序号 / <code>abort()</code> 处理"两种效果；写下你的现象记录、你选择的方案与理由。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout info" style="margin-top:22px">
+            <span class="ci">➡️</span>
+            <div>
+              <strong>下一章预告 · 第 9 章《本地存储与全局状态管理》</strong>
+              <p>
+                数据能拉回来了，接下来解决"数据放哪里"：<code>uni.setStorageSync</code> 持久化（收藏、草稿、登录态）、
+                全局状态（多页面共享的响应式对象）、缓存策略与容量限制，以及"登录态失效统一跳登录"这类真实项目必备机制。
+                带着这一章的请求工具来，我们给它加上 token 与缓存。
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <nav class="lesson-nav">
+        <a href="chapter-07.html">
+          <div class="dir">← 上一章</div>
+          <div class="ttl">第 7 章 · 页面路由与生命周期</div>
+        </a>
+        <a class="next" href="chapter-09.html">
+          <div class="dir">下一章 →</div>
+          <div class="ttl">第 9 章 · 本地存储与全局状态管理</div>
+        </a>
+      </nav>
+
+    </main>
+    <aside class="side-toc" id="sideToc"></aside>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;color:#fff;font-size:16px;margin-bottom:6px">模块三 · 数据与设备 · 第 8 章</div>
+      <div class="fnote">
+        本章 <code>uni.request</code> 的参数、返回值、错误码表与 <code>RequestTask</code> 能力，均依据 DCloud 官方 API 文档整理；
+        小程序端合法域名、平台差异请以官方兼容性表格与你所用版本为准。请求封装示例中的后端返回结构（<code>code/data/msg</code>）
+        是常见约定，实际请按你对接的接口调整。
+      </div>
+    </div>
+    <div style="font-size:12.5px;text-align:right">
+      <div>下一章：本地存储与全局状态管理</div>
+      <div style="margin-top:6px">© <span id="year">2026</span> 汽水老师编程课堂</div>
+    </div>
+  </div>
+</footer>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="课程目录">
+  <div class="drawer-head">
+    <h3>课程目录</h3>
+    <button class="btn btn-ghost btn-sm" data-drawer-close>✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+/* 编码约定（重要）：示例代码字符串里如果出现 HTML 注释起始符或 script 结束标签，
+   必须写成带反斜杠的形式（<\!-- 与 <\/），否则浏览器会把本脚本块提前截断，页面直接白屏。 */
+window.SITE_OUTLINE = [
+  { group: '模块一 · 起步', items: [
+    { no: '01', title: '走进 uni-app x：一次编写，多端原生运行', href: 'chapter-01.html' },
+    { no: '02', title: '布局与基础组件', href: 'chapter-02.html' },
+    { no: '03', title: '样式进阶：ucss 与主题', href: 'chapter-03.html' }
+  ]},
+  { group: '模块二 · 语法与交互', items: [
+    { no: '04', title: '响应式数据与模板语法', href: 'chapter-04.html' },
+    { no: '05', title: '事件与表单交互', href: 'chapter-05.html' },
+    { no: '06', title: '组件化开发与通信', href: 'chapter-06.html' },
+    { no: '07', title: '页面路由与生命周期', href: 'chapter-07.html' }
+  ]},
+  { group: '模块三 · 数据与设备', items: [
+    { no: '08', title: '网络请求与数据展示', href: 'chapter-08.html', current: true },
+    { no: '09', title: '本地存储与状态管理', href: 'chapter-09.html' },
+    { no: '10', title: '设备能力与 UTS 插件入门', href: 'chapter-10.html' }
+  ]},
+  { group: '模块四 · 实战与发布', items: [
+    { no: '11', title: '项目①：校园课程表 App', href: 'chapter-11.html' },
+    { no: '12', title: '项目②：校园二手交易 App', href: 'chapter-12.html' },
+    { no: '13', title: '打包与多端发布', href: 'chapter-13.html' }
+  ]},
+  { group: '附录', items: [
+    { no: 'A', title: 'Web → uni-app x 速查表', href: 'appendix-a.html' },
+    { no: 'B', title: '编译错误排错手册', href: 'appendix-b.html' },
+    { no: 'C', title: '模式选型指南', href: 'appendix-c.html' },
+    { no: 'D', title: '选题库与评分标准', href: 'appendix-d.html' }
+  ]}
+];
+
+/* ---------------- 随堂测验数据 ---------------- */
+window.QUIZ_DATA = [
+  {
+    q: '<code>uni.request</code> 的 <code>method</code> 与 <code>timeout</code> 的默认值分别是？',
+    opts: [
+      '<code>POST</code> 与 30000ms',
+      '<code>GET</code> 与 60000ms',
+      '<code>GET</code> 与 10000ms',
+      '没有默认值，必须显式指定'
+    ],
+    answer: 1,
+    explain: '官方参数表：<code>method</code> 默认 <code>"GET"</code>，<code>timeout</code> 默认 <code>60000</code>（毫秒）。移动网络下建议显式设置短一些（如 8000），否则用户会长时间等待。'
+  },
+  {
+    q: '<code>dataType</code> 的默认值是 <code>"json"</code>，这意味着什么？',
+    opts: [
+      '请求会自动带上 <code>Content-Type: application/json</code>',
+      '框架会对返回的数据做一次 <code>JSON.parse</code>，所以 <code>res.data</code> 通常已经是对象',
+      '只能请求返回 JSON 的接口',
+      '会自动把 <code>data</code> 参数转成 JSON 字符串'
+    ],
+    answer: 1,
+    explain: '官方说明：<code>dataType</code> 设为 <code>json</code> 时会对返回数据做一次 <code>JSON.parse</code>；如果服务器返回的不是合法 JSON，会失败（<code>errCode 100001</code>），此时可以改成非 json。'
+  },
+  {
+    q: '在 App-Android 端，<code>uni.request</code> 的 <code>data</code> 参数支持哪些类型？',
+    opts: [
+      '任意类型，和 Web 一样',
+      '只能是 <code>UTSJSONObject</code> 或 <code>string</code>（Android 4.51+ / iOS 4.61+ 起支持 <code>ArrayBuffer</code>）',
+      '只能是数组',
+      '只能是 FormData'
+    ],
+    answer: 1,
+    explain: '官方明确：<b>app-android 端 <code>data</code> 只能是 <code>UTSJSONObject</code> 或 <code>string</code></b>，传其他类型可能报 <code>errCode 600008</code>（data 参数类型不合法）。所以参数要包成对象，例如 <code>{ id: 3 }</code>。'
+  },
+  {
+    q: '接口返回 <code>statusCode 200</code>，但响应体是 <code>{"code": 401, "msg": "登录已过期"}</code>。正确的处理是？',
+    opts: [
+      'statusCode 是 200 就当作成功，直接渲染',
+      '先判断 statusCode 是否 2xx，再判断业务码，业务码表示未登录时跳转登录页',
+      '忽略响应体，只看 statusCode',
+      '把 statusCode 当成业务码使用'
+    ],
+    answer: 1,
+    explain: '<code>statusCode</code> 是 HTTP 层的（服务器正常回复了），业务是否成功要看响应体里的业务码。<b>两层都要判断</b>，否则会出现"请求成功但什么都没显示"或"登录过期了还在渲染空页面"。'
+  },
+  {
+    q: '<code>fail</code> 回调里 <code>errCode</code> 为 <code>5</code> 与 <code>600003</code> 分别代表？',
+    opts: [
+      '服务端系统错误 / URL 不合法',
+      '接口超时 / 网络中断',
+      'JSON 解析错误 / 参数类型不合法',
+      '都是未知错误'
+    ],
+    answer: 1,
+    explain: '官方错误码表：<code>5</code> = 接口超时；<code>600003</code> = 网络中断。其他常见值：<code>1000</code> 服务端系统错误、<code>600008</code> data 参数类型不合法、<code>600009</code> URL 格式不合法、<code>100001</code> json 数据解析错误。'
+  },
+  {
+    q: '页面离开时想取消还没返回的请求，应该用？',
+    opts: [
+      '调用 <code>uni.cancelRequest()</code>',
+      '<code>uni.request</code> 返回的 <code>RequestTask</code> 上的 <code>abort()</code>',
+      '把 timeout 设为 0',
+      '没有办法取消，只能等它自己结束'
+    ],
+    answer: 1,
+    explain: '<code>uni.request</code> 返回 <code>RequestTask</code>，它的 <code>abort()</code> 可以中断网络请求。把它存到变量里，在 <code>onUnload</code> 中调用即可；<code>RequestTask</code> 还支持监听响应头与分块数据（4.71+）。'
+  },
+  {
+    q: '分页列表中，下面哪种做法会<b>导致数据错乱</b>？',
+    opts: [
+      '用 <code>loading</code> 标记防止触底时重复请求',
+      '拿到结果之后再推进页码',
+      '第一页用替换、后续页用 <code>concat</code> 追加',
+      '发请求之前就把页码 +1，请求失败也不回退'
+    ],
+    answer: 3,
+    explain: '请求是异步的：如果不等结果就推进页码，一旦某页失败或返回顺序错乱，就会出现跳页、漏数据。正确做法是<b>拿到结果再推进页码</b>，并用 <code>loading</code> 锁防重复触发。'
+  },
+  {
+    q: '<b>（多选）</b>关于请求封装与安全，下面哪些做法是对的？',
+    opts: [
+      '把接口域名、超时时间、token 请求头、统一错误提示收进一个 <code>request</code> 工具',
+      '封装时留一个"关闭自动错误提示"的开关，供静默请求使用',
+      '把 AppSecret、数据库密码这类敏感信息写在前端代码里，方便调用',
+      '把上一次成功的数据缓存到本地，进入页面先用缓存渲染，再请求更新'
+    ],
+    answer: [0, 1, 3],
+    explain: 'A、B、D 都是正确做法。C 严重错误：<b>客户端代码可以被反编译</b>，敏感密钥必须只存在于服务端；前端只应持有"可以公开"的信息（如用户 token，且要能失效）。'
+  }
+];
+
+/* ---------------- 代码 ↔ 手机联动演练区 ---------------- */
+window.PG_DEMOS = {
+  apirequest: {
+    examples: [
+      {
+        name: '① 三种结局：成功 / 失败 / 超时',
+        file: 'pages/demo/request-state.uvue',
+        navbar: '请求三态',
+        hint: '同一个页面，四种请求结果分别对应不同的界面。注意"失败"不是空白页——它必须告诉用户发生了什么、并给一个重试入口。点不同按钮看界面变化。',
+        state: { phase: 'idle', raw: '', code: 0 },
+        code: {
+          script: '<script setup>\n  const phase = ref<string>(\'idle\')      // idle | loading | ok | fail | empty\n  const data = ref<string>(\'\')\n  const errMsg = ref<string>(\'\')\n\n  const load = () => {\n    phase.value = \'loading\'\n    uni.request({\n      \'url\': \'https://api.example.com/notices\',\n      \'timeout\': 8000,\n      \'success\': (res) => {\n        if (res.statusCode != 200) {\n          phase.value = \'fail\'\n          errMsg.value = \'服务异常（\' + res.statusCode + \'）\'\n          return\n        }\n        phase.value = \'ok\'\n        data.value = JSON.stringify(res.data)\n      },\n      \'fail\': (err) => {\n        phase.value = \'fail\'\n        errMsg.value = friendlyError(err.errCode)\n      }\n    })\n  }\n<\/script>'
+        },
+        render: function (state) {
+          var phase = state.phase || 'idle';
+          var body = '';
+          if (phase === 'idle') {
+            body = '<div class="uv-text" style="font-size:13px;color:#A8B0BF;text-align:center;padding:30px">点下面的按钮发起请求</div>';
+          } else if (phase === 'loading') {
+            body = '<div class="uv-text" style="font-size:13px;color:#5A6B8C;text-align:center;padding:30px">正在加载…</div>';
+          } else if (phase === 'ok') {
+            body = '<div style="background:#E6F8F1;border-radius:10px;padding:12px"><div class="uv-text" style="font-size:12.5px;color:#0B8A66;font-weight:700;margin-bottom:6px">✓ 请求成功（statusCode 200）</div>' +
+              '<div style="font-family:Consolas,monospace;font-size:11px;color:#111C33;word-break:break-all">' + (state.raw || '') + '</div></div>';
+          } else if (phase === 'empty') {
+            body = '<div style="background:#F5F8FF;border-radius:10px;padding:24px;text-align:center"><div class="uv-text" style="font-size:13px;color:#5A6B8C">暂无数据（空态也要有文案）</div></div>';
+          } else {
+            body = '<div style="background:#FEF0F1;border-radius:10px;padding:12px"><div class="uv-text" style="font-size:12.5px;color:#B42318;font-weight:700;margin-bottom:6px">✕ 请求失败</div>' +
+              '<div class="uv-text" style="font-size:12.5px;color:#5A6B8C">' + (state.raw || '') + '</div>' +
+              '<div class="uv-btn" style="margin-top:10px;font-size:12px" data-bind="retry">重新加载</div></div>';
+          }
+          return '<div class="uv-view" style="flex:1;padding:14px;background:#fff">' + body +
+            '<div style="margin-top:16px">' +
+            '<div class="uv-btn primary" style="margin-bottom:8px;font-size:12.5px" data-bind="ok">模拟：请求成功</div>' +
+            '<div class="uv-btn" style="margin-bottom:8px;font-size:12.5px" data-bind="fail">模拟：断网（errCode 600003）</div>' +
+            '<div class="uv-btn" style="margin-bottom:8px;font-size:12.5px" data-bind="timeout">模拟：超时（errCode 5）</div>' +
+            '<div class="uv-btn" style="margin-bottom:8px;font-size:12.5px" data-bind="http500">模拟：服务端错误（500）</div>' +
+            '<div class="uv-btn" style="font-size:12.5px" data-bind="empty">模拟：成功但数据为空</div></div>' +
+            (phase === 'loading' ? '<div class="uv-text" style="font-size:11.5px;color:#A8B0BF;margin-top:10px">loading 阶段界面不能留白</div>' : '') +
+            '</div>';
+        },
+        actions: {
+          ok: function (state) {
+            state.phase = 'ok';
+            state.raw = '{ "code": 0, "data": [ { "id": 1, "title": "校园通知 1" } ], "msg": "ok" }';
+            return 'statusCode 200 且业务码 0 → 渲染数据';
+          },
+          fail: function (state) { state.phase = 'fail'; state.raw = '当前无网络连接，请检查网络设置'; return 'errCode 600003 → 提示断网 + 重试入口'; },
+          timeout: function (state) { state.phase = 'fail'; state.raw = '网络较慢，加载超时，请重试'; return 'errCode 5 → 提示超时'; },
+          http500: function (state) { state.phase = 'fail'; state.raw = '服务暂时不可用，请稍后再试（statusCode 500）'; return 'HTTP 500 → 提示服务异常'; },
+          empty: function (state) { state.phase = 'empty'; return '成功但列表为空 → 显示空态文案，而不是白屏'; },
+          retry: function (state) { state.phase = 'loading'; return '重试：再次发起同一个请求'; }
+        }
+      },
+      {
+        name: '② statusCode 与业务码：两层判断',
+        file: 'pages/demo/two-layer.uvue',
+        navbar: '两层判断',
+        hint: '同一个 statusCode 200，响应体里的业务码可能表示"未登录""无权限""参数错误"。只判断一层就会出现"请求成功但页面空着"的诡异现象。点不同按钮看判断结果。',
+        state: { sc: 200, code: 0, msg: 'ok' },
+        code: {
+          script: '<script setup>\n  // 第一层：HTTP 状态码\n  // 第二层：业务码（后端约定，常见字段是 code / errCode / success）\n  const handle = (statusCode: number, body: UTSJSONObject) => {\n    if (statusCode != 200) {\n      uni.showToast({ \'title\': \'服务异常（\' + statusCode + \'）\', \'icon\': \'none\' })\n      return\n    }\n\n    const code = body[\'code\'] as number\n    if (code == 0) {\n      list.value = body[\'data\'] as Notice[]      // 真正的成功\n    } else if (code == 401) {\n      // 登录过期：统一跳登录页（真实项目必备）\n      uni.reLaunch({ \'url\': \'/pages/login/login\' })\n    } else {\n      uni.showToast({ \'title\': (body[\'msg\'] as string) ?? \'请求失败\', \'icon\': \'none\' })\n    }\n  }\n<\/script>'
+        },
+        render: function (state) {
+          var sc = state.sc || 200;
+          var code = state.code || 0;
+          var msg = state.msg || 'ok';
+          var verdict, color, detail;
+          if (sc !== 200) {
+            verdict = '✕ 失败：HTTP 层就错了'; color = '#B42318';
+            detail = '提示"服务异常（' + sc + '）"，不渲染数据';
+          } else if (code === 0) {
+            verdict = '✓ 成功：两层都通过'; color = '#0B8A66';
+            detail = '渲染数据（' + msg + '）';
+          } else if (code === 401) {
+            verdict = '⚠ 未登录：statusCode 是 200，但业务码 401'; color = '#C2410C';
+            detail = '统一 reLaunch 到登录页——只判断 statusCode 的话，这里会被当成"成功"，页面就会空着';
+          } else {
+            verdict = '⚠ 业务错误：code = ' + code; color = '#C2410C';
+            detail = '弹出后端给的 msg：' + msg;
+          }
+          return '<div class="uv-view" style="flex:1;padding:14px;background:#fff">' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-bottom:8px">模拟响应</div>' +
+            '<div style="background:#0E1626;border-radius:8px;padding:10px;margin-bottom:12px">' +
+            '<div style="font-family:Consolas,monospace;font-size:11px;color:#9FB3D9">statusCode: ' + sc + '</div>' +
+            '<div style="font-family:Consolas,monospace;font-size:11px;color:#9FB3D9">{ "code": ' + code + ', "msg": "' + msg + '" }</div></div>' +
+            '<div style="background:#F5F8FF;border-radius:10px;padding:12px;margin-bottom:14px">' +
+            '<div class="uv-text" style="font-size:13px;font-weight:700;color:' + color + '">' + verdict + '</div>' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:4px">' + detail + '</div></div>' +
+            '<div style="display:flex;flex-direction:row;flex-wrap:wrap">' +
+            [['ok', '200 + code 0'], ['login', '200 + code 401'], ['param', '200 + code 400'], ['http', '500 + 任意']].map(function (b) {
+              return '<div class="uv-btn" style="width:48%;margin:0 1% 8px 1%;font-size:11.5px;padding:8px 4px" data-bind="' + b[0] + '">' + b[1] + '</div>';
+            }).join('') + '</div></div>';
+        },
+        actions: {
+          ok: function (state) { state.sc = 200; state.code = 0; state.msg = 'ok'; return '两层都通过 → 正常渲染'; },
+          login: function (state) { state.sc = 200; state.code = 401; state.msg = '登录已过期'; return '业务码 401 → 应该跳登录页'; },
+          param: function (state) { state.sc = 200; state.code = 400; state.msg = '参数错误'; return '业务码 400 → 提示后端的 msg'; },
+          http: function (state) { state.sc = 500; state.code = 400; state.msg = '服务器异常'; return 'HTTP 500 → 提示服务异常，不渲染'; }
+        }
+      }
+    ]
+  },
+
+  requestwrap: {
+    examples: [
+      {
+        name: '① 不封装：每个页面重复一遍',
+        file: 'pages/a/list.uvue',
+        navbar: '反例：重复代码',
+        hint: '域名、超时、token、状态码判断、错误提示，每个页面都要写一遍。域名一换就要改 N 个文件——这是"能用但没法维护"的典型。',
+        code: {
+          pageA: '<script setup>\n  const load = () => {\n    uni.request({\n      \'url\': \'https://api-test.example.com/notices\',   // ← 硬编码域名\n      \'timeout\': 10000,\n      \'header\': { \'Authorization\': \'Bearer \' + token },\n      \'success\': (res) => {\n        if (res.statusCode != 200) { uni.showToast({ \'title\': \'服务异常\', \'icon\': \'none\' }); return }\n        list.value = res.data as Notice[]\n      },\n      \'fail\': (err) => { uni.showToast({ \'title\': friendlyError(err.errCode), \'icon\': \'none\' }) }\n    })\n  }\n<\/script>',
+          pageB: '<script setup>\n  // 另一个页面：几乎一模一样的 15 行又写了一遍\n  const loadDetail = () => {\n    uni.request({\n      \'url\': \'https://api-test.example.com/detail?id=\' + id.value,\n      \'timeout\': 10000,\n      \'header\': { \'Authorization\': \'Bearer \' + token },\n      \'success\': (res) => {\n        if (res.statusCode != 200) { uni.showToast({ \'title\': \'服务异常\', \'icon\': \'none\' }); return }\n        detail.value = res.data as Detail\n      },\n      \'fail\': (err) => { uni.showToast({ \'title\': friendlyError(err.errCode), \'icon\': \'none\' }) }\n    })\n  }\n<\/script>'
+        },
+        codeLabels: { pageA: 'pages/a/list.uvue', pageB: 'pages/b/detail.uvue' },
+        render: function () {
+          return '<div class="uv-view" style="flex:1;padding:14px;background:#fff">' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-bottom:8px">重复的东西（每页都要写）</div>' +
+            ['接口域名（硬编码在每个页面）', '超时时间', 'token 请求头', 'statusCode 判断', 'errCode 翻译成提示语', 'loading 开关'].map(function (t) {
+              return '<div style="background:#FEF0F1;border-radius:8px;padding:8px 10px;margin-bottom:6px"><span class="uv-text" style="font-size:12px;color:#B42318">✕ ' + t + '</span></div>';
+            }).join('') +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:10px">想换域名？想统一加请求头？→ 要改 N 个文件</div></div>';
+        }
+      },
+      {
+        name: '② 封装后：页面只关心业务',
+        file: 'utils/request.ts',
+        navbar: '封装后',
+        hint: '把域名、超时、token、错误提示、两层判断全部收进 request.ts；页面里只剩下"请求哪个接口、拿到什么类型的数据"。换域名只改一行。',
+        code: {
+          util: '// utils/request.ts —— 全项目只此一份\nconst BASE_URL = \'https://api.example.com\'      // ← 换环境只改这里\n\nexport const request = <T>(options: RequestOptions): Promise<T | null> => {\n  return new Promise<T | null>((resolve) => {\n    uni.request({\n      \'url\': BASE_URL + options.url,\n      \'method\': options.method ?? \'GET\',\n      \'data\': options.data ?? null,\n      \'timeout\': 10000,\n      \'header\': { \'Authorization\': \'Bearer \' + token },\n      \'success\': (res) => {\n        if (res.statusCode != 200) { toast(\'服务异常\'); resolve(null); return }\n        const body = res.data as UTSJSONObject\n        if ((body[\'code\'] as number) != 0) { toast(body[\'msg\'] as string); resolve(null); return }\n        resolve(body[\'data\'] as T)\n      },\n      \'fail\': (err) => { toast(friendlyError(err.errCode)); resolve(null) }\n    })\n  })\n}',
+          pageA: '<script setup>\n  import { request } from \'@/utils/request\'\n\n  // 页面里只剩"要什么数据"\n  const load = async () => {\n    const rows = await request<Notice[]>({ \'url\': \'/notices\', \'data\': { \'page\': 1 } })\n    if (rows != null) list.value = rows\n  }\n<\/script>',
+          pageB: '<script setup>\n  import { request } from \'@/utils/request\'\n\n  // 同样的三行，任何页面都能用\n  const loadDetail = async () => {\n    const d = await request<Detail>({ \'url\': \'/detail\', \'data\': { \'id\': id.value } })\n    if (d != null) detail.value = d\n  }\n<\/script>'
+        },
+        codeLabels: { util: 'utils/request.ts（唯一一份）', pageA: 'pages/a/list.uvue', pageB: 'pages/b/detail.uvue' },
+        render: function () {
+          return '<div class="uv-view" style="flex:1;padding:14px;background:#fff">' +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-bottom:8px">封装后页面里要做的事</div>' +
+            ['import { request }', '写一行 await request(...)', '判断 null 并赋值'].map(function (t) {
+              return '<div style="background:#E6F8F1;border-radius:8px;padding:8px 10px;margin-bottom:6px"><span class="uv-text" style="font-size:12px;color:#0B8A66">✓ ' + t + '</span></div>';
+            }).join('') +
+            '<div class="uv-text" style="font-size:12px;color:#5A6B8C;margin-top:10px">改域名 / 加 token / 换提示语 → 只改 utils/request.ts 一个文件</div>' +
+            '<div style="background:#F5F8FF;border-radius:8px;padding:10px;margin-top:10px">' +
+            '<div style="font-family:Consolas,monospace;font-size:11px;color:#1E4FD8">const rows = await request<Notice[]>({ url: \'/notices\' })</div></div></div>';
+        }
+      }
+    ]
+  },
+
+  pagination: {
+    examples: [
+      {
+        name: '① 分页列表：加载、追加、没有更多',
+        file: 'pages/notice/list.uvue',
+        navbar: '分页列表',
+        hint: '点"触底加载"模拟用户滑到底部：每页 10 条、追加到列表末尾；到第 3 页后提示"没有更多了"。注意代码里 page 是"拿到结果才推进"的——这是避免跳页的关键。',
+        state: { items: [], page: 0, loading: false, noMore: false, total: 0 },
+        code: {
+          script: '<script setup>\n  const list = ref<Notice[]>([])\n  const page = ref<number>(1)\n  const loading = ref(false)\n  const noMore = ref(false)\n\n  const loadPage = (p: number): Promise<void> => {\n    return new Promise((done) => {\n      uni.request({\n        \'url\': BASE_URL + \'/notices\',\n        \'data\': { \'page\': p, \'size\': 10 },\n        \'success\': (res) => {\n          const rows = (res.data as UTSJSONObject)[\'data\'] as Notice[]\n          // 第一页替换，后续页追加\n          list.value = p == 1 ? rows : list.value.concat(rows)\n          noMore.value = rows.length < 10\n          done()\n        },\n        \'fail\': () => { done() }\n      })\n    })\n  }\n\n  onReachBottom(async () => {\n    if (loading.value || noMore.value) return     // 双重锁\n    loading.value = true\n    const next = page.value + 1\n    await loadPage(next)\n    page.value = next                             // 拿到结果才推进页码\n    loading.value = false\n  })\n<\/script>'
+        },
+        render: function (state) {
+          var items = state.items || [];
+          var noMore = state.noMore === true;
+          var loading = state.loading === true;
+          return '<div class="uv-view" style="flex:1;padding:12px;background:#F5F8FF">' +
+            (items.length === 0
+              ? '<div class="uv-text" style="font-size:13px;color:#A8B0BF;text-align:center;padding:30px">还没有数据，点下面的按钮加载第一页</div>'
+              : items.map(function (i) {
+                return '<div class="uv-card" style="padding:10px 12px;margin-bottom:6px">' +
+                  '<span class="uv-text" style="font-size:13px;color:#111C33">' + i + '</span></div>';
+              }).join('')) +
+            (items.length > 0 ? '<div class="uv-text" style="font-size:11.5px;color:#5A6B8C;text-align:center;padding:8px">' + (loading ? '加载中…' : (noMore ? '没有更多了' : '上拉加载更多')) + '</div>' : '') +
+            '<div style="display:flex;flex-direction:row;margin-top:10px">' +
+            '<div class="uv-btn primary" style="flex:1;margin-right:6px;font-size:12px" data-bind="bottom">触底加载</div>' +
+            '<div class="uv-btn" style="flex:1;font-size:12px" data-bind="reset">重置</div></div>' +
+            '<div class="uv-text" style="font-size:11.5px;color:#5A6B8C;margin-top:10px">当前页码：' + (state.page || 0) + '　共 ' + items.length + ' 条</div>' +
+            '<div class="uv-text" style="font-size:11.5px;color:#A8B0BF;margin-top:4px">' + (state.lastMsg || '') + '</div></div>';
+        },
+        actions: {
+          bottom: function (state) {
+            if (state.loading) return '正在加载中，这次触底被忽略（这就是 loading 锁的作用）';
+            if (state.noMore) return '已经没有更多了，不会重复请求';
+            var next = (state.page || 0) + 1;
+            state.loading = true;
+            var rows = [];
+            for (var i = 0; i < 10; i++) {
+              rows.push('校园通知 ' + ((next - 1) * 10 + i + 1));
+            }
+            state.items = (state.items || []).concat(rows);
+            state.page = next;
+            state.loading = false;
+            state.noMore = next >= 3;
+            state.lastMsg = '第 ' + next + ' 页加载完成（拿到结果后才把页码推进到 ' + next + '）';
+            return '第 ' + next + ' 页：追加 10 条' + (state.noMore ? '，已到最后一页' : '');
+          },
+          reset: function (state) {
+            state.items = []; state.page = 0; state.noMore = false; state.loading = false; state.lastMsg = '';
+            return '已重置，可以从第一页重新加载';
+          }
+        }
+      },
+      {
+        name: '② 三态界面：加载 / 失败 / 空态',
+        file: 'pages/notice/list.uvue',
+        navbar: '三态界面',
+        hint: '同一个页面的四种界面状态。注意"失败"给的是错误原因 + 重试按钮，而不是一句"加载失败"；"空态"也要有文案——这三种状态是"作业"与"产品"的分界线。',
+        state: { phase: 'loading' },
+        code: {
+          template: '<template>\n  <view class="page">\n    <\!-- ① 首次加载：显示加载提示，不留白 -->\n    <view v-if="loading && list.length == 0" class="tip-box">\n      <text class="tip-text">正在加载…</text>\n    </view>\n\n    <\!-- ② 失败：给原因 + 重试入口 -->\n    <view v-else-if="error.length > 0 && list.length == 0" class="tip-box">\n      <text class="tip-text">{{ error }}</text>\n      <button size="mini" class="retry" @click="reload">重新加载</button>\n    </view>\n\n    <\!-- ③ 空态：真实用户最常遇到的界面 -->\n    <view v-else-if="list.length == 0" class="tip-box">\n      <text class="tip-text">还没有通知</text>\n    </view>\n\n    <\!-- ④ 正常数据 -->\n    <view v-else>\n      <view v-for="item in list" :key="item.id" class="item">\n        <text class="item-title">{{ item.title }}</text>\n      </view>\n    </view>\n  </view>\n</template>'
+        },
+        render: function (state) {
+          var phase = state.phase || 'loading';
+          var body = '';
+          if (phase === 'loading') body = '<div class="uv-text" style="font-size:13px;color:#5A6B8C;text-align:center;padding:34px">正在加载…</div>';
+          else if (phase === 'fail') body = '<div style="text-align:center;padding:26px"><div class="uv-text" style="font-size:13px;color:#B42318">网络较慢，加载超时，请重试</div><div class="uv-btn" style="margin:12px auto 0;width:130px;font-size:12.5px">重新加载</div></div>';
+          else if (phase === 'empty') body = '<div class="uv-text" style="font-size:13px;color:#5A6B8C;text-align:center;padding:34px">还没有通知</div>';
+          else body = ['校园通知 1', '校园通知 2', '校园通知 3'].map(function (t) {
+            return '<div class="uv-card" style="padding:12px;margin-bottom:8px"><span class="uv-text" style="font-size:13.5px">' + t + '</span></div>';
+          }).join('');
+          return '<div class="uv-view" style="flex:1;padding:12px;background:#F5F8FF">' + body +
+            '<div style="display:flex;flex-direction:row;flex-wrap:wrap;margin-top:14px">' +
+            [['loading', '① 加载中'], ['fail', '② 失败'], ['empty', '③ 空态'], ['ok', '④ 有数据']].map(function (b) {
+              return '<div class="uv-btn' + (phase === b[0] ? ' primary' : '') + '" style="width:48%;margin:0 1% 8px 1%;font-size:11.5px;padding:8px 4px" data-bind="' + b[0] + '">' + b[1] + '</div>';
+            }).join('') + '</div></div>';
+        },
+        actions: {
+          loading: function (state) { state.phase = 'loading'; return '首次加载：显示加载提示（不能留白）'; },
+          fail: function (state) { state.phase = 'fail'; return '失败：给出原因 + 重试按钮'; },
+          empty: function (state) { state.phase = 'empty'; return '成功但为空：显示空态文案'; },
+          ok: function (state) { state.phase = 'ok'; return '有数据：正常渲染列表'; }
+        }
+      }
+    ]
+  }
+};
+</script>
+<script src="assets/lesson.js"></script>
+<script src="../assets/annotate.js"></script>
+</body>
+</html>

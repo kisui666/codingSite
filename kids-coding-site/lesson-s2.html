@@ -1,0 +1,3014 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scratch L2 游戏创作课程 | 汽水老师编程课堂</title>
+<style>
+:root {
+  --primary: #FF7A45;
+  --primary-dark: #E55A2B;
+  --primary-soft: #FFE8DD;
+  --yellow: #FFC93C;
+  --orange: #FF7A45;
+  --coral: #FF6B81;
+  --mint: #2DD4BF;
+  --green: #51CF66;
+  --lavender: #8B5CF6;
+  --blue: #4C97FF;
+  --bg: #FFF5F0;
+  --surface: #FFFFFF;
+  --text: #2A1810;
+  --text-sub: #6B5040;
+  --border: #FFE0CC;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --shadow-sm: 0 4px 12px rgba(255,122,69,.10);
+  --shadow-md: 0 12px 30px rgba(42,24,16,.12);
+  --shadow-lg: 0 24px 60px rgba(255,122,69,.22);
+  --font-display: 'Trebuchet MS', 'PingFang SC', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-body: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'Consolas', 'Courier New', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); color: var(--text); background: var(--bg); line-height: 1.6; overflow-x: hidden; }
+h1,h2,h3,h4 { font-family: var(--font-display); line-height: 1.25; color: var(--text); }
+a { color: inherit; text-decoration: none; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 56px 0; position: relative; }
+.section-title { font-size: clamp(24px, 3.5vw, 34px); font-weight: 800; margin-bottom: 10px; }
+.section-sub { color: var(--text-sub); font-size: 16px; margin-bottom: 28px; }
+
+/* 顶部固定栏 */
+.topbar {
+  position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,.92);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+}
+.topbar-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; gap: 16px; flex-wrap: wrap; }
+.course-info { display: flex; align-items: center; gap: 14px; }
+.course-badge {
+  background: linear-gradient(135deg, var(--orange), var(--coral)); color: #fff;
+  padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700;
+}
+.course-info h1 { font-size: 18px; font-weight: 800; }
+.course-info .meta { font-size: 13px; color: var(--text-sub); }
+.lesson-progress { display: flex; gap: 6px; align-items: center; }
+.progress-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--border); cursor: pointer;
+  transition: all .3s;
+}
+.progress-dot.active { background: var(--primary); transform: scale(1.3); }
+.progress-dot.done { background: var(--green); transform: scale(1.3); }
+.progress-label { font-size: 13px; color: var(--text-sub); margin-left: 8px; }
+@media (max-width: 700px) { .lesson-progress { display: none; } }
+
+/* 学习目标卡 */
+.goals-card {
+  background: linear-gradient(135deg, var(--orange), #FF9F43);
+  color: #fff; border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-lg);
+}
+.goals-card h2 { color: #fff; margin-bottom: 20px; }
+.goal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.goal-item {
+  background: rgba(255,255,255,.15); border-radius: var(--radius-md); padding: 18px;
+  backdrop-filter: blur(8px);
+}
+.goal-item .icon {
+  width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.25);
+  display: grid; place-items: center; margin-bottom: 12px; font-size: 20px;
+}
+.goal-item h4 { color: #fff; font-size: 16px; margin-bottom: 6px; }
+.goal-item p { font-size: 14px; opacity: .92; }
+@media (max-width: 700px) { .goal-grid { grid-template-columns: 1fr; } }
+
+/* 教学环节 */
+.step-block { display: flex; gap: 24px; margin-bottom: 28px; }
+.step-num {
+  flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange), #FF9F43); color: #fff;
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 900; font-size: 22px;
+  box-shadow: 0 8px 20px rgba(255,122,69,.35); position: relative;
+}
+.step-num::after {
+  content: ''; position: absolute; left: 50%; top: 100%; width: 2px; height: calc(100% + 28px);
+  background: linear-gradient(var(--orange), transparent); transform: translateX(-50%);
+}
+.step-block:last-child .step-num::after { display: none; }
+.step-content { flex: 1; background: #fff; border-radius: var(--radius-md); padding: 24px 28px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.step-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.step-head h3 { font-size: 22px; }
+.step-time {
+  font-size: 13px; color: var(--primary); background: var(--primary-soft);
+  padding: 5px 12px; border-radius: 999px; font-weight: 700;
+}
+.step-desc { color: var(--text-sub); margin-bottom: 16px; }
+
+/* Scratch 积木块样式 */
+.blocks { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.block {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 6px; color: #fff; font-size: 14px; font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,.12); position: relative;
+}
+.block.event { background: #FFBF00; color: #4A3B00; }
+.block.motion { background: #4C97FF; }
+.block.looks { background: #9966FF; }
+.block.sound { background: #CF63CF; }
+.block.control { background: #FFAB19; color: #4A3B00; }
+.block.pen { background: #0FA95F; }
+.block.sensing { background: #5CB1D6; }
+.block.operators { background: #59C059; color: #1B5E20; }
+.block.variables { background: #FF8C1A; }
+.block .slot {
+  background: rgba(255,255,255,.85); color: var(--text); padding: 2px 10px;
+  border-radius: 4px; font-family: var(--font-mono); font-size: 13px; min-width: 30px; text-align: center;
+}
+.block-row { display: flex; align-items: center; gap: 8px; }
+.stack-label { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; font-weight: 700; }
+
+/* 互动演示区 */
+.demo-box {
+  background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius-md);
+  padding: 24px; margin: 16px 0; text-align: center;
+}
+.demo-stage {
+  width: 100%; max-width: 480px; height: 260px; margin: 0 auto; background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%);
+  border-radius: var(--radius-sm); position: relative; overflow: hidden; border: 3px solid #fff; box-shadow: var(--shadow-sm);
+}
+.demo-actor { position: absolute; }
+.demo-actor svg { width: 100%; height: 100%; }
+.demo-bubble {
+  position: absolute; top: 12px; left: 110px; background: #fff; padding: 8px 14px;
+  border-radius: 14px; font-size: 14px; font-weight: 600; opacity: 0; transform: scale(.8);
+  transition: all .3s; box-shadow: var(--shadow-sm); z-index: 5;
+}
+.demo-bubble.show { opacity: 1; transform: scale(1); }
+.demo-bubble::before {
+  content: ''; position: absolute; left: -8px; bottom: 12px; border: 8px solid transparent; border-right-color: #fff;
+}
+.demo-controls { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+.demo-btn {
+  padding: 10px 20px; border: none; border-radius: 999px; font-weight: 700; cursor: pointer;
+  font-family: inherit; font-size: 14px; transition: transform .15s, box-shadow .15s; color: #fff;
+}
+.demo-btn:hover { transform: translateY(-2px); }
+.demo-btn:active { transform: translateY(0); }
+.demo-btn.motion { background: var(--orange); box-shadow: 0 4px 12px rgba(255,122,69,.3); }
+.demo-btn.looks { background: var(--lavender); box-shadow: 0 4px 12px rgba(139,92,246,.3); }
+.demo-btn.sound { background: var(--coral); box-shadow: 0 4px 12px rgba(255,107,129,.3); }
+.demo-btn.control { background: #FFAB19; color: #4A3B00; box-shadow: 0 4px 12px rgba(255,171,25,.3); }
+.demo-btn.sensing { background: #5CB1D6; box-shadow: 0 4px 12px rgba(92,177,214,.3); }
+.demo-btn.event { background: var(--yellow); color: #4A3B00; box-shadow: 0 4px 12px rgba(255,201,60,.3); }
+.demo-btn.pen { background: var(--green); box-shadow: 0 4px 12px rgba(81,207,102,.3); }
+.demo-btn.reset { background: var(--text-sub); }
+.demo-note { position: absolute; font-size: 24px; animation: noteFloat 1.5s ease-out forwards; pointer-events: none; z-index: 5; }
+@keyframes noteFloat {
+  0% { transform: translateY(0) scale(.5); opacity: 0; }
+  20% { opacity: 1; transform: translateY(-20px) scale(1); }
+  100% { transform: translateY(-130px) scale(.8); opacity: 0; }
+}
+.demo-stage canvas { border-radius: 8px; display: block; margin: 0 auto; }
+
+/* L2 游戏元素 */
+.score-display {
+  position: absolute; top: 10px; right: 14px; background: rgba(0,0,0,.55); color: #FFD700;
+  padding: 6px 16px; border-radius: 8px; font-family: var(--font-display); font-weight: 900; font-size: 20px; z-index: 6;
+}
+.health-bar-wrap { position: absolute; top: 10px; left: 14px; display: flex; gap: 4px; z-index: 6; }
+.heart { font-size: 22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); transition: all .3s; }
+.heart.lost { filter: grayscale(1) opacity(.3); transform: scale(.7); }
+.hp-bar { position: absolute; top: 12px; left: 14px; width: 120px; height: 14px; background: rgba(0,0,0,.4); border-radius: 7px; overflow: hidden; z-index: 6; }
+.hp-fill { height: 100%; background: linear-gradient(90deg, #FF4757, #FF6B81); border-radius: 7px; transition: width .3s; }
+.level-node {
+  width: 50px; height: 50px; border-radius: 50%; background: var(--primary); color: #fff;
+  display: grid; place-items: center; font-weight: 900; font-size: 18px; cursor: pointer;
+  transition: all .25s; box-shadow: 0 4px 12px rgba(255,122,69,.35);
+}
+.level-node.locked { background: #ccc; cursor: not-allowed; box-shadow: none; }
+.level-node:hover:not(.locked) { transform: scale(1.15); }
+.level-node.active { background: var(--orange); transform: scale(1.2); }
+.menu-screen-btn {
+  display: block; width: 200px; margin: 8px auto; padding: 14px 24px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--orange), var(--coral)); color: #fff; font-weight: 800; font-size: 16px;
+  cursor: pointer; border: none; transition: all .25s;
+}
+.menu-screen-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+.game-over-overlay {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.7);
+  display: grid; place-items: center; color: #fff; font-size: 22px; font-weight: 900; z-index: 10;
+  border-radius: var(--radius-sm);
+}
+.coin-float { position: absolute; font-size: 20px; animation: coinUp 1s ease-out forwards; pointer-events: none; z-index: 5; }
+@keyframes coinUp {
+  0% { transform: translateY(0) scale(.5); opacity: 0; }
+  20% { opacity: 1; transform: translateY(-15px) scale(1); }
+  100% { transform: translateY(-60px) scale(.8); opacity: 0; }
+}
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+/* 任务清单 */
+.task-list { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+.task-item {
+  display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px;
+  background: var(--bg); border-radius: var(--radius-sm); cursor: pointer; transition: all .25s;
+  border: 2px solid transparent; position: relative;
+}
+.task-item > * { position: relative; z-index: 1; }
+.task-item::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(135deg, rgba(254,240,138,.5), rgba(253,224,71,.42));
+  opacity: 0; transition: opacity .45s ease;
+}
+.task-item:hover { border-color: var(--primary-soft); }
+.task-item.done { border-color: rgba(234,179,8,.5); box-shadow: 0 4px 14px rgba(234,179,8,.18); }
+.task-item.done::before { opacity: 1; }
+.task-check {
+  width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--border);
+  flex-shrink: 0; display: grid; place-items: center; transition: all .25s; margin-top: 1px;
+}
+.task-item.done .task-check { background: var(--green); border-color: var(--green); }
+.task-check svg { opacity: 0; transition: opacity .2s; }
+.task-item.done .task-check svg { opacity: 1; color: #fff; }
+.task-text { font-size: 15px; }
+.task-item.done .task-text { text-decoration: line-through; color: var(--text-sub); }
+.task-hint { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
+
+/* 小贴士 */
+.tip {
+  background: #FFF8E1; border-left: 4px solid var(--yellow); border-radius: var(--radius-sm);
+  padding: 14px 18px; margin: 16px 0; display: flex; gap: 12px; align-items: flex-start;
+}
+.tip .tip-icon { flex-shrink: 0; }
+.tip strong { color: var(--orange); }
+
+/* 小结 */
+.summary-card {
+  background: linear-gradient(135deg, #FFF3E0, #FFE0B2); border-radius: var(--radius-lg);
+  padding: 32px; border: 2px solid var(--orange);
+}
+.summary-card h3 { color: var(--orange); margin-bottom: 16px; }
+.knowledge-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.kp-chip {
+  background: #fff; padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  color: var(--orange); box-shadow: var(--shadow-sm);
+}
+
+/* 课后作业 */
+.homework { background: #fff; border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.hw-item { padding: 18px 0; border-bottom: 1px dashed var(--border); display: flex; gap: 16px; align-items: flex-start; }
+.hw-item:last-child { border-bottom: none; }
+.hw-star { color: var(--yellow); font-size: 20px; flex-shrink: 0; }
+.hw-item h4 { font-size: 17px; margin-bottom: 4px; }
+.hw-item p { color: var(--text-sub); font-size: 14px; }
+
+/* 页脚导航 */
+.lesson-nav { display: flex; justify-content: space-between; gap: 16px; margin-top: 40px; flex-wrap: wrap; }
+.lesson-nav a {
+  flex: 1; min-width: 200px; padding: 18px 24px; background: #fff; border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: all .25s; display: flex;
+  align-items: center; gap: 14px;
+}
+.lesson-nav a:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--orange); }
+.lesson-nav .arrow { font-size: 24px; color: var(--orange); }
+.lesson-nav .label { font-size: 13px; color: var(--text-sub); }
+.lesson-nav .title { font-weight: 700; font-size: 16px; }
+.lesson-nav .next { text-align: right; flex-direction: row-reverse; }
+
+/* 响应式 */
+@media (max-width: 700px) {
+  .section { padding: 40px 0; }
+  .topbar-inner { padding: 10px 14px; gap: 10px; }
+  .course-info h1 { font-size: 15px; }
+  .course-info .meta { display: none; }
+  .step-block { flex-direction: column; gap: 14px; }
+  .step-num::after { display: none; }
+  .step-num { width: 44px; height: 44px; font-size: 16px; }
+  .step-content { padding: 18px 14px; }
+  .step-head h3 { font-size: 19px; }
+  .step-desc { font-size: 14px; }
+  .demo-stage { height: 200px; }
+  .demo-box { overflow-x: auto; }
+  .code-block pre { padding: 14px; font-size: 12.5px; }
+  .task-item { padding: 14px; gap: 10px; }
+}
+
+/* 左侧课程目录 */
+.toc-sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 240px; z-index: 101;
+  background: #fff; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; transition: transform .3s ease;
+}
+.toc-head { padding: 16px 16px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.toc-home {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 12px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
+  background: var(--primary); color: #fff; transition: transform .2s, box-shadow .2s;
+}
+.toc-home:hover { transform: translateY(-2px); box-shadow: 0 8px 18px var(--primary-soft); color: #fff; }
+.toc-title { font-size: 12px; font-weight: 800; color: var(--text-sub); letter-spacing: 2px; margin-top: 12px; }
+.toc-list { flex: 1; overflow-y: auto; padding: 4px 10px 16px; }
+.toc-unit { font-size: 12px; font-weight: 700; color: var(--text-sub); padding: 12px 8px 4px; }
+.toc-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 8px;
+  font-size: 13.5px; cursor: pointer; transition: background .2s; line-height: 1.45;
+}
+.toc-item:hover { background: var(--primary-soft); }
+.toc-item.active { background: var(--primary-soft); color: var(--primary-dark); font-weight: 700; }
+.toc-no { flex-shrink: 0; font-size: 11px; font-weight: 700; color: #fff; background: var(--primary); border-radius: 6px; padding: 2px 6px; }
+.toc-item.active .toc-no { background: var(--primary-dark); }
+.toc-mask { position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 100; opacity: 0; pointer-events: none; transition: opacity .3s; }
+.toc-mask.open { opacity: 1; pointer-events: auto; }
+.toc-fab {
+  display: none; position: fixed; right: 18px; bottom: 18px; z-index: 94;
+  border: none; cursor: pointer; padding: 12px 18px; border-radius: 999px;
+  background: var(--primary); color: #fff; font-size: 14px; font-weight: 700; font-family: var(--font-body);
+  box-shadow: 0 8px 20px rgba(0,0,0,.18);
+}
+@media (max-width: 1100px) {
+  .toc-sidebar { transform: translateX(-100%); }
+  .toc-sidebar.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,.2); }
+  .toc-fab { display: block; }
+}
+/* 目录收起/展开按钮 */
+.toc-collapse {
+  position: absolute; right: -13px; top: 14px; width: 26px; height: 26px;
+  border-radius: 50%; border: 1px solid var(--border); background: #fff;
+  color: var(--text-sub); cursor: pointer; font-size: 11px; font-family: inherit;
+  display: grid; place-items: center; box-shadow: 0 2px 8px rgba(30,42,68,.16);
+  transition: transform .3s ease; padding: 0; z-index: 5;
+}
+.toc-collapse:hover { color: var(--primary); border-color: var(--primary-soft); }
+@media (min-width: 1101px) {
+  #app { margin-left: 240px; transition: margin-left .3s ease; }
+  body.toc-collapsed #app { margin-left: 0; }
+  body.toc-collapsed .toc-sidebar { transform: translateX(-100%); }
+  body.toc-collapsed .toc-collapse { transform: rotate(180deg); }
+}
+@media (max-width: 1100px) {
+  .toc-collapse { display: none; }
+}
+</style>
+  <link rel="stylesheet" href="assets/annotate.css" />
+</head>
+<body>
+<div id="app"></div>
+<aside id="tocSidebar" class="toc-sidebar" aria-label="课程目录"></aside>
+<div id="tocMask" class="toc-mask"></div>
+<button id="tocFab" class="toc-fab">☰ 课程目录</button>
+<script>
+/* ================================================================
+   小猫 SVG 生成器 (4 种造型)
+   ================================================================ */
+function catSVG(costume) {
+  costume = costume || 1;
+  var ears = '<path d="M30 40 L22 18 L42 32 Z" fill="#FF9F43"/><path d="M90 40 L98 18 L78 32 Z" fill="#FF9F43"/>';
+  var head = '<circle cx="60" cy="62" r="38" fill="#FFB84D"/>';
+  var shadow = '<ellipse cx="60" cy="108" rx="34" ry="6" fill="rgba(0,0,0,.08)"/>';
+  var nose = '<ellipse cx="60" cy="70" rx="3" ry="2" fill="#FF6B81"/>';
+  var eyes, mouth;
+  if (costume === 2) {
+    eyes = '<path d="M40 58 Q46 52 52 58" stroke="#2E3A59" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M68 58 Q74 52 80 58" stroke="#2E3A59" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    mouth = '<path d="M50 68 Q60 82 70 68" stroke="#2E3A59" stroke-width="2.5" fill="#FF6B81" stroke-linecap="round"/>';
+  } else if (costume === 3) {
+    eyes = '<ellipse cx="50" cy="58" rx="7" ry="9" fill="#fff"/><ellipse cx="78" cy="58" rx="7" ry="9" fill="#fff"/><circle cx="53" cy="60" r="4" fill="#2E3A59"/><circle cx="81" cy="60" r="4" fill="#2E3A59"/><circle cx="54.5" cy="58.5" r="1.5" fill="#fff"/><circle cx="82.5" cy="58.5" r="1.5" fill="#fff"/>';
+    mouth = '<path d="M55 72 Q60 78 65 72" stroke="#2E3A59" stroke-width="2.5" fill="none" stroke-linecap="round"/>' + nose;
+  } else if (costume === 4) {
+    eyes = '<path d="M40 60 Q46 56 52 60" stroke="#2E3A59" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M68 60 Q74 56 80 60" stroke="#2E3A59" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    mouth = '<ellipse cx="60" cy="73" rx="4" ry="3" fill="#2E3A59"/>';
+  } else {
+    eyes = '<ellipse cx="46" cy="58" rx="7" ry="9" fill="#fff"/><ellipse cx="74" cy="58" rx="7" ry="9" fill="#fff"/><circle cx="47" cy="60" r="4" fill="#2E3A59"/><circle cx="75" cy="60" r="4" fill="#2E3A59"/><circle cx="48.5" cy="58.5" r="1.5" fill="#fff"/><circle cx="76.5" cy="58.5" r="1.5" fill="#fff"/>';
+    mouth = '<path d="M55 72 Q60 78 65 72" stroke="#2E3A59" stroke-width="2.5" fill="none" stroke-linecap="round"/>' + nose;
+  }
+  return '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">' + shadow + ears + head + eyes + mouth + '</svg>';
+}
+
+/* ================================================================
+   24 讲课程数据 — Scratch L2 游戏创作
+   ================================================================ */
+var LESSONS = {
+
+/* ===== 第 1 课 ===== */
+'l2-01': {
+  no: 1, title: '变量：游戏里的记分牌', subtitle: '创建变量与记分系统',
+  unit: '游戏机制入门', unitNo: 1, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '📦', title: '认识变量', desc: '理解变量是存放数据的「盒子」，知道 Scratch 中如何创建变量。' },
+    { icon: '🔢', title: '改变变量值', desc: '用「将变量增加」「将变量设为」积木修改变量的值。' },
+    { icon: '🏆', title: '做记分牌', desc: '用变量做游戏记分牌，碰到目标就加分。' }
+  ],
+  steps: [
+    { title: '趣味导入：游戏为什么有分数', emoji: '🌟', time: '8 分钟',
+      desc: '同学们，你们玩过的游戏里是不是都有分数？打怪加分、吃金币加分、完成任务加分……分数让游戏有了目标感和成就感！今天我们就来学习游戏里最重要的东西——<strong>变量</strong>，用它做出自己的记分牌！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '变量就像一个有名字的「盒子」，你可以在里面放数字。比如「分数」这个盒子里先放 0，吃到金币就 +1，撞到怪物就 -5。游戏的分数、血量、关卡数，全都靠变量来记录！' }]
+    },
+    { title: '认识变量与创建', emoji: '🔍', time: '17 分钟',
+      desc: '在 Scratch 中创建变量：点击「变量」分类（橙色）→「建立一个变量」→ 输入名字（如「分数」）→ 选择「适用于所有角色」。创建后会出现这些积木：',
+      infoGrid: [
+        { icon: '📦', title: '将变量设为', desc: '把变量直接设为某个值，如设为 0。', bg: 'rgba(255,140,26,.12)' },
+        { icon: '➕', title: '将变量增加', desc: '在当前值基础上加一个数，正数加、负数减。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '👁', title: '显示/隐藏', desc: '控制变量是否在舞台上显示为监视器。', bg: 'rgba(139,92,246,.12)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 绿旗 被点击' },
+        { type: 'variables', text: '将变量 <span class="slot">分数</span> 设为 <span class="slot">0</span>' },
+        { type: 'variables', text: '显示变量 <span class="slot">分数</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '重要概念：', text: '变量名要有意义！叫「分数」「血量」「生命」比叫「变量1」「aaa」好得多。<strong>初始化</strong>也很重要——绿旗点击时一定要先把分数设为 0，否则上次的分数会保留！' }]
+    },
+    { title: '动手实践：做记分牌', emoji: '🛠', time: '30 分钟',
+      desc: '点击按钮试试记分牌！每点一次「得分」按钮，分数就 +1；点「扣分」就 -1；点「重置」归零。在 Scratch 中也搭建同样的积木。',
+      demoType: 'variable',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果不用变量，只靠角色本身，能记住分数吗？（答案：不能！变量是游戏「记住」状态的唯一方式。）' }]
+    },
+    { title: '挑战任务：金币收集器', emoji: '🏆', time: '25 分钟',
+      desc: '做一个简单的金币收集器：小猫碰到金币就 +10 分，金币消失后又出现在新位置。',
+      tasks: [
+        { text: '任务1：创建变量「分数」并初始化为 0', hint: '绿旗点击时「将分数设为 0」' },
+        { text: '任务2：添加金币角色，碰到小猫就 +10 分', hint: '如果碰到小猫 那么 将分数增加 10' },
+        { text: '任务3：金币被碰到后移到随机位置', hint: '移到 X: 随机数 Y: 随机数' },
+        { text: '⭐ 挑战：分数达到 100 时说「通关！」', hint: '如果 分数 = 100 那么 说「通关！」' }
+      ],
+      tips: [{ icon: '🌟', strong: '游戏设计要点：', text: '好的记分系统要有：① 初始化（绿旗归零）② 加分逻辑（碰到金币 +10）③ 反馈（加分时播放声音或特效）。三样齐全才是完整体验！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '请 2-3 位同学展示你的金币收集器，说说你的分数系统是怎么设计的。大家讨论：除了分数，游戏里还有哪些地方需要变量？'
+    }
+  ],
+  summary: '今天我们认识了<strong>变量</strong>——游戏里用来存放数据的「盒子」。用<strong>「将变量设为」</strong>初始化，用<strong>「将变量增加」</strong>修改值。变量是游戏记分牌、血量、关卡数的核心。记住：<strong>绿旗点击时一定要初始化变量</strong>！',
+  knowledgePoints: ['变量', '创建变量', '将变量设为', '将变量增加', '显示/隐藏变量', '变量初始化', '记分牌', '监视器'],
+  homework: [
+    { stars: 1, title: '基础练习：计数器', desc: '做一个点击计数器，每点一次小猫分数 +1，显示在舞台上。' },
+    { stars: 2, title: '进阶挑战：加减混合', desc: '做两个按钮：红球碰到 +5，蓝球碰到 -3，分数低于 0 时说「游戏结束」。' },
+    { stars: 3, title: '创意拓展：多变量系统', desc: '创建「分数」「生命」「关卡」三个变量，让游戏同时追踪三种数据。' }
+  ]
+},
+
+/* ===== 第 2 课 ===== */
+'l2-02': {
+  no: 2, title: '条件判断：如果…就…', subtitle: 'if/else 与比较运算',
+  unit: '游戏机制入门', unitNo: 1, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🔀', title: '理解条件判断', desc: '理解「如果…那么…否则」的逻辑，知道程序如何做选择。' },
+    { icon: '⚖', title: '比较运算符', desc: '学会使用 >、<、= 等比较运算符组成条件。' },
+    { icon: '🎮', title: '游戏逻辑', desc: '用条件判断实现游戏中的规则判定，如通关、扣血。' }
+  ],
+  steps: [
+    { title: '趣味导入：红绿灯的秘密', emoji: '🌟', time: '8 分钟',
+      desc: '同学们，过马路时你会看红绿灯吧？红灯停、绿灯行——这就是<strong>条件判断</strong>！如果灯是红的，就停下；如果是绿的，就走。游戏里也到处都是这种判断：如果碰到怪物就扣血，如果分数够了就通关。',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '条件判断是编程中最重要的概念之一。没有它，程序只会从头到尾傻傻执行；有了它，程序就能「思考」、能「做选择」，这就是游戏智能的起点！' }]
+    },
+    { title: '认识如果…那么…否则', emoji: '🔍', time: '17 分钟',
+      desc: '条件判断积木在橙色「控制」分类里，配合绿色「运算」分类的比较积木使用：',
+      infoGrid: [
+        { icon: '🔀', title: '如果…那么', desc: '条件成立才执行里面的积木，不成立就跳过。', bg: 'rgba(255,171,25,.15)' },
+        { icon: '🌿', title: '如果…那么…否则', desc: '条件成立执行一段，不成立执行另一段。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⚖', title: '比较运算符', desc: '> < = 用来比较大小，结果为 true/false。', bg: 'rgba(89,192,89,.12)' }
+      ],
+      blocks: [
+        { type: 'control', text: '如果 <span class="slot">分数 > 100</span> 那么' },
+        { type: 'looks', text: '  说 <span class="slot">通关！</span>' },
+        { type: 'control', text: '否则' },
+        { type: 'looks', text: '  说 <span class="slot">继续努力！</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '关键理解：', text: '条件判断必须放在<strong>循环</strong>里持续检测！只检查一次就像看一眼红绿灯就闭眼过马路——太危险了。用「重复执行」包裹条件判断，才能持续监控游戏状态。' }]
+    },
+    { title: '动手实践：条件判断演示', emoji: '🛠', time: '30 分钟',
+      desc: '试试这个条件判断演示器！你可以设置分数值，然后看不同条件下程序会怎么反应。',
+      demoType: 'condition',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果条件是「分数 >= 60」而不是「分数 = 100」，通关会更容易还是更难？>、>=、= 的区别在哪里？' }]
+    },
+    { title: '挑战任务：智能门卫', emoji: '🏆', time: '25 分钟',
+      desc: '做一个「智能门卫」：小猫走到门口，如果分数 >= 50 就开门放行，否则就说「分数不够，加油！」',
+      tasks: [
+        { text: '任务1：创建分数变量，用键盘控制小猫移动', hint: '方向键控制 + 变量显示' },
+        { text: '任务2：画一个门，碰到门时检查分数', hint: '如果 碰到门 那么 检查分数' },
+        { text: '任务3：分数 >= 50 时说「通过！」，否则说「加油！」', hint: '用如果…那么…否则积木' },
+        { text: '⭐ 挑战：分数 >= 100 时开门并切换到下一关背景', hint: '嵌套条件判断：先判 >100，否则再判 >50' }
+      ],
+      tips: [{ icon: '🌟', strong: '条件嵌套：', text: '条件判断可以<strong>嵌套</strong>——在「否则」里再放一个「如果…那么」。这样就能做多重判断：>100 通关、>50 过门、<50 鼓励。这叫 if-else if-else 结构！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '请同学展示智能门卫，说说你用了几个条件判断。讨论：游戏里还有哪些地方用到条件判断？'
+    }
+  ],
+  summary: '今天我们学了<strong>条件判断</strong>！用<strong>「如果…那么」</strong>做单条件判断，用<strong>「如果…那么…否则」</strong>做二选一判断。配合<strong>比较运算符</strong>（>、<、=）可以组成各种条件。条件判断让游戏有了<strong>规则</strong>——什么情况下加分、扣血、通关，全靠它来判定！',
+  knowledgePoints: ['条件判断', '如果…那么', '如果…那么…否则', '比较运算符', '大于小于等于', '条件嵌套', '循环检测', '游戏规则'],
+  homework: [
+    { stars: 1, title: '基础练习：猜大小', desc: '做一个猜数字游戏：随机生成 1-10 的数，玩家输入猜测，程序说「大了」或「小了」。' },
+    { stars: 2, title: '进阶挑战：成绩评定', desc: '输入分数，>90 说「优秀」，>75 说「良好」，>60 说「及格」，否则说「不及格」。' },
+    { stars: 3, title: '创意拓展：多条件游戏', desc: '做一个互动场景：角色碰到不同颜色做不同反应，至少 3 种条件分支。' }
+  ]
+},
+
+/* ===== 第 3 课 ===== */
+'l2-03': {
+  no: 3, title: '碰撞检测：小猴子接苹果', subtitle: '碰到角色与距离检测',
+  unit: '游戏机制入门', unitNo: 1, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🍎', title: '碰到角色检测', desc: '学会用「碰到角色名」积木检测两个角色是否接触。' },
+    { icon: '📏', title: '距离检测', desc: '用「到角色的距离」积木做近距检测，实现感应效果。' },
+    { icon: '🐵', title: '接苹果游戏', desc: '综合运用碰撞检测和变量，做出接苹果加分的小游戏。' }
+  ],
+  steps: [
+    { title: '趣味导入：小猴子接苹果', emoji: '🌟', time: '8 分钟',
+      desc: '森林里的小猴子要接树上掉下来的苹果！接住一个加 10 分，掉地上就没了。怎么让 Scratch 知道小猴子「接住」了苹果呢？这就需要<strong>碰撞检测</strong>——判断两个角色是否碰到了一起。',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '碰撞检测是游戏开发最核心的技术！马里奥踩怪物、子弹打敌人、角色拾取道具——全都是碰撞检测。学会它，你就能做出真正的游戏了！' }]
+    },
+    { title: '认识碰撞检测积木', emoji: '🔍', time: '17 分钟',
+      desc: '碰撞检测积木在浅蓝色「侦测」分类里，它们是六边形（条件型）积木：',
+      infoGrid: [
+        { icon: '🤝', title: '碰到角色', desc: '检测是否碰到指定角色，如「碰到小猫？」。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '🎨', title: '碰到颜色', desc: '检测是否碰到指定颜色（背景/角色上的颜色）。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '📏', title: '到…的距离', desc: '返回到指定角色/鼠标的距离数值。', bg: 'rgba(92,177,214,.12)' }
+      ],
+      blocks: [
+        { type: 'control', text: '重复执行' },
+        { type: 'control', text: '  如果 <span class="slot">碰到 苹果？</span> 那么' },
+        { type: 'variables', text: '    将 <span class="slot">分数</span> 增加 <span class="slot">10</span>' },
+        { type: 'motion', text: '    移到 <span class="slot">随机位置</span>' },
+        { type: 'sound', text: '    播放声音 <span class="slot">pop</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '碰撞检测三件套：', text: '① 检测（碰到苹果？）② 响应（加分、移走苹果、播音效）③ 循环（重复执行持续检测）。缺一不可！碰撞后<strong>立刻移走苹果</strong>，否则一秒内会触发无数次加分。' }]
+    },
+    { title: '动手实践：接苹果演示', emoji: '🛠', time: '30 分钟',
+      desc: '点击「开始」后用方向键控制小猴子接苹果！每接一个 +10 分，看看你能得多少分。',
+      demoType: 'collision-catch',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果苹果碰到猴子后不移走会怎样？答案是会疯狂加分——因为每帧检测都「碰到」了。所以碰撞后<strong>必须立刻移开</strong>或隐藏！' }]
+    },
+    { title: '挑战任务：完善接苹果', emoji: '🏆', time: '25 分钟',
+      desc: '在你的 Scratch 中完善接苹果游戏，让它更完整更好玩！',
+      tasks: [
+        { text: '任务1：用方向键控制小猴子左右移动', hint: '当按下左/右键 → 将 X 增加 ±10' },
+        { text: '任务2：苹果从顶部下落（Y 持续减少）', hint: '重复执行 → 将 Y 增加 -5' },
+        { text: '任务3：苹果碰到猴子 +10 分并归位到顶部', hint: '碰到猴子 → 加分 → Y 设为 180' },
+        { text: '⭐ 挑战：苹果掉到底部时扣 1 条命，3 条命用完游戏结束', hint: '碰到边缘颜色/底部 → 生命 -1 → 生命=0 时停止' }
+      ],
+      tips: [{ icon: '🌟', strong: '游戏完整性：', text: '一个完整的游戏需要：✅ 开始（绿旗初始化）✅ 操作（键盘控制）✅ 核心玩法（接苹果）✅ 反馈（加分/扣命）✅ 结束（生命=0）。五要素齐全才是真正的游戏！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '请同学展示你的接苹果游戏，比一比谁接得最多！讨论：碰撞检测还能用来做什么游戏？'
+    }
+  ],
+  summary: '今天我们学了<strong>碰撞检测</strong>！用<strong>「碰到角色」</strong>判断两个角色是否接触，用<strong>「到…的距离」</strong>做近距离感应。碰撞检测要放在<strong>循环</strong>里，碰撞后要<strong>立刻移开</strong>角色避免重复触发。接苹果只是开始——碰撞检测是所有游戏的核心技术！',
+  knowledgePoints: ['碰到角色', '碰到颜色', '到…距离', '碰撞检测', '循环检测', '碰撞响应', '角色移开', '游戏核心'],
+  homework: [
+    { stars: 1, title: '基础练习：碰碰球', desc: '两个角色在舞台移动，碰到一起就说「碰到了！」并弹开。' },
+    { stars: 2, title: '进阶挑战：躲避游戏', desc: '控制角色躲避飞来的障碍物，碰到障碍扣血，3 次后游戏结束。' },
+    { stars: 3, title: '创意拓展：拾取收集', desc: '做 3 种不同道具（金币/宝石/药水），碰到各自加不同分数，有 5 种道具。' }
+  ]
+},
+
+/* ===== 第 4 课 ===== */
+'l2-04': {
+  no: 4, title: '随机数：会变魔术的宝箱', subtitle: '随机数与不确定性',
+  unit: '游戏机制入门', unitNo: 1, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🎲', title: '理解随机', desc: '理解随机数的概念，知道它在游戏中创造「不确定性」和「惊喜」。' },
+    { icon: '🔢', title: '随机数积木', desc: '学会用「在 X 到 Y 之间取随机数」积木生成随机值。' },
+    { icon: '🎁', title: '随机宝箱', desc: '用随机数做出每次打开都有不同奖励的宝箱效果。' }
+  ],
+  steps: [
+    { title: '趣味导入：宝箱的秘密', emoji: '🌟', time: '8 分钟',
+      desc: '游戏里的宝箱，为什么每次打开得到的东西不一样？可能得金币、可能得宝石、也可能是个炸弹！这就是<strong>随机数</strong>的魔力——它让游戏每次都不一样，永远有新鲜感！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '没有随机数的游戏是「死」的——每次走同一路线、得同一分数。有了随机数，怪物随机出现、道具随机掉落、地图随机生成……游戏就「活」了！随机是游戏可玩性的灵魂。' }]
+    },
+    { title: '认识随机数积木', emoji: '🔍', time: '17 分钟',
+      desc: '随机数积木在绿色「运算」分类里，是椭圆形（值型）积木：',
+      infoGrid: [
+        { icon: '🎲', title: '取随机数', desc: '在两个数之间随机取一个整数，如 1 到 10。', bg: 'rgba(89,192,89,.12)' },
+        { icon: '📍', title: '随机位置', desc: '移到 X: 随机数 Y: 随机数 = 随机位置。', bg: 'rgba(79,107,255,.12)' },
+        { icon: '🔀', title: '随机选择', desc: '配合如果…那么做随机分支：随机数=1 做A，=2 做B。', bg: 'rgba(255,171,25,.15)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 此角色被点击' },
+        { type: 'variables', text: '将 <span class="slot">奖励</span> 设为 <span class="slot">在 1 和 3 之间取随机数</span>' },
+        { type: 'control', text: '如果 <span class="slot">奖励 = 1</span> 那么' },
+        { type: 'looks', text: '  说 <span class="slot">获得金币！</span>' },
+        { type: 'control', text: '如果 <span class="slot">奖励 = 2</span> 那么' },
+        { type: 'looks', text: '  说 <span class="slot">获得宝石！</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '随机数范围：', text: '「在 1 和 10 之间取随机数」包含 1 和 10，共 10 种可能。要 0-9 就写「在 0 和 9 之间」。随机位置：X 在 -220 到 220，Y 在 -160 到 160 之间，刚好覆盖整个舞台！' }]
+    },
+    { title: '动手实践：随机宝箱', emoji: '🛠', time: '30 分钟',
+      desc: '点击宝箱，每次随机获得不同奖励！试试看你能开出什么——金币、宝石、还是炸弹？',
+      demoType: 'random',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果想要 50% 概率出金币、30% 出宝石、20% 出炸弹，该怎么用随机数？（提示：取 1-10 随机数，1-5 金币，6-8 宝石，9-10 炸弹）' }]
+    },
+    { title: '挑战任务：随机掉落', emoji: '🏆', time: '25 分钟',
+      desc: '做一个随机掉落系统：天上随机掉下金币、宝石和炸弹，碰到不同物品有不同效果。',
+      tasks: [
+        { text: '任务1：角色从顶部随机 X 位置出现', hint: 'X: 在 -220 和 220 之间取随机数' },
+        { text: '任务2：克隆体下落到底部后删除', hint: '重复执行 → Y 减少 → 如果 Y < -170 删除此克隆体' },
+        { text: '任务3：碰到不同物品加不同分数', hint: '金币 +10，宝石 +30，炸弹 -20' },
+        { text: '⭐ 挑战：调整概率让炸弹出现率低于金币', hint: '随机 1-10，1-6 出金币，7-8 出宝石，9-10 出炸弹' }
+      ],
+      tips: [{ icon: '🌟', strong: '概率设计：', text: '好的游戏要有<strong>概率平衡</strong>！常见道具概率高、稀有道具概率低。比如金币 60%、宝石 20%、炸弹 20%。这样玩家既有收获又有惊喜，游戏才有意思！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的随机掉落系统，看看大家谁的运气最好！讨论：随机数还能用在游戏的哪些地方？'
+    }
+  ],
+  summary: '今天我们学了<strong>随机数</strong>！用<strong>「在 X 和 Y 之间取随机数」</strong>生成随机值，让游戏有了<strong>不确定性</strong>和<strong>惊喜感</strong>。随机位置让角色出现在不同地方，随机选择让每次结果不同。配合条件判断，还能做<strong>概率设计</strong>——控制不同结果的出现频率。随机是游戏可玩性的灵魂！',
+  knowledgePoints: ['随机数', '取随机数积木', '随机位置', '随机选择', '概率设计', '不确定性', '游戏惊喜', '随机掉落'],
+  homework: [
+    { stars: 1, title: '基础练习：随机移动', desc: '让角色每秒移到随机位置，做「瞬移」效果。' },
+    { stars: 2, title: '进阶挑战：猜数字', desc: '随机生成 1-100 的数，玩家猜，程序提示大了或小了，直到猜中。' },
+    { stars: 3, title: '创意拓展：随机地图', desc: '用随机数在舞台上随机放置 5 个障碍物，每次绿旗点击布局不同。' }
+  ]
+},
+
+/* ===== 第 5 课 ===== */
+'l2-05': {
+  no: 5, title: '计时与倒计时：限时挑战', subtitle: '计时器与时间控制',
+  unit: '游戏机制入门', unitNo: 1, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '⏱', title: '认识计时器', desc: '学会使用 Scratch 内置计时器，理解时间的流逝。' },
+    { icon: '⏳', title: '倒计时', desc: '用计时器做出倒计时效果，实现限时挑战。' },
+    { icon: '⏰', title: '时间到结束', desc: '当时间归零时触发游戏结束，让游戏有紧迫感。' }
+  ],
+  steps: [
+    { title: '趣味导入：限时挑战', emoji: '🌟', time: '8 分钟',
+      desc: '你们玩过「60 秒内接住 20 个苹果」这种限时挑战吗？时间一分一秒地过去，心跳越来越快——这就是<strong>倒计时</strong>的魔力！它给游戏制造了紧张感和刺激感。今天我们来做自己的限时挑战！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '时间是游戏设计的重要维度。限时模式、冷却时间、无敌时间……都跟计时器有关。Scratch 内置了一个<strong>计时器</strong>，从绿旗点击开始自动走表，我们可以读取它、重置它、用它做倒计时！' }]
+    },
+    { title: '认识计时器积木', emoji: '🔍', time: '17 分钟',
+      desc: '计时器在浅蓝色「侦测」分类里，它从程序开始就自动计时：',
+      infoGrid: [
+        { icon: '⏱', title: '计时器', desc: '返回从绿旗点击后的秒数（带小数）。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '🔄', title: '重置计时器', desc: '把计时器归零，重新开始计时。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⏳', title: '倒计时逻辑', desc: '用「目标时间 - 计时器」得到剩余时间。', bg: 'rgba(255,171,25,.15)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 绿旗 被点击' },
+        { type: 'sensing', text: '重置计时器' },
+        { type: 'variables', text: '将 <span class="slot">剩余</span> 设为 <span class="slot">30</span>' },
+        { type: 'control', text: '重复执行直到 <span class="slot">剩余 <= 0</span>' },
+        { type: 'variables', text: '  将 <span class="slot">剩余</span> 设为 <span class="slot">30 - 计时器</span>' },
+        { type: 'control', text: '  如果 <span class="slot">剩余 <= 0</span> 那么' },
+        { type: 'looks', text: '    说 <span class="slot">时间到！</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '倒计时公式：', text: '剩余时间 = 目标时间 - 计时器。比如 30 秒倒计时：先重置计时器归零，然后每帧用「30 - 计时器」更新剩余时间。当剩余 <= 0 时，时间到！别忘了用<strong>重复执行</strong>持续更新。' }]
+    },
+    { title: '动手实践：倒计时演示', emoji: '🛠', time: '30 分钟',
+      desc: '试试这个 30 秒倒计时！点击开始后，时间一秒一秒地减少，归零时触发「时间到」！',
+      demoType: 'timer',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果想做「加速」效果——越接近 0 倒计时越快，怎么实现？提示：不用线性计时，用计时器的平方来加速。' }]
+    },
+    { title: '挑战任务：限时接苹果', emoji: '🏆', time: '25 分钟',
+      desc: '给上节课的接苹果游戏加上 30 秒倒计时，时间到就结束游戏并显示最终得分！',
+      tasks: [
+        { text: '任务1：创建「剩余时间」变量，初始为 30', hint: '绿旗点击 → 重置计时器 → 设为 30' },
+        { text: '任务2：重复执行更新剩余时间', hint: '剩余 = 30 - 计时器' },
+        { text: '任务3：时间 <= 0 时停止游戏', hint: '说「时间到！得分：XX」→ 停止全部' },
+        { text: '⭐ 挑战：最后 5 秒计时器变红色并加快音乐', hint: '如果 剩余 <= 5 那么 切换颜色 + 播放急促鼓声' }
+      ],
+      tips: [{ icon: '🌟', strong: '时间设计：', text: '时间不能太长（无聊）也不能太短（不可能完成）。30-60 秒是休闲游戏的黄金区间。最后几秒加<strong>紧迫感</strong>（变红、快节奏音效）是经典手法！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的限时接苹果游戏！讨论：除了倒计时，计时器还能用来做什么？（冷却时间、无敌时间、记录最佳成绩……）'
+    }
+  ],
+  summary: '今天我们学了<strong>计时器</strong>！Scratch 的内置计时器从绿旗点击开始自动走表，用<strong>「重置计时器」</strong>归零。倒计时公式是<strong>剩余 = 目标 - 计时器</strong>。时间归零时触发游戏结束。计时器让游戏有了<strong>紧迫感</strong>和<strong>节奏感</strong>——限时挑战、冷却技能、最佳记录，全靠它！',
+  knowledgePoints: ['计时器', '重置计时器', '倒计时', '重复执行直到', '时间控制', '游戏结束', '紧迫感', '时间公式'],
+  homework: [
+    { stars: 1, title: '基础练习：秒表', desc: '做一个秒表：点击开始计时、点击停止、点击重置。显示到小数点后一位。' },
+    { stars: 2, title: '进阶挑战：60 秒挑战', desc: '60 秒内点击小猫尽可能多次，显示最终点击数和每秒平均次数。' },
+    { stars: 3, title: '创意拓展：冷却技能', desc: '给角色一个技能（如冲刺），使用后 5 秒冷却才能再次使用，冷却时显示倒计时。' }
+  ]
+},
+
+/* ===== 第 6 课 · 作品课 ===== */
+'l2-06': {
+  no: 6, title: '接苹果大作战', subtitle: '综合作品【作品产出】',
+  unit: '游戏机制入门', unitNo: 1, duration: '90 分钟', isProject: true,
+  goals: [
+    { icon: '🎮', title: '综合运用', desc: '把变量、条件判断、碰撞检测、随机数、计时器全部综合运用。' },
+    { icon: '🏆', title: '完成完整游戏', desc: '做出一个有开始、游玩、结束的完整接苹果游戏。' },
+    { icon: '🎤', title: '展示作品', desc: '展示你的游戏，讲述设计思路，让同学试玩。' }
+  ],
+  steps: [
+    { title: '趣味导入：游戏发布会', emoji: '🌟', time: '5 分钟',
+      desc: '前 5 节课我们学了游戏开发的五大法宝：变量、条件判断、碰撞检测、随机数、计时器。今天就是把它们全部组合起来，做出第一个完整的游戏作品——<strong>接苹果大作战</strong>！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '一个完整游戏 = 变量（记分）+ 条件（规则）+ 碰撞（核心玩法）+ 随机（掉落）+ 计时（限时）。这五大要素缺一不可，组合起来就是一个真正能玩的游戏！' }]
+    },
+    { title: '游戏设计规划', emoji: '🔍', time: '15 分钟',
+      desc: '做游戏之前先写<strong>设计文档</strong>——想清楚游戏的每个部分：',
+      infoGrid: [
+        { icon: '🎯', title: '核心玩法', desc: '方向键控制篮子，接住下落的苹果。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '📊', title: '变量系统', desc: '分数、剩余时间、生命值（3 条命）。', bg: 'rgba(255,140,26,.12)' },
+        { icon: '🏁', title: '结束条件', desc: '时间到 或 生命 = 0 → 游戏结束。', bg: 'rgba(255,107,129,.12)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 绿旗 被点击' },
+        { type: 'variables', text: '将 <span class="slot">分数</span> 设为 <span class="slot">0</span>' },
+        { type: 'variables', text: '将 <span class="slot">生命</span> 设为 <span class="slot">3</span>' },
+        { type: 'sensing', text: '重置计时器' },
+        { type: 'control', text: '重复执行直到 <span class="slot">生命 = 0 或 剩余 <= 0</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '设计文档模板：', text: '① 核心玩法（做什么？）② 操作方式（怎么玩？）③ 变量系统（追踪什么？）④ 游戏流程（开始→游玩→结束）⑤ 特殊设计（有什么亮点？）。先想清楚再动手，效率高十倍！' }]
+    },
+    { title: '动手实践：游戏演示', emoji: '🛠', time: '35 分钟',
+      desc: '先玩一玩完整的接苹果大作战！30 秒倒计时、3 条命、苹果随机掉落。在你的 Scratch 中搭建同样的游戏。',
+      demoType: 'game-apple',
+      tips: [{ icon: '❓', strong: '想一想：', text: '这个游戏用到了前 5 节课的哪些知识？变量（分数+生命）、条件（时间到/生命=0）、碰撞（接苹果）、随机（掉落位置）、计时（30秒）。你能一一对应吗？' }]
+    },
+    { title: '挑战任务：完善你的游戏', emoji: '🏆', time: '25 分钟',
+      desc: '在 Scratch 中做出完整的接苹果大作战，并加入你自己的创意！',
+      tasks: [
+        { text: '任务1：初始化——分数=0、生命=3、重置计时器', hint: '绿旗点击时设置所有变量初始值' },
+        { text: '任务2：苹果从随机位置下落，接到 +10 分', hint: 'X 随机、Y 从 180 下落、碰到篮子加分归位' },
+        { text: '任务3：苹果掉到底部 -1 生命，生命=0 或时间到结束', hint: '碰到底部颜色 → 生命 -1 → 如果生命=0 停止' },
+        { text: '⭐ 挑战：加入炸弹（红色），碰到 -1 生命', hint: '克隆两种物品：苹果和炸弹，各自不同效果' }
+      ],
+      tips: [{ icon: '🌟', strong: '作品评价标准：', text: '✅ 五大要素齐全（变量+条件+碰撞+随机+计时）✅ 游戏完整（开始-游玩-结束）✅ 操作流畅 ✅ 有反馈（分数+音效）✅ 有创意亮点。五项全达成就是优秀作品！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '请每位同学展示你的接苹果大作战！让大家试玩，看看谁的游戏最好玩。🎉'
+    }
+  ],
+  summary: '恭喜第一个游戏作品诞生！🎉 我们把<strong>变量、条件判断、碰撞检测、随机数、计时器</strong>五大要素全部综合运用，做出了完整的<strong>接苹果大作战</strong>！一个完整游戏需要：初始化→核心玩法→游戏反馈→结束条件。这就是游戏开发的基本流程！',
+  knowledgePoints: ['游戏设计文档', '五大要素综合', '游戏流程', '初始化', '核心玩法', '结束条件', '作品展示', '游戏开发流程'],
+  homework: [
+    { stars: 1, title: '基础练习：调整参数', desc: '修改游戏参数：时间改为 60 秒、苹果掉落加快、初始生命 5 条，找到最平衡的设置。' },
+    { stars: 2, title: '进阶挑战：加道具', desc: '加入金色苹果（+30 分）和钟表道具（+5 秒时间），让游戏更丰富。' },
+    { stars: 3, title: '创意拓展：你的版本', desc: '把接苹果改成你喜欢的主题：接星星、接糖果、接雨滴……做出有个人风格的游戏。' }
+  ]
+},
+
+/* ===== 第 7 课 ===== */
+'l2-07': {
+  no: 7, title: '克隆技术：一波接一波的敌人', subtitle: '克隆体创建与管理',
+  unit: '闯关游戏开发', unitNo: 2, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '📑', title: '理解克隆', desc: '理解克隆的概念——从一个「模板」角色复制出多个独立的克隆体。' },
+    { icon: '⚡', title: '克隆积木', desc: '学会用「克隆自己」和「当作为克隆体启动时」积木。' },
+    { icon: '👾', title: '波次敌人', desc: '用克隆体做出一波接一波出现的敌人效果。' }
+  ],
+  steps: [
+    { title: '趣味导入：影分身术', emoji: '🌟', time: '8 分钟',
+      desc: '火影忍者里的影分身术，一个人变出好多分身！在 Scratch 里也有这个术——叫<strong>克隆</strong>！一个敌人角色可以克隆出一波接一波的敌人，它们各自独立行动。没有克隆，你要手动添加几十个敌人角色，太麻烦了！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '克隆是游戏开发的高级技术！子弹连发、敌人成群、粒子特效……全靠克隆。没有克隆，每个子弹/敌人都要手动建角色，Scratch 最多 300 个角色根本不够用。有了克隆，一个模板就能生成无数个！' }]
+    },
+    { title: '认识克隆积木', emoji: '🔍', time: '17 分钟',
+      desc: '克隆积木在橙色「控制」分类里，有两个关键积木：',
+      infoGrid: [
+        { icon: '📑', title: '克隆自己', desc: '从当前角色复制一个克隆体出现在舞台上。', bg: 'rgba(255,171,25,.15)' },
+        { icon: '🎬', title: '当作为克隆体启动时', desc: '每个克隆体出现时触发，写克隆体的行为。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '🗑', title: '删除此克隆体', desc: '删除当前克隆体，释放资源。', bg: 'rgba(255,107,129,.12)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 绿旗 被点击' },
+        { type: 'looks', text: '隐藏' },
+        { type: 'control', text: '重复执行' },
+        { type: 'control', text: '  等待 <span class="slot">1</span> 秒' },
+        { type: 'control', text: '  克隆自己' },
+        { type: 'event', text: '当作为克隆体启动时' },
+        { type: 'looks', text: '  显示' },
+        { type: 'motion', text: '  移到 <span class="slot">X: 随机 Y: 180</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '克隆三大铁律：', text: '① <strong>模板要隐藏</strong>——绿旗点击时隐藏模板角色，只显示克隆体。② <strong>克隆体要删除</strong>——离开屏幕或被消灭时「删除此克隆体」，否则越积越多会卡死。③ <strong>初始化位置</strong>——克隆体出现时立刻移到随机位置，否则全部叠在一起。' }]
+    },
+    { title: '动手实践：克隆体演示', emoji: '🛠', time: '30 分钟',
+      desc: '点击「生成敌人」看看克隆术！每秒生成一个敌人克隆体，从顶部下落。用「清空」删除所有克隆体。',
+      demoType: 'clone',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果不删除克隆体会怎样？答案：克隆体会越积越多，几百上千个克隆体同时运行，电脑会卡死！所以<strong>一定要在不需要时删除克隆体</strong>。' }]
+    },
+    { title: '挑战任务：波次敌人', emoji: '🏆', time: '25 分钟',
+      desc: '用克隆做出波次敌人系统——每波 N 个敌人，消灭完进入下一波，波数越高敌人越多！',
+      tasks: [
+        { text: '任务1：模板角色隐藏，每隔 1.5 秒克隆自己', hint: '绿旗 → 隐藏 → 重复执行 → 等待 → 克隆自己' },
+        { text: '任务2：克隆体出现在随机位置并下落', hint: '当作为克隆体启动时 → 显示 → 移到随机 → 重复 Y 减少' },
+        { text: '任务3：克隆体碰到子弹时删除并 +10 分', hint: '如果 碰到子弹？→ 加分 → 删除此克隆体' },
+        { text: '⭐ 挑战：每 10 分增加一波，克隆间隔缩短', hint: '波数 = 分数 ÷ 10，间隔 = 1.5 - 波数 × 0.1' }
+      ],
+      tips: [{ icon: '🌟', strong: '性能优化：', text: '克隆体太多会卡！优化方法：① 不需要的立刻删除 ② 克隆体脚本尽量简单 ③ 限制同时存在的克隆体数量（如最多 20 个）。好的游戏要<strong>又好玩又流畅</strong>！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的波次敌人系统，看看谁的敌人最有趣！讨论：克隆还能用来做什么？（子弹、粒子、金币……）'
+    }
+  ],
+  summary: '今天我们学了<strong>克隆技术</strong>！用<strong>「克隆自己」</strong>从模板角色复制出多个独立克隆体，用<strong>「当作为克隆体启动时」</strong>编写克隆体行为。克隆三大铁律：模板隐藏、克隆体删除、位置初始化。克隆让<strong>子弹连发、敌人成群、粒子特效</strong>成为可能——它是游戏开发的高级利器！',
+  knowledgePoints: ['克隆', '克隆自己', '当作为克隆体启动时', '删除此克隆体', '模板隐藏', '克隆体管理', '波次系统', '性能优化'],
+  homework: [
+    { stars: 1, title: '基础练习：下雨效果', desc: '克隆雨滴角色，每 0.2 秒生成一个，从顶部下落到底部删除。' },
+    { stars: 2, title: '进阶挑战：子弹连发', desc: '按空格键连续发射子弹克隆体，子弹碰到敌人时两者都删除。' },
+    { stars: 3, title: '创意拓展：粒子特效', desc: '角色碰到东西时克隆 8 个粒子向外飞散，0.5 秒后删除，做出爆炸效果。' }
+  ]
+},
+
+/* ===== 第 8 课 ===== */
+'l2-08': {
+  no: 8, title: '血量与生命值系统', subtitle: 'HP/生命与受伤机制',
+  unit: '闯关游戏开发', unitNo: 2, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '❤️', title: '血量变量', desc: '创建血量（HP）变量，理解血量在游戏中的意义。' },
+    { icon: '💔', title: '受伤减血', desc: '实现碰到敌人/危险时扣血，血量归零时角色死亡。' },
+    { icon: '🛡', title: '生命值显示', desc: '用爱心图标或血条直观显示血量/生命值。' }
+  ],
+  steps: [
+    { title: '趣味导入：为什么有血量', emoji: '🌟', time: '8 分钟',
+      desc: '游戏里的角色为什么有「血量」？如果碰到一次就死，游戏太难了；如果永远不死，游戏太简单了。血量让游戏有了<strong>容错</strong>——可以犯几次错，但不能一直犯错。这就是<strong>难度平衡</strong>！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '血量系统有两层设计：<strong>HP</strong>（细粒度血量，如 100，每次扣 10）和<strong>生命</strong>（粗粒度，如 3 条命，用完才 Game Over）。很多游戏两者结合：HP 归零扣一条命，生命归零才真的结束。' }]
+    },
+    { title: '认识血量系统', emoji: '🔍', time: '17 分钟',
+      desc: '血量系统由几部分组成：',
+      infoGrid: [
+        { icon: '❤️', title: '血量变量', desc: 'HP 值，如 100，碰到敌人 -10。', bg: 'rgba(255,107,129,.12)' },
+        { icon: '💔', title: '受伤逻辑', desc: '碰到危险 → HP 减少 → 如果 HP<=0 → 扣命/死亡。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '🛡', title: '无敌时间', desc: '受伤后短暂无敌（1秒），避免连续扣血。', bg: 'rgba(139,92,246,.12)' }
+      ],
+      blocks: [
+        { type: 'control', text: '重复执行' },
+        { type: 'control', text: '  如果 <span class="slot">碰到敌人？</span> 那么' },
+        { type: 'variables', text: '    将 <span class="slot">HP</span> 增加 <span class="slot">-10</span>' },
+        { type: 'control', text: '    等待 <span class="slot">1</span> 秒' },
+        { type: 'control', text: '  如果 <span class="slot">HP <= 0</span> 那么' },
+        { type: 'looks', text: '    说 <span class="slot">游戏结束！</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '无敌时间很关键：', text: '如果受伤后不设无敌时间，碰到敌人时每帧都扣 10 血——0.1 秒血就空了！加「等待 1 秒」让角色受伤后 1 秒内不会再受伤，这就是<strong>无敌帧</strong>。配合角色闪烁特效更明显！' }]
+    },
+    { title: '动手实践：血量系统', emoji: '🛠', time: '30 分钟',
+      desc: '试试血量系统演示！小猫有 3 颗心和 100 HP，碰到敌人会扣血扣心，吃心能恢复。',
+      demoType: 'health',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果要做一个「护盾」道具——先扣护盾再扣血，怎么实现？提示：加一个「护盾」变量，受伤时先检查护盾是否 >0。' }]
+    },
+    { title: '挑战任务：完整血量系统', emoji: '🏆', time: '25 分钟',
+      desc: '做一个完整的血量系统：HP 条 + 3 条命 + 受伤无敌 + 恢复道具！',
+      tasks: [
+        { text: '任务1：创建 HP（100）和生命（3）变量并初始化', hint: '绿旗 → HP=100、生命=3' },
+        { text: '任务2：碰到敌人 HP-10，HP<=0 时生命-1 并恢复 HP', hint: 'HP<=0 → 生命-1 → HP 恢复 100' },
+        { text: '任务3：受伤后 1 秒无敌时间 + 角色闪烁', hint: '受伤后 → 等待 1 秒 → 期间颜色特效切换' },
+        { text: '⭐ 挑战：加入恢复道具，碰到红心 HP+30', hint: '碰到红心 → 如果 HP<100 那么 HP+30 → 删除红心' }
+      ],
+      tips: [{ icon: '🌟', strong: '血量平衡设计：', text: '好的血量设计要考虑：① 初始血量（100? 3 条命?）② 每次伤害（-10? -20?）③ 恢复方式（道具? 过关恢复?）④ 无敌时间（1 秒?）。平衡好这些，游戏才有挑战又不至于太难！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的血量系统，说说你的血量是怎么平衡的。讨论：什么是好的血量设计？'
+    }
+  ],
+  summary: '今天我们做了<strong>血量与生命值系统</strong>！用 HP 变量记录细粒度血量，用生命变量记录粗粒度命数。碰到敌人扣血，血量归零扣命，生命归零 Game Over。<strong>无敌时间</strong>避免连续扣血，<strong>恢复道具</strong>给玩家希望。好的血量设计 = 挑战 + 容错 + 希望！',
+  knowledgePoints: ['血量变量', '生命值', '受伤逻辑', '无敌时间', '无敌帧', '血量平衡', '恢复道具', 'Game Over'],
+  homework: [
+    { stars: 1, title: '基础练习：血条显示', desc: '用画笔画一个血条，HP 越长血条越短，颜色从绿到红渐变。' },
+    { stars: 2, title: '进阶挑战：护盾系统', desc: '加入护盾变量，受伤先扣护盾再扣血，护盾可被道具恢复。' },
+    { stars: 3, title: '创意拓展：难度选择', desc: '开始时选择简单（5命100HP）/普通（3命80HP）/困难（1命50HP），不同难度不同体验。' }
+  ]
+},
+
+/* ===== 第 9 课 ===== */
+'l2-09': {
+  no: 9, title: '闯关地图与关卡切换', subtitle: '多关卡与通关条件',
+  unit: '闯关游戏开发', unitNo: 2, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🗺', title: '关卡设计', desc: '理解关卡概念，学会设计多个关卡，每关有不同的难度和目标。' },
+    { icon: '🔑', title: '通关条件', desc: '设定每关的通关条件，如分数达标、到达终点、消灭所有敌人。' },
+    { icon: '🔄', title: '关卡切换', desc: '用变量和广播实现关卡之间的切换，做出过关→下一关的流程。' }
+  ],
+  steps: [
+    { title: '趣味导入：关卡的秘密', emoji: '🌟', time: '8 分钟',
+      desc: '超级马里奥为什么有 8 大关 4 小关？因为只有一关太无聊了！<strong>关卡</strong>让游戏有节奏——从简单到困难，从教程到挑战，每关都有新东西。今天我们来设计自己的多关卡游戏！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '好的关卡设计遵循「<strong>3 的法则</strong>」：第 1 关教玩法、第 2 关加难度、第 3 关大挑战。每关引入一个新元素（新敌人/新道具/新机制），让玩家始终有新鲜感！' }]
+    },
+    { title: '认识关卡切换', emoji: '🔍', time: '17 分钟',
+      desc: '关卡切换的核心是<strong>关卡变量</strong>和<strong>广播消息</strong>：',
+      infoGrid: [
+        { icon: '🔢', title: '关卡变量', desc: '用变量「关卡」记录当前是第几关。', bg: 'rgba(255,140,26,.12)' },
+        { icon: '🏁', title: '通关条件', desc: '每关有特定条件，如分数达到 100。', bg: 'rgba(81,207,102,.12)' },
+        { icon: '📡', title: '广播切换', desc: '通关后广播「下一关」，所有角色切换。', bg: 'rgba(255,191,0,.15)' }
+      ],
+      blocks: [
+        { type: 'control', text: '如果 <span class="slot">分数 >= 100</span> 那么' },
+        { type: 'variables', text: '  将 <span class="slot">关卡</span> 增加 <span class="slot">1</span>' },
+        { type: 'event', text: '  广播消息 <span class="slot">切换关卡</span>' },
+        { type: 'event', text: '当接收到 <span class="slot">切换关卡</span>' },
+        { type: 'looks', text: '  切换背景为 <span class="slot">第</span>+关卡+<span class="slot">关</span>' },
+        { type: 'variables', text: '  将 <span class="slot">分数</span> 设为 <span class="slot">0</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '关卡切换三步：', text: '① 检测通关条件（分数达标/到达终点）② 更新关卡变量（+1）③ 广播消息让所有角色切换背景/重置位置/调整难度。每个角色接收「切换关卡」消息后做自己的初始化！' }]
+    },
+    { title: '动手实践：关卡地图', emoji: '🛠', time: '30 分钟',
+      desc: '试试关卡地图演示！每关有不同的难度，通关后进入下一关，看看你能过几关！',
+      demoType: 'level-map',
+      tips: [{ icon: '❓', strong: '想一想：', text: '怎么让每关难度不同？提示：① 敌人速度随关卡增加 ② 道具刷新率降低 ③ 时间限制缩短 ④ 通关分数要求提高。这些都是难度参数！' }]
+    },
+    { title: '挑战任务：三关小游戏', emoji: '🏆', time: '25 分钟',
+      desc: '做一个三关的小游戏：第 1 关教学、第 2 关加敌人、第 3 关 Boss 战！',
+      tasks: [
+        { text: '任务1：创建关卡变量，3 个不同背景', hint: '背景1=草地、背景2=沙漠、背景3=城堡' },
+        { text: '任务2：每关分数达标后广播「下一关」', hint: '分数 >= 50 → 关卡+1 → 广播 → 切背景' },
+        { text: '任务3：每关难度递增（敌人速度加快）', hint: '敌人速度 = 3 + 关卡 × 2' },
+        { text: '⭐ 挑战：第 3 关加入 Boss，需要打 5 次才通关', hint: 'Boss 血量=5，碰到子弹 -1，=0 时全部通关' }
+      ],
+      tips: [{ icon: '🌟', strong: '关卡设计黄金法则：', text: '① 每关引入一个<strong>新元素</strong>（新敌人/新道具）② 难度<strong>渐进</strong>上升，不能跳太猛 ③ 每关有<strong>明确目标</strong>（分数/到达终点/Boss）④ 通关有<strong>反馈</strong>（过关动画/音效/庆祝）。' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的三关小游戏，说说你每关的设计思路。讨论：你玩过的游戏里，关卡设计有什么巧妙之处？'
+    }
+  ],
+  summary: '今天我们学了<strong>关卡系统</strong>！用<strong>关卡变量</strong>记录当前是第几关，用<strong>通关条件</strong>判定何时过关，用<strong>广播消息</strong>让所有角色切换到新关卡。好的关卡设计要「3 的法则」：教学→加难度→大挑战，每关引入新元素，难度渐进上升。多关卡让游戏有了<strong>深度</strong>和<strong>持久性</strong>！',
+  knowledgePoints: ['关卡变量', '通关条件', '广播切换', '难度递增', '关卡设计', '3 的法则', '新元素引入', '过关反馈'],
+  homework: [
+    { stars: 1, title: '基础练习：三关切换', desc: '做 3 个背景，每按空格键切到下一关，显示「第 X 关」，第 3 关后说「全部通关」。' },
+    { stars: 2, title: '进阶挑战：难度递增', desc: '每关敌人速度 +2，分数要求 +50，3 关通关后显示总用时。' },
+    { stars: 3, title: '创意拓展：开放世界', desc: '做一个关卡选择地图，可以用方向键选择要玩的关卡，已通关的显示星星。' }
+  ]
+},
+
+/* ===== 第 10 课 ===== */
+'l2-10': {
+  no: 10, title: '道具与奖励：加速、无敌、双倍分', subtitle: '道具系统与增益效果',
+  unit: '闯关游戏开发', unitNo: 2, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🎁', title: '道具系统', desc: '理解道具的作用——给玩家临时增益，增加游戏策略性和乐趣。' },
+    { icon: '⚡', title: '增益效果', desc: '实现加速、无敌、双倍分等增益效果及持续时间。' },
+    { icon: '⏳', title: '计时效果', desc: '用计时器控制道具效果的持续时间，到时自动失效。' }
+  ],
+  steps: [
+    { title: '趣味导入：道具的魔力', emoji: '🌟', time: '8 分钟',
+      desc: '马里奥吃到蘑菇变大、吃星星变无敌、吃花会发射火球——<strong>道具</strong>让游戏充满策略和惊喜！有了道具，同样的关卡每次玩都有不同选择。今天我们来设计自己的道具系统！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '好的道具要有三个特点：① <strong>效果明显</strong>（吃到立刻感觉到变化）② <strong>有时限</strong>（不能永久无敌，否则没挑战）③ <strong>有策略</strong>（什么时候用最合适？要不要留着？）。这三个特点让道具有了策略深度！' }]
+    },
+    { title: '认识道具系统', emoji: '🔍', time: '17 分钟',
+      desc: '道具系统的核心是<strong>效果变量</strong>和<strong>持续时间</strong>：',
+      infoGrid: [
+        { icon: '⚡', title: '加速', desc: '移动速度 ×2，持续 5 秒。', bg: 'rgba(255,201,60,.15)' },
+        { icon: '🛡', title: '无敌', desc: '碰到敌人不扣血，持续 3 秒。', bg: 'rgba(139,92,246,.12)' },
+        { icon: '✨', title: '双倍分', desc: '得分 ×2，持续 10 秒。', bg: 'rgba(255,122,69,.12)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当作为克隆体启动时' },
+        { type: 'control', text: '如果 <span class="slot">碰到 道具类型？</span> 那么' },
+        { type: 'variables', text: '  将 <span class="slot">效果</span> 设为 <span class="slot">加速</span>' },
+        { type: 'sensing', text: '  重置计时器' },
+        { type: 'control', text: '  重复执行直到 <span class="slot">计时器 > 5</span>' },
+        { type: 'motion', text: '    将 X 增加 <span class="slot">20</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '道具效果公式：', text: '① 碰到道具 → 设效果变量 → 重置计时器 ② 重复执行效果逻辑直到计时器超时 ③ 超时后效果消失。关键是<strong>重复执行直到计时器 > 持续时间</strong>，到时自动停止效果！' }]
+    },
+    { title: '动手实践：道具效果', emoji: '🛠', time: '30 分钟',
+      desc: '试试三种道具效果！吃星星加速、吃盾牌无敌、吃金币双倍分。每种效果都有持续时间！',
+      demoType: 'powerup',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果要叠加效果（同时加速+无敌），怎么做？提示：用多个效果变量分别计时，或者用一个「效果剩余时间」的变量。' }]
+    },
+    { title: '挑战任务：道具系统', emoji: '🏆', time: '25 分钟',
+      desc: '在游戏中加入至少 3 种道具，每种有不同的效果和持续时间！',
+      tasks: [
+        { text: '任务1：创建 3 种道具角色（星星/盾牌/金币）', hint: '从角色库选或自己画' },
+        { text: '任务2：碰到星星加速 5 秒（移动 ×2）', hint: '设效果=加速 → 重置计时器 → 重复直到 >5' },
+        { text: '任务3：碰到盾牌无敌 3 秒（不扣血）', hint: '受伤检测里加：如果 效果≠无敌 那么 才扣血' },
+        { text: '⭐ 挑战：道具可以叠加，效果时间独立计时', hint: '用加速计时器和无敌计时器两个变量' }
+      ],
+      tips: [{ icon: '🌟', strong: '道具平衡设计：', text: '① 强力道具<strong>时间短</strong>（无敌 3 秒）② 弱力道具<strong>时间长</strong>（加速 5 秒）③ 稀有道具<strong>效果强</strong>（双倍分 10 秒但出现率低）。平衡好这三点，道具才有策略价值！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的道具系统，让大家试试哪种道具最好用！讨论：你玩过的游戏里最有趣的道具是什么？'
+    }
+  ],
+  summary: '今天我们做了<strong>道具系统</strong>！用<strong>效果变量</strong>记录当前增益，用<strong>计时器</strong>控制持续时间。加速、无敌、双倍分——每种道具都有不同的策略价值。好的道具设计要<strong>效果明显、有时限、有策略</strong>。道具让游戏从「单一玩法」变成了「<strong>策略选择</strong>」！',
+  knowledgePoints: ['道具系统', '效果变量', '增益效果', '持续时间', '计时控制', '加速', '无敌', '双倍分'],
+  homework: [
+    { stars: 1, title: '基础练习：加速道具', desc: '做一颗星星道具，碰到后移动速度翻倍 5 秒，到时恢复。' },
+    { stars: 2, title: '进阶挑战：多种道具', desc: '加入 3 种道具：加速、无敌、双倍分，各有独立计时器。' },
+    { stars: 3, title: '创意拓展：道具商店', desc: '用金币购买道具，可以积攒金币换更稀有的道具，做出经济系统。' }
+  ]
+},
+
+/* ===== 第 11 课 ===== */
+'l2-11': {
+  no: 11, title: '游戏音效与背景音乐', subtitle: '声音反馈与氛围营造',
+  unit: '闯关游戏开发', unitNo: 2, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🔊', title: '游戏音效', desc: '学会在关键时刻播放音效——得分、受伤、跳跃、爆炸。' },
+    { icon: '🎵', title: '背景音乐', desc: '用循环播放做出持续运行的游戏背景音乐。' },
+    { icon: '🎮', title: '声音反馈', desc: '理解声音在游戏体验中的重要性，用声音增强反馈和氛围。' }
+  ],
+  steps: [
+    { title: '趣味导入：没有声音的游戏', emoji: '🌟', time: '8 分钟',
+      desc: '试着关掉声音玩你最喜欢的游戏——是不是感觉「少了什么」？声音在游戏里就像电影的配乐，没有它，再好的画面也觉得空洞。<strong>音效</strong>给玩家即时反馈，<strong>背景音乐</strong>营造氛围，两者结合才能做出沉浸感！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '游戏声音分两类：<strong>音效</strong>（短促，如跳跃「boing」、得分「叮」）和<strong>背景音乐</strong>（循环，如冒险音乐）。音效给反馈——你做了什么；音乐给氛围——你在什么环境中。两者缺一不可！' }]
+    },
+    { title: '认识游戏声音', emoji: '🔍', time: '17 分钟',
+      desc: 'Scratch 声音积木在粉色「声音」分类里：',
+      infoGrid: [
+        { icon: '🔊', title: '播放声音', desc: '播放指定声音，可等待播完或同时播放。', bg: 'rgba(207,99,207,.12)' },
+        { icon: '🎵', title: '播放音乐', desc: '播放音符（C D E F G A B），可做旋律。', bg: 'rgba(255,107,129,.12)' },
+        { icon: '🎚', title: '音量控制', desc: '调整音量大小，0-100。', bg: 'rgba(139,92,246,.12)' }
+      ],
+      blocks: [
+        { type: 'control', text: '如果 <span class="slot">碰到金币？</span> 那么' },
+        { type: 'sound', text: '  播放声音 <span class="slot">coin</span>' },
+        { type: 'variables', text: '  将 <span class="slot">分数</span> 增加 <span class="slot">10</span>' },
+        { type: 'event', text: '当 绿旗 被点击' },
+        { type: 'control', text: '重复执行' },
+        { type: 'sound', text: '  播放声音 <span class="slot">背景音乐</span> 等待播完' }
+      ],
+      tips: [{ icon: '⚡', strong: '背景音乐循环技巧：', text: '把「播放声音 等待播完」放在<strong>无限循环</strong>里就能做出持续播放的背景音乐！如果音乐太短，可以多放几个声音积木连起来。也可以用「播放音乐拍」积木自己编曲！' }]
+    },
+    { title: '动手实践：游戏音效', emoji: '🛠', time: '30 分钟',
+      desc: '试试各种游戏音效！得分「叮」、跳跃「boing」、爆炸「轰」、胜利「和弦」。每种事件都有对应的声音反馈。',
+      demoType: 'game-audio',
+      tips: [{ icon: '❓', strong: '想一想：', text: '为什么得分时要同时有视觉反馈（金币消失）和听觉反馈（叮声）？因为多感官反馈让玩家<strong>确信</strong>自己做到了——视觉+听觉+触觉，越多感官参与，反馈越强！' }]
+    },
+    { title: '挑战任务：游戏声音', emoji: '🏆', time: '25 分钟',
+      desc: '给你的游戏加上完整的音效系统和背景音乐！',
+      tasks: [
+        { text: '任务1：得分时播放「coin」音效', hint: '碰到金币 → 播放声音 coin → 加分' },
+        { text: '任务2：受伤时播放「hit」音效', hint: '碰到敌人 → 播放声音 hit → 扣血' },
+        { text: '任务3：加入背景音乐（无限循环播放）', hint: '绿旗 → 重复执行 → 播放声音 等待播完' },
+        { text: '⭐ 挑战：不同关卡用不同背景音乐', hint: '当接收到切换关卡 → 根据关卡变量播放不同音乐' }
+      ],
+      tips: [{ icon: '🌟', strong: '声音设计原则：', text: '① <strong>及时</strong>——事件发生立刻响声音（不能延迟）② <strong>区分</strong>——不同事件不同声音（不能全用「pop」）③ <strong>不吵</strong>——背景音乐音量低，音效音量高 ④ <strong>有意义</strong>——欢快场景用欢快音乐，战斗用紧张音乐。' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的游戏声音系统，让大家闭上眼睛听——能不能猜出发生了什么？'
+    }
+  ],
+  summary: '今天我们学了<strong>游戏声音</strong>！<strong>音效</strong>给玩家即时反馈（得分「叮」、受伤「轰」），<strong>背景音乐</strong>营造游戏氛围（循环播放）。好的声音设计要<strong>及时、区分、不吵、有意义</strong>。声音+画面=沉浸感——没有声音的游戏就像默片电影，缺少灵魂！',
+  knowledgePoints: ['游戏音效', '背景音乐', '播放声音', '声音循环', '音量控制', '即时反馈', '氛围营造', '多感官反馈'],
+  homework: [
+    { stars: 1, title: '基础练习：得分音效', desc: '给之前的游戏加上得分、受伤、跳跃 3 种音效。' },
+    { stars: 2, title: '进阶挑战：背景音乐', desc: '用「播放音乐拍」积木编一段 8 拍的简单旋律，循环播放当背景音乐。' },
+    { stars: 3, title: '创意拓展：动态音乐', desc: '不同关卡用不同风格的音乐：第1关欢快、第2关紧张、Boss战激烈。' }
+  ]
+},
+
+/* ===== 第 12 课 · 作品课 ===== */
+'l2-12': {
+  no: 12, title: '迷宫大冒险', subtitle: '综合作品【作品产出】',
+  unit: '闯关游戏开发', unitNo: 2, duration: '90 分钟', isProject: true,
+  goals: [
+    { icon: '🗺', title: '综合运用', desc: '把克隆、血量、关卡、道具、音效全部综合运用。' },
+    { icon: '🏆', title: '完成迷宫游戏', desc: '做出一个有多关卡、有敌人、有道具的迷宫冒险游戏。' },
+    { icon: '🎤', title: '展示作品', desc: '展示你的迷宫大冒险，讲述设计思路。' }
+  ],
+  steps: [
+    { title: '趣味导入：迷宫探险', emoji: '🌟', time: '5 分钟',
+      desc: '第二单元学完了！克隆、血量、关卡、道具、音效——这些组合起来能做什么？今天我们做一个<strong>迷宫大冒险</strong>！在迷宫中躲避敌人、收集道具、找到出口通关。这是你的第二个完整游戏作品！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '迷宫游戏是综合游戏开发的最佳练习！它包含<strong>地图设计</strong>（迷宫布局）、<strong>核心玩法</strong>（探索+收集）、<strong>敌人系统</strong>（克隆+碰撞）、<strong>道具系统</strong>（增益效果）、<strong>多关卡</strong>（难度递增）。做一个迷宫游戏，就掌握了游戏开发的全部基本功！' }]
+    },
+    { title: '迷宫游戏设计', emoji: '🔍', time: '15 分钟',
+      desc: '设计迷宫游戏的各个部分：',
+      infoGrid: [
+        { icon: '🗺', title: '迷宫地图', desc: '用背景画迷宫墙壁，角色碰墙不能穿过。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '👾', title: '敌人系统', desc: '克隆敌人，在迷宫中巡逻，碰到扣血。', bg: 'rgba(255,107,129,.12)' },
+        { icon: '🎁', title: '道具与出口', desc: '收集道具加分，找到出口通关。', bg: 'rgba(81,207,102,.12)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当按下 <span class="slot">向上键</span>' },
+        { type: 'control', text: '如果 <span class="slot">不是 碰到墙壁颜色？</span> 那么' },
+        { type: 'motion', text: '  将 Y 增加 <span class="slot">10</span>' },
+        { type: 'control', text: '如果 <span class="slot">碰到 出口颜色？</span> 那么' },
+        { type: 'event', text: '  广播 <span class="slot">通关</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '迷宫碰撞技巧：', text: '迷宫的墙用<strong>颜色碰撞</strong>实现：背景画好黑色墙壁，角色移动前先检测「如果<strong>不是</strong>碰到墙壁颜色」，才能移动。出口用不同颜色（如绿色），碰到就通关。这样不用建几十个墙壁角色！' }]
+    },
+    { title: '动手实践：迷宫演示', emoji: '🛠', time: '35 分钟',
+      desc: '玩一玩迷宫大冒险！方向键控制角色，躲避敌人，收集金币，找到绿色出口通关！',
+      demoType: 'maze-game',
+      tips: [{ icon: '❓', strong: '想一想：', text: '这个迷宫游戏用到了第二单元的哪些知识？克隆（敌人）、血量（HP）、关卡（多张迷宫）、道具（金币+心）、音效（碰撞声）。能一一对应吗？' }]
+    },
+    { title: '挑战任务：你的迷宫', emoji: '🏆', time: '25 分钟',
+      desc: '在 Scratch 中做出你的迷宫大冒险，并加入个人创意！',
+      tasks: [
+        { text: '任务1：画迷宫背景，用颜色检测做墙壁', hint: '背景画黑色墙壁，移动前检测「不是碰到黑色」' },
+        { text: '任务2：克隆 3 个敌人在迷宫中巡逻', hint: '敌人克隆体沿固定路线移动，碰到玩家扣 HP' },
+        { text: '任务3：放金币和心道具，找到出口通关', hint: '碰到金币加分、碰到心加血、碰到绿色出口过关' },
+        { text: '⭐ 挑战：3 关迷宫，每关地图不同难度递增', hint: '通关后广播切换，加载新迷宫背景，敌人+1' }
+      ],
+      tips: [{ icon: '🌟', strong: '作品评价标准：', text: '✅ 迷宫可探索（有墙壁碰撞）✅ 有敌人系统（克隆+巡逻）✅ 有道具收集 ✅ 有通关条件（找到出口）✅ 有多关卡。五项全达成就是优秀迷宫游戏！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的迷宫大冒险！让大家试玩，看看谁的迷宫最有挑战性。🎮'
+    }
+  ],
+  summary: '恭喜第二个游戏作品诞生！🎉 我们把<strong>克隆、血量、关卡、道具、音效</strong>全部综合运用，做出了<strong>迷宫大冒险</strong>！迷宫游戏的核心是<strong>颜色碰撞</strong>（墙壁检测）+<strong>克隆敌人</strong>（巡逻+扣血）+<strong>道具收集</strong>（金币+心）+<strong>通关条件</strong>（到达出口）。你已掌握了闯关游戏开发的全套技能！',
+  knowledgePoints: ['迷宫设计', '颜色碰撞', '墙壁检测', '克隆敌人', '巡逻系统', '道具收集', '通关条件', '多关卡'],
+  homework: [
+    { stars: 1, title: '基础练习：完善迷宫', desc: '把迷宫加到 5 个房间，每个房间有不同道具和敌人。' },
+    { stars: 2, title: '进阶挑战：钥匙系统', desc: '加入钥匙和锁——必须先拿钥匙才能打开出口，增加探索策略。' },
+    { stars: 3, title: '创意拓展：你的迷宫主题', desc: '把迷宫改成你喜欢的主题：太空站、鬼屋、地下城……做出有故事感的迷宫。' }
+  ]
+},
+
+/* ===== 第 13 课 ===== */
+'l2-13': {
+  no: 13, title: '重力与跳跃：平台跳跃的原理', subtitle: '物理模拟入门',
+  unit: '动作游戏进阶', unitNo: 3, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🌍', title: '理解重力', desc: '理解重力的概念——每帧 Y 速度持续增加，模拟自由落体。' },
+    { icon: '⬆', title: '跳跃物理', desc: '实现按下空格起跳，空中受重力影响下落的物理效果。' },
+    { icon: '🧱', title: '平台站立', desc: '实现角色站在平台上的效果——碰到平台停止下落。' }
+  ],
+  steps: [
+    { title: '趣味导入：为什么跳起来会落下', emoji: '🌟', time: '8 分钟',
+      desc: '你在现实里跳一下，为什么总会落回地面？因为有<strong>重力</strong>！地球的引力让所有东西往下落。在游戏里，我们用<strong>变量模拟</strong>重力——Y 速度每帧增加一点点，角色就会像真实世界一样跳起后自然落下。这就是平台跳跃游戏的原理！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '重力模拟的公式很简单：<strong>每帧 Y 速度 += 重力加速度</strong>。比如重力 = 1，第一帧速度 1，第二帧 2，第三帧 3……角色越来越快下落，就像真的自由落体！跳跃就是瞬间给一个<strong>向上的初始速度</strong>，然后让重力慢慢把它拉回来。' }]
+    },
+    { title: '认识重力与跳跃', emoji: '🔍', time: '17 分钟',
+      desc: '平台跳跃需要两个变量：<strong>Y 速度</strong>和<strong>在地面</strong>状态：',
+      infoGrid: [
+        { icon: '🌍', title: '重力', desc: '每帧 Y 速度 += 重力（如 0.8），角色加速下落。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⬆', title: '跳跃', desc: '按空格 → Y 速度 = -12（向上初速度）。', bg: 'rgba(81,207,102,.12)' },
+        { icon: '🧱', title: '地面检测', desc: '碰到平台 → Y 速度 = 0、在地面 = true。', bg: 'rgba(79,107,255,.12)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 绿旗 被点击' },
+        { type: 'variables', text: '将 <span class="slot">Y速度</span> 设为 <span class="slot">0</span>' },
+        { type: 'control', text: '重复执行' },
+        { type: 'variables', text: '  将 <span class="slot">Y速度</span> 增加 <span class="slot">0.8</span>' },
+        { type: 'motion', text: '  将 Y 增加 <span class="slot">Y速度</span>' },
+        { type: 'control', text: '  如果 <span class="slot">碰到 平台颜色？</span> 那么' },
+        { type: 'variables', text: '    将 <span class="slot">Y速度</span> 设为 <span class="slot">0</span>' },
+        { type: 'event', text: '当按下 <span class="slot">空格键</span>' },
+        { type: 'control', text: '  如果 <span class="slot">在地面 = true</span> 那么' },
+        { type: 'variables', text: '    将 <span class="slot">Y速度</span> 设为 <span class="slot">-12</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '物理公式：', text: '① 每帧 Y速度 += 重力（持续加速下落）② 每帧 Y += Y速度（实际移动）③ 碰到平台 → Y速度=0（停止下落）④ 按跳跃键且在地面 → Y速度=-12（起跳）。<strong>只有在地面才能跳</strong>——否则就能无限二段跳了！' }]
+    },
+    { title: '动手实践：跳跃演示', emoji: '🛠', time: '30 分钟',
+      desc: '试试平台跳跃！按空格键跳跃，感受重力让角色自然下落。碰到平台就站住。',
+      demoType: 'gravity-jump',
+      tips: [{ icon: '❓', strong: '想一想：', text: '怎么实现<strong>二段跳</strong>？提示：去掉「在地面才能跳」的限制，改用「跳跃次数」变量，每次跳跃+1，最多 2 次，落地归零。' }]
+    },
+    { title: '挑战任务：平台跳跃', emoji: '🏆', time: '25 分钟',
+      desc: '做一个平台跳跃小游戏——角色在平台间跳跃，不掉到底部！',
+      tasks: [
+        { text: '任务1：创建 Y速度变量，实现重力下落', hint: '重复执行 → Y速度 += 0.8 → Y += Y速度' },
+        { text: '任务2：画 3 个平台，碰到平台停止下落', hint: '碰到平台颜色 → Y速度=0 → 在地面=true' },
+        { text: '任务3：按空格跳跃，只有站在地面才能跳', hint: '按空格 → 如果 在地面 → Y速度=-12' },
+        { text: '⭐ 挑战：移动平台（左右移动）+ 掉到底部 Game Over', hint: '平台用变量水平移动；Y < -180 时说「掉下去了！」' }
+      ],
+      tips: [{ icon: '🌟', strong: '手感调整：', text: '好的跳跃手感需要反复调整参数：① 重力大小（0.5-1.5）② 跳跃力（-10 到 -15）③ 水平速度（5-10）。多试几次找到最舒服的参数！经典马里奥重力约 0.8、跳跃力约 -12。' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的平台跳跃，让大家试试手感！讨论：为什么好的跳跃手感很重要？'
+    }
+  ],
+  summary: '今天我们学了<strong>重力与跳跃</strong>！重力模拟公式：<strong>每帧 Y速度 += 重力，Y += Y速度</strong>。跳跃给一个向上初速度（Y速度=-12），重力会自然把它拉回来。<strong>地面检测</strong>用颜色碰撞——碰到平台 Y速度=0。只有<strong>在地面才能跳</strong>。这就是所有平台跳跃游戏的物理基础！',
+  knowledgePoints: ['重力模拟', 'Y速度变量', '跳跃物理', '初速度', '地面检测', '颜色碰撞', '平台站立', '物理参数'],
+  homework: [
+    { stars: 1, title: '基础练习：弹跳球', desc: '做一个球持续弹跳——下落→碰地→弹起→下落，模拟物理弹跳。' },
+    { stars: 2, title: '进阶挑战：二段跳', desc: '实现二段跳——空中可以再跳一次，跳跃次数变量限制为 2。' },
+    { stars: 3, title: '创意拓展：飞行模式', desc: '做一个飞行模式：长按空格持续上升（像喷气背包），松开受重力下落。' }
+  ]
+},
+
+/* ===== 第 14 课 ===== */
+'l2-14': {
+  no: 14, title: '角色动画与状态切换', subtitle: '状态机与造型管理',
+  unit: '动作游戏进阶', unitNo: 3, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🤖', title: '状态机概念', desc: '理解状态机——角色在不同状态下表现不同（站立/走路/跳跃/受伤）。' },
+    { icon: '🎭', title: '造型管理', desc: '为角色设计多种状态的造型，实现动画切换。' },
+    { icon: '🔄', title: '状态切换', desc: '用变量记录状态，根据状态播放对应动画。' }
+  ],
+  steps: [
+    { title: '趣味导入：角色不只是会动', emoji: '🌟', time: '8 分钟',
+      desc: '好的游戏角色是「活」的——站着会呼吸、走路有步伐、跳跃有起跳姿势、受伤会闪红。这些都是<strong>角色动画</strong>！让角色根据当前状态播放不同动画，需要用到<strong>状态机</strong>——一种管理角色状态的编程模式。',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '<strong>状态机</strong>就是用变量记录角色当前状态（如「状态=走路」），根据状态执行不同代码。比如：状态=站立→播放呼吸动画；状态=走路→播放走路动画；状态=跳跃→播放跳跃造型。状态切换有规则：站立→按方向键→走路、走路→按空格→跳跃、跳跃→落地→站立。' }]
+    },
+    { title: '认识状态机', emoji: '🔍', time: '17 分钟',
+      desc: '状态机的核心是<strong>状态变量</strong>和<strong>切换规则</strong>：',
+      infoGrid: [
+        { icon: '🧍', title: '站立', desc: '不动时，播放轻微呼吸/眨眼动画。', bg: 'rgba(79,107,255,.12)' },
+        { icon: '🏃', title: '走路', desc: '移动时，播放走路造型切换动画。', bg: 'rgba(81,207,102,.12)' },
+        { icon: '🤕', title: '受伤', desc: '被击中时，闪烁红色+受伤造型。', bg: 'rgba(255,107,129,.12)' }
+      ],
+      blocks: [
+        { type: 'control', text: '重复执行' },
+        { type: 'control', text: '  如果 <span class="slot">状态 = 站立</span> 那么' },
+        { type: 'looks', text: '    切换造型为 <span class="slot">站立</span>' },
+        { type: 'control', text: '  如果 <span class="slot">状态 = 走路</span> 那么' },
+        { type: 'looks', text: '    下一个造型' },
+        { type: 'control', text: '    等待 <span class="slot">0.1</span> 秒' },
+        { type: 'event', text: '当按下 <span class="slot">右移键</span>' },
+        { type: 'variables', text: '  将 <span class="slot">状态</span> 设为 <span class="slot">走路</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '状态切换规则：', text: '状态机的关键是<strong>切换规则</strong>：站立 + 按方向键 → 走路；走路 + 松开键 → 站立；任意状态 + 按跳跃键 → 跳跃；跳跃 + 落地 → 站立（或走路）；任意状态 + 受伤 → 受伤状态 → 1秒后恢复。状态切换要<strong>互斥</strong>——同时只能有一个状态！' }]
+    },
+    { title: '动手实践：角色状态', emoji: '🛠', time: '30 分钟',
+      desc: '试试角色状态机！用方向键走路、空格跳跃、点击受伤。每种状态有不同造型和动画。',
+      demoType: 'state-machine',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果角色有 5 种状态（站立/走路/跳跃/攻击/受伤），每种状态都要有不同造型和切换规则。状态越多，角色越丰富，但管理也越复杂。好的游戏角色通常有 4-8 种状态。' }]
+    },
+    { title: '挑战任务：角色动画', emoji: '🏆', time: '25 分钟',
+      desc: '为你的游戏角色设计 4 种状态，每种状态有对应动画！',
+      tasks: [
+        { text: '任务1：创建状态变量，设计 4 种状态造型', hint: '站立/走路/跳跃/受伤，每种画 2-3 个造型' },
+        { text: '任务2：按方向键 → 状态=走路，走路动画', hint: '走路状态 → 下一个造型 → 等待 0.1 秒' },
+        { text: '任务3：松开方向键 → 状态=站立', hint: '当没有按键时 → 状态=站立 → 站立造型' },
+        { text: '⭐ 挑战：受伤状态闪烁红色 1 秒后恢复', hint: '受伤 → 重复切换颜色特效 → 1 秒后恢复原色 → 状态=站立' }
+      ],
+      tips: [{ icon: '🌟', strong: '动画小技巧：', text: '① 走路动画要<strong>循环切换</strong> 2-4 个造型，间隔 0.1-0.15 秒 ② 站立动画要有<strong>微动</strong>（如轻微上下浮动或眨眼）③ 受伤要<strong>醒目</strong>（闪红+造型+音效）④ 跳跃造型在空中保持不变。好的动画让角色「活」起来！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的角色动画，让大家看看角色的 4 种状态！讨论：你喜欢的游戏角色有哪些状态？'
+    }
+  ],
+  summary: '今天我们学了<strong>角色动画与状态机</strong>！<strong>状态机</strong>用变量记录角色当前状态，根据状态播放对应动画。站立→呼吸、走路→造型切换、跳跃→固定造型、受伤→闪烁红色。状态切换有<strong>规则</strong>——什么时候从哪个状态切换到哪个状态。状态机让角色有了<strong>生命力</strong>——不再是一块木头，而是会呼吸、会反应的活角色！',
+  knowledgePoints: ['状态机', '状态变量', '状态切换', '造型管理', '走路动画', '站立动画', '受伤动画', '切换规则'],
+  homework: [
+    { stars: 1, title: '基础练习：走路动画', desc: '为角色画 4 个走路造型，按方向键时循环切换，松开恢复站立。' },
+    { stars: 2, title: '进阶挑战：攻击状态', desc: '加入第 5 种状态「攻击」——按 X 键播放攻击造型，0.3 秒后恢复。' },
+    { stars: 3, title: '创意拓展：表情系统', desc: '角色根据分数变化表情：低分难过、及格开心、高分兴奋，做出情绪反馈。' }
+  ]
+},
+
+/* ===== 第 15 课 ===== */
+'l2-15': {
+  no: 15, title: 'Boss 战设计：多阶段敌人', subtitle: 'Boss战与阶段切换',
+  unit: '动作游戏进阶', unitNo: 3, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🐲', title: 'Boss设计', desc: '理解 Boss 战的设计原则——强敌、多血量、特殊攻击模式。' },
+    { icon: '📊', title: '多阶段', desc: '实现 Boss 随血量变化切换攻击模式（血量 75%/50%/25%）。' },
+    { icon: '⚔', title: '攻击模式', desc: '设计 Boss 的多种攻击方式——冲撞、弹幕、召唤小兵。' }
+  ],
+  steps: [
+    { title: '趣味导入：最终Boss', emoji: '🌟', time: '8 分钟',
+      desc: '每款游戏都有最终 Boss——超级马里奥的库巴、塞尔达的盖侬、宝可梦的冠军。<strong>Boss 战</strong>是游戏的高潮，是考验玩家所有技巧的时刻！好的 Boss 不是一个血厚的敌人，而是有<strong>多阶段</strong>、<strong>多攻击模式</strong>的精彩战斗。',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '好的 Boss 设计遵循「<strong>三阶段法则</strong>」：第一阶段（血量 100%-66%）普通攻击，玩家学习 Boss 模式；第二阶段（66%-33%）加强攻击，引入新招式；第三阶段（33%-0%）狂暴模式，全招式齐发。每阶段切换时 Boss 有明显变化（造型/颜色/速度），让玩家感受到压力升级！' }]
+    },
+    { title: '认识 Boss 战', emoji: '🔍', time: '17 分钟',
+      desc: 'Boss 战的核心是<strong>血量阶段</strong>和<strong>攻击模式</strong>：',
+      infoGrid: [
+        { icon: '📊', title: '阶段切换', desc: 'Boss 血量降到 66%/33% 时切换阶段。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⚔', title: '攻击模式', desc: '每阶段有不同攻击方式——冲撞、弹幕、召唤。', bg: 'rgba(255,107,129,.12)' },
+        { icon: '🛡', title: '弱点机制', desc: 'Boss 有短暂弱点期，此时攻击造成大伤害。', bg: 'rgba(81,207,102,.12)' }
+      ],
+      blocks: [
+        { type: 'control', text: '如果 <span class="slot">BossHP <= 66 且 阶段=1</span> 那么' },
+        { type: 'variables', text: '  将 <span class="slot">阶段</span> 设为 <span class="slot">2</span>' },
+        { type: 'looks', text: '  切换造型为 <span class="slot">愤怒形态</span>' },
+        { type: 'sound', text: '  播放声音 <span class="slot">Boss怒吼</span>' },
+        { type: 'event', text: '  广播 <span class="slot">进入第二阶段</span>' },
+        { type: 'event', text: '当接收到 <span class="slot">进入第二阶段</span>' },
+        { type: 'control', text: '  重复执行' },
+        { type: 'sound', text: '    每 3 秒发射弹幕' }
+      ],
+      tips: [{ icon: '⚡', strong: '阶段切换设计：', text: '每阶段切换要有<strong>视觉提示</strong>（造型变化/颜色变化/屏幕震动）+<strong>听觉提示</strong>（怒吼/音乐变激烈）+<strong>行为变化</strong>（新攻击/速度加快）。三重提示让玩家明确感受到「Boss 变强了」！' }]
+    },
+    { title: '动手实践：Boss 战', emoji: '🛠', time: '30 分钟',
+      desc: '试试 Boss 战演示！Boss 有 100 血，打到 66 和 33 时切换阶段，攻击模式会变化！',
+      demoType: 'boss-battle',
+      tips: [{ icon: '❓', strong: '想一想：', text: '为什么要给 Boss 加<strong>弱点期</strong>？如果 Boss 一直能受伤，玩家只要疯狂攻击就赢了，没有策略。加弱点期（如攻击后 2 秒露出破绽），玩家要<strong>等待时机</strong>才攻击——这就有了策略和节奏！' }]
+    },
+    { title: '挑战任务：Boss 战', emoji: '🏆', time: '25 分钟',
+      desc: '设计一个 3 阶段的 Boss 战，Boss 有多种攻击模式！',
+      tasks: [
+        { text: '任务1：Boss HP=100，碰到子弹 -5', hint: '碰到子弹 → BossHP-5 → 删除子弹' },
+        { text: '任务2：HP<=66 切第二阶段，造型变红', hint: '如果 BossHP<=66 且 阶段=1 → 阶段=2 → 切换造型' },
+        { text: '任务3：第二阶段每 2 秒发射弹幕克隆体', hint: '当接收到第二阶段 → 重复 → 等待 2 秒 → 克隆子弹' },
+        { text: '⭐ 挑战：Boss HP=0 时播放胜利动画+音效', hint: '如果 BossHP<=0 → 切换胜利造型 → 播放胜利音乐 → 广播通关' }
+      ],
+      tips: [{ icon: '🌟', strong: 'Boss 战平衡设计：', text: '① Boss 血量要够<strong>厚</strong>（普通怪的 10-20 倍）② 攻击要<strong>有规律</strong>（玩家能学会躲避）③ 阶段切换要<strong>明显</strong>（造型/颜色/速度变化）④ 留<strong>弱点期</strong>（让玩家有输出机会）。好 Boss = 挑战+学习+成就感！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的 Boss 战，让大家挑战！讨论：你打过最有趣的 Boss 是哪个？它好在哪里？'
+    }
+  ],
+  summary: '今天我们学了<strong>Boss 战设计</strong>！好的 Boss 遵循<strong>三阶段法则</strong>——血量 100%-66% 普通攻击、66%-33% 加强攻击、33%-0% 狂暴模式。每阶段有<strong>视觉+听觉+行为</strong>三重提示。Boss 要有<strong>攻击规律</strong>（可学习）+<strong>弱点期</strong>（有策略）。Boss 战是游戏的高潮——它考验玩家所有技巧，战胜它的成就感无与伦比！',
+  knowledgePoints: ['Boss设计', '三阶段法则', '血量阶段', '攻击模式', '阶段切换', '弱点机制', '弹幕系统', '战斗平衡'],
+  homework: [
+    { stars: 1, title: '基础练习：简单Boss', desc: '做一个 HP=50 的 Boss，碰到子弹 -5，打完说「击败 Boss！」' },
+    { stars: 2, title: '进阶挑战：两阶段Boss', desc: 'Boss HP=100，打到 50 切换第二阶段（速度 ×2，造型变色）。' },
+    { stars: 3, title: '创意拓展：弹幕Boss', desc: 'Boss 发射圆形弹幕（8 方向子弹克隆体），玩家要躲避弹幕找机会攻击。' }
+  ]
+},
+
+/* ===== 第 16 课 ===== */
+'l2-16': {
+  no: 16, title: '武器升级与金币商店', subtitle: '武器系统与经济设计',
+  unit: '动作游戏进阶', unitNo: 3, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '⚔', title: '武器系统', desc: '设计多种武器，实现武器切换和升级。' },
+    { icon: '💰', title: '金币商店', desc: '用金币做经济系统，可以购买武器和升级。' },
+    { icon: '📈', title: '升级树', desc: '设计武器升级路径，让玩家有成长感。' }
+  ],
+  steps: [
+    { title: '趣味导入：商店的魔力', emoji: '🌟', time: '8 分钟',
+      desc: '打完怪物掉金币，用金币去商店买更强的武器——这个循环你一定很熟悉！<strong>经济系统</strong>让游戏有了成长线：打怪→赚钱→升级→打更强的怪→赚更多钱……这种<strong>正反馈循环</strong>让游戏停不下来！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '好的经济系统有三要素：① <strong>获取</strong>——打怪/拾取/完成任务获得金币 ② <strong>消费</strong>——商店买武器/道具/升级 ③ <strong>成长</strong>——升级让玩家变强，能挑战更高难度。这个「打怪→赚钱→升级→打更强的怪」的循环是 RPG 和动作游戏的核心驱动力！' }]
+    },
+    { title: '认识武器与商店', emoji: '🔍', time: '17 分钟',
+      desc: '武器系统由<strong>武器变量</strong>和<strong>等级变量</strong>组成：',
+      infoGrid: [
+        { icon: '⚔', title: '武器变量', desc: '记录当前武器类型（1=木剑、2=铁剑、3=金剑）。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '📈', title: '等级变量', desc: '每把武器有 1-3 级，等级越高伤害越高。', bg: 'rgba(81,207,102,.12)' },
+        { icon: '💰', title: '金币商店', desc: '按 B 键打开商店，用金币购买升级。', bg: 'rgba(255,201,60,.15)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当按下 <span class="slot">B 键</span>' },
+        { type: 'looks', text: '  切换背景为 <span class="slot">商店</span>' },
+        { type: 'event', text: '当 此角色被点击（商品1）' },
+        { type: 'control', text: '  如果 <span class="slot">金币 >= 50 且 武器<2</span> 那么' },
+        { type: 'variables', text: '    将 <span class="slot">金币</span> 增加 <span class="slot">-50</span>' },
+        { type: 'variables', text: '    将 <span class="slot">武器</span> 设为 <span class="slot">2</span>' },
+        { type: 'looks', text: '    切换造型为 <span class="slot">铁剑</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '伤害公式：', text: '武器伤害 = 基础伤害 × 等级。木剑基础 5、铁剑 10、金剑 20。升级 +50% 伤害。即：伤害 = 武器基础 × (1 + (等级-1) × 0.5)。这样武器和等级都能提升伤害，成长感更强！' }]
+    },
+    { title: '动手实践：武器商店', emoji: '🛠', time: '30 分钟',
+      desc: '试试武器商店！打怪赚金币，按 B 键进商店买更强的武器。看伤害怎么变化！',
+      demoType: 'weapon-shop',
+      tips: [{ icon: '❓', strong: '想一想：', text: '如果武器太便宜会怎样？（很快买完，没成长感）太贵呢？（打很久才买得起，太枯燥）。好的经济设计要<strong>刚好让玩家攒一会就能买</strong>——既有期待感又不会太久！' }]
+    },
+    { title: '挑战任务：经济系统', emoji: '🏆', time: '25 分钟',
+      desc: '做一个有武器升级和金币商店的完整经济系统！',
+      tasks: [
+        { text: '任务1：怪物死亡掉落金币（+5）', hint: '怪物 HP<=0 → 金币+5 → 删除怪物' },
+        { text: '任务2：按 B 键打开商店界面', hint: '切换背景到商店，显示 3 种武器和价格' },
+        { text: '任务3：买武器消耗金币并切换造型', hint: '点击商品 → 金币>=价格 → 扣金币 → 换武器' },
+        { text: '⭐ 挑战：武器升级树（木→铁→金→钻石）', hint: '每级需要更多金币，伤害依次 5/10/20/40' }
+      ],
+      tips: [{ icon: '🌟', strong: '商店设计要点：', text: '① <strong>价格递增</strong>——越高级越贵（50/150/400/1000）② <strong>需求前置</strong>——必须先买木剑才能买铁剑 ③ <strong>明显反馈</strong>——买了立刻变强（伤害/外观/音效）④ <strong>有选择</strong>——不只是线性升级，可以选不同路线（攻击型/防御型/速度型）。' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的经济系统，让大家试试打怪赚钱买武器的循环！讨论：好的经济系统为什么让人「停不下来」？'
+    }
+  ],
+  summary: '今天我们学了<strong>武器升级与金币商店</strong>！<strong>武器变量</strong>记录当前武器类型，<strong>等级变量</strong>记录升级程度，<strong>金币</strong>是经济货币。核心循环：<strong>打怪→掉金币→商店买升级→变强→打更强的怪</strong>。这个正反馈循环是游戏<strong>留存</strong>的关键——玩家总在期待「再打几只就能升级了」！',
+  knowledgePoints: ['武器系统', '武器变量', '等级变量', '金币商店', '经济系统', '升级树', '正反馈循环', '价格设计'],
+  homework: [
+    { stars: 1, title: '基础练习：武器切换', desc: '做 3 把武器，按 1/2/3 键切换，每把伤害不同。' },
+    { stars: 2, title: '进阶挑战：完整商店', desc: '做商店界面，3 种武器价格 50/150/400，买后造型和伤害都变化。' },
+    { stars: 3, title: '创意拓展：多路线升级', desc: '设计两条升级路线：攻击型（伤害高）和防御型（加血量），让玩家选。' }
+  ]
+},
+
+/* ===== 第 17 课 ===== */
+'l2-17': {
+  no: 17, title: '游戏难度曲线设计', subtitle: '难度平衡与动态调整',
+  unit: '动作游戏进阶', unitNo: 3, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '📈', title: '难度曲线', desc: '理解难度曲线的概念——难度随时间/关卡渐进上升。' },
+    { icon: '⚖', title: '动态调整', desc: '实现根据玩家表现动态调整难度的系统。' },
+    { icon: '🎯', title: '心流体验', desc: '理解心流理论——挑战与能力平衡时玩家最投入。' }
+  ],
+  steps: [
+    { title: '趣味导入：太难还是太简单', emoji: '🌟', time: '8 分钟',
+      desc: '你有没有玩过「太难了想摔手柄」或「太简单想睡觉」的游戏？好的游戏既不能太难（挫败感）也不能太简单（无聊感）。这就是<strong>难度曲线</strong>——难度要像上楼梯一样，一步一步地上升，让玩家始终处于<strong>「稍微有点挑战但能做到」</strong>的状态。',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '心理学有个<strong>心流理论</strong>：当挑战难度 = 玩家能力时，人最投入、最快乐。挑战 > 能力 → 焦虑；挑战 < 能力 → 无聊。好的难度曲线就是让挑战始终<strong>略高于</strong>当前能力——玩家需要努力但能做到，做到后能力提升，挑战也相应提升，循环上升！' }]
+    },
+    { title: '认识难度曲线', emoji: '🔍', time: '17 分钟',
+      desc: '难度曲线设计涉及多个<strong>难度参数</strong>：',
+      infoGrid: [
+        { icon: '👾', title: '敌人参数', desc: '数量、速度、血量随关卡上升。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⏰', title: '时间压力', desc: '倒计时缩短、节奏加快。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '🎁', title: '资源稀缺', desc: '道具出现率降低、价格升高。', bg: 'rgba(255,201,60,.15)' }
+      ],
+      blocks: [
+        { type: 'variables', text: '将 <span class="slot">敌人速度</span> 设为 <span class="slot">3 + 关卡 × 1.5</span>' },
+        { type: 'variables', text: '将 <span class="slot">敌人数量</span> 设为 <span class="slot">3 + 关卡 × 2</span>' },
+        { type: 'variables', text: '将 <span class="slot">时间限制</span> 设为 <span class="slot">60 - 关卡 × 5</span>' },
+        { type: 'variables', text: '将 <span class="slot">道具率</span> 设为 <span class="slot">30 - 关卡 × 5</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '难度公式：', text: '所有难度参数都用<strong>关卡变量</strong>做乘数：敌人速度 = 基础 + 关卡 × 增量。这样每升一关，所有参数自动上升！但增量不能太大——每关 +10%-20% 比较合适。突然翻倍会让玩家<strong>措手不及</strong>。' }]
+    },
+    { title: '动手实践：难度曲线', emoji: '🛠', time: '30 分钟',
+      desc: '试试难度曲线演示！每关的敌人速度、数量、时间限制都不同。看看你能过到第几关！',
+      demoType: 'difficulty',
+      tips: [{ icon: '❓', strong: '想一想：', text: '什么是<strong>动态难度</strong>？如果检测到玩家死了 3 次，自动降低一点难度；如果连续通关无伤，自动加难度。这就是<strong>自适应难度</strong>——让每个玩家都处于自己的心流区间！' }]
+    },
+    { title: '挑战任务：难度系统', emoji: '🏆', time: '25 分钟',
+      desc: '为你的游戏设计 5 关的难度曲线，每关参数递增！',
+      tasks: [
+        { text: '任务1：敌人速度 = 3 + 关卡 × 1.5', hint: '第1关4.5、第2关6、第3关7.5……渐进上升' },
+        { text: '任务2：敌人数量 = 3 + 关卡 × 2', hint: '第1关5、第2关7、第3关9……' },
+        { text: '任务3：时间限制 = 60 - 关卡 × 5', hint: '第1关55秒、第2关50秒……但不低于 30 秒' },
+        { text: '⭐ 挑战：动态调整——连续死亡 3 次自动降难度', hint: '死亡次数变量，>=3 时敌人速度 -1，通关后重置' }
+      ],
+      tips: [{ icon: '🌟', strong: '难度设计原则：', text: '① <strong>渐进</strong>——每关 +10-20%，不能跳太猛 ② <strong>引入新元素</strong>——不只是数值变化，每关有新敌人/新机制 ③ <strong>给喘息</strong>——每隔 2-3 关有一个简单关让玩家休息 ④ <strong>有目标</strong>——每关末尾有小奖励，让玩家有期待感。' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的难度曲线系统，让大家从第 1 关玩到第 5 关！讨论：哪一关最好玩？难度上升是否合理？'
+    }
+  ],
+  summary: '今天我们学了<strong>难度曲线设计</strong>！好的难度像<strong>上楼梯</strong>——每一步都稍微高一点但能做到。难度参数用<strong>关卡变量</strong>做乘数（敌人速度=基础+关卡×增量）。记住<strong>心流理论</strong>：挑战≈能力时最投入！动态难度更是让每个玩家都处于自己的<strong>心流区间</strong>。',
+  knowledgePoints: ['难度曲线', '心流理论', '难度参数', '关卡变量', '动态调整', '自适应难度', '渐进上升', '喘息关'],
+  homework: [
+    { stars: 1, title: '基础练习：5关难度', desc: '让敌人速度每关+1.5，数量每关+2，做一个 5 关递增的游戏。' },
+    { stars: 2, title: '进阶挑战：时间与资源', desc: '加入时间限制递减和道具率递减，让难度更立体。' },
+    { stars: 3, title: '创意拓展：自适应难度', desc: '检测玩家死亡次数，>=3次自动降难度，通关后恢复。' }
+  ]
+},
+
+/* ===== 第 18 课 ===== */
+'l2-18': {
+  no: 18, title: '横版跑酷大作战', subtitle: '综合动作游戏创作',
+  unit: '动作游戏进阶', unitNo: 3, duration: '90 分钟', isProject: true,
+  goals: [
+    { icon: '🏃', title: '跑酷机制', desc: '实现角色自动奔跑、跳跃、重力下落的完整物理系统。' },
+    { icon: '🚧', title: '障碍生成', desc: '掌握随机生成障碍物和地形滚动的技术。' },
+    { icon: '🎮', title: '综合应用', desc: '融合重力、状态动画、碰撞检测等所学知识，完成完整跑酷游戏。' }
+  ],
+  steps: [
+    { title: '趣味导入：跑不停的感觉', emoji: '🌟', time: '8 分钟',
+      desc: '你玩过<strong>跑酷游戏</strong>吗？角色一直往前跑，你要跳过障碍、躲开陷阱、收集金币——永不停歇的紧张感让人<strong>停不下来</strong>！《天天酷跑》《神庙逃亡》都是这种类型。今天我们做一个属于自己的跑酷游戏！',
+      tips: [{ icon: '💡', strong: '跑酷的魔力：', text: '跑酷游戏的核心是<strong>「持续紧张+即时反馈」</strong>——你一直在做决定（跳还是不跳？），每个决定立刻有结果（过了/撞了）。这种快速循环让人<strong>沉浸</strong>！' }]
+    },
+    { title: '知识讲解：跑酷核心', emoji: '🔍', time: '17 分钟',
+      desc: '跑酷游戏由几个核心模块组成：',
+      infoGrid: [
+        { icon: '🌍', title: '背景滚动', desc: '背景不断向左移，营造前进感。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⬆', title: '跳跃物理', desc: '按键→上升→重力下落。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '🚧', title: '障碍生成', desc: '随机时间间隔出现障碍。', bg: 'rgba(255,201,60,.15)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 ⚑ 被点击' },
+        { type: 'control', text: '重复执行' },
+        { type: 'motion', text: '将 <span class="slot">背景</span> 的 x 坐标增加 <span class="slot">-5</span>' },
+        { type: 'sensing', text: '如果 <span class="slot">按下空格键？</span> 那么' },
+        { type: 'motion', text: '将 <span class="slot">角色</span> 的 y 坐标增加 <span class="slot">跳跃力</span>' },
+        { type: 'variables', text: '将 <span class="slot">跳跃力</span> 设为 <span class="slot">跳跃力 - 重力</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '滚动原理：', text: '角色其实<strong>不动</strong>（只在原地跳），是<strong>背景和障碍向左移</strong>，造成「角色在跑」的错觉。这就是<strong>视差滚动</strong>——游戏最经典的视觉欺骗术！' }]
+    },
+    { title: '动手实践：跑酷演示', emoji: '🛠', time: '30 分钟',
+      desc: '试试跑酷演示！按空格或点击跳跃，躲开障碍物，看你能跑多远！',
+      demoType: 'runner-game',
+      tips: [{ icon: '❓', strong: '想一想：', text: '障碍之间的<strong>间隔</strong>怎么控制？用<strong>随机数</strong>！每隔随机 1-2 秒生成一个障碍，让每次玩都不一样。太密→太难，太疏→太简单，需要调试！' }]
+    },
+    { title: '挑战任务：完整跑酷', emoji: '🏆', time: '25 分钟',
+      desc: '做出你的完整跑酷游戏！包含奔跑、跳跃、障碍、计分。',
+      tasks: [
+        { text: '任务1：背景滚动+角色跳跃', hint: '背景x坐标循环-5，空格键跳跃+重力下落' },
+        { text: '任务2：随机生成障碍', hint: '每隔1-2秒克隆障碍物，从右边出现向左移' },
+        { text: '任务3：碰撞检测→Game Over', hint: '碰到障碍→停止滚动→显示结束画面' },
+        { text: '⭐ 挑战：金币收集+距离计分', hint: '路上放金币，吃到+1分；距离每秒+1分' }
+      ],
+      tips: [{ icon: '🌟', strong: '作品要求：', text: '这是<strong>作品课</strong>！下课前要完成并展示。必须有：① 开始界面 ② 游戏中 ③ 结束画面 三个状态。用<strong>广播</strong>切换场景！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的跑酷游戏！大家轮流试玩，看看谁跑得最远！讨论：跑酷游戏的节奏感怎么设计才好？'
+    }
+  ],
+  summary: '今天我们做了<strong>横版跑酷游戏</strong>！核心技巧是<strong>视差滚动</strong>——角色不动，背景和障碍向左移动造成前进感。<strong>跳跃物理</strong>用跳跃力变量+重力实现。<strong>障碍</strong>随机时间间隔生成。这是<strong>综合作品课</strong>，融合了前面所有知识：变量计分、条件判断、碰撞检测、随机数、计时、克隆、状态动画！',
+  knowledgePoints: ['跑酷游戏', '视差滚动', '背景滚动', '跳跃物理', '障碍生成', '随机间隔', '克隆技术', '综合作品'],
+  homework: [
+    { stars: 1, title: '基础练习：跑+跳', desc: '角色原地跑（造型切换），空格跳起，重力下落。' },
+    { stars: 2, title: '进阶挑战：加障碍', desc: '随机生成障碍向左移，碰到就 Game Over。' },
+    { stars: 3, title: '创意拓展：完整跑酷', desc: '加金币、距离计分、开始/结束画面，做成完整作品。' }
+  ]
+},
+
+/* ===== 第 19 课 ===== */
+'l2-19': {
+  no: 19, title: '游戏策划与设计', subtitle: '从创意到设计文档',
+  unit: '综合游戏创作', unitNo: 4, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '📝', title: '游戏策划', desc: '理解游戏策划的概念和流程，学会从创意到设计。' },
+    { icon: '🎯', title: '设计要素', desc: '掌握游戏设计的四大要素：目标、规则、挑战、反馈。' },
+    { icon: '📋', title: '设计文档', desc: '能写出一份简单的游戏设计文档（GDD）。' }
+  ],
+  steps: [
+    { title: '趣味导入：好游戏是怎么诞生的', emoji: '🌟', time: '8 分钟',
+      desc: '你觉得<strong>《我的世界》</strong>是怎么做出来的？是先写代码还是先有想法？答案是——先有<strong>设计</strong>！好的游戏不是直接敲代码，而是先想清楚<strong>玩什么、怎么玩、为什么好玩</strong>。这就是<strong>游戏策划</strong>！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '专业游戏公司有专门的<strong>游戏策划师</strong>！他们不写代码，而是写<strong>设计文档</strong>——描述游戏该怎么玩。程序员再根据文档来实现。设计得好，游戏就成功了一半！' }]
+    },
+    { title: '知识讲解：设计四要素', emoji: '🔍', time: '17 分钟',
+      desc: '好的游戏都有这<strong>四大设计要素</strong>：',
+      infoGrid: [
+        { icon: '🎯', title: '目标', desc: '玩家要做什么？赢的条件是什么？', bg: 'rgba(255,122,69,.12)' },
+        { icon: '📐', title: '规则', desc: '能做什么？不能做什么？限制是什么？', bg: 'rgba(92,177,214,.12)' },
+        { icon: '⚔', title: '挑战', desc: '难度在哪？什么让玩家紧张兴奋？', bg: 'rgba(255,201,60,.15)' },
+        { icon: '✨', title: '反馈', desc: '做得好/不好有什么表现？奖励惩罚？', bg: 'rgba(81,207,102,.12)' }
+      ],
+      tips: [{ icon: '⚡', strong: 'MDA框架：', text: '游戏设计有个著名理论叫<strong>MDA</strong>：M=<strong>机制</strong>（怎么运行的）、D=<strong>动态</strong>（玩起来怎样）、A=<strong>美学</strong>（玩家感受什么）。设计师控制M，玩家体验A。好的设计让M产生好的A！' }]
+    },
+    { title: '动手实践：游戏策划板', emoji: '🛠', time: '30 分钟',
+      desc: '试试游戏策划板！填写你的游戏设计，看看四大要素是否齐全。',
+      demoType: 'game-planning',
+      tips: [{ icon: '❓', strong: '想一想：', text: '你的游戏<strong>核心循环</strong>是什么？比如跑酷游戏：跑→跳→躲→得分→跑。把核心循环写清楚，游戏的方向就明确了！' }]
+    },
+    { title: '挑战任务：写设计文档', emoji: '🏆', time: '25 分钟',
+      desc: '为你最终要发布的游戏写一份设计文档！',
+      tasks: [
+        { text: '任务1：游戏名称+一句话简介', hint: '「XX大冒险」——一个XXX的游戏' },
+        { text: '任务2：目标+规则+挑战+反馈', hint: '填满四要素' },
+        { text: '任务3：核心循环图', hint: '画出玩家循环做什么（3-5步）' },
+        { text: '⭐ 挑战：创新点', hint: '你的游戏有什么特别之处？写1-2个卖点' }
+      ],
+      tips: [{ icon: '🌟', strong: '策划秘诀：', text: '好点子来自<strong>组合</strong>——把两个不相关的东西拼一起！比如「跑酷+种菜」「打怪+做菜」「迷宫+音乐」。试试<strong>What if</strong>思考法：「如果XX游戏变成YY会怎样？」' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的游戏设计文档，大家投票最有创意的点子！讨论：哪个设计最让你想玩？'
+    }
+  ],
+  summary: '今天我们学了<strong>游戏策划</strong>！好游戏先有<strong>设计</strong>再有代码。四大要素：<strong>目标</strong>（做什么）、<strong>规则</strong>（怎么做）、<strong>挑战</strong>（难度在哪）、<strong>反馈</strong>（表现如何）。用<strong>MDA框架</strong>分析游戏。写好<strong>设计文档</strong>，开发就有了方向！',
+  knowledgePoints: ['游戏策划', '设计文档', 'MDA框架', '目标规则挑战反馈', '核心循环', '游戏机制', '游戏动态', '创新点'],
+  homework: [
+    { stars: 1, title: '基础练习：四要素', desc: '为你喜欢的游戏列出目标、规则、挑战、反馈四要素。' },
+    { stars: 2, title: '进阶挑战：设计文档', desc: '写一份完整GDD，包含游戏名、简介、四要素、核心循环。' },
+    { stars: 3, title: '创意拓展：创新设计', desc: '用组合法想3个游戏创意，每个写一句话简介和核心循环。' }
+  ]
+},
+
+/* ===== 第 20 课 ===== */
+'l2-20': {
+  no: 20, title: '游戏素材设计', subtitle: '角色、背景、音效制作',
+  unit: '综合游戏创作', unitNo: 4, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🎨', title: '角色设计', desc: '学会用 Scratch 造型编辑器设计游戏角色。' },
+    { icon: '🖼', title: '背景制作', desc: '掌握游戏背景的绘制和多场景切换。' },
+    { icon: '🔊', title: '音效设计', desc: '了解游戏音效的类型和制作方法。' }
+  ],
+  steps: [
+    { title: '趣味导入：素材的力量', emoji: '🌟', time: '8 分钟',
+      desc: '同样一个游戏，用<strong>方块当角色</strong>和用<strong>精心设计的角色</strong>，感觉完全不同！<strong>素材</strong>决定了游戏的<strong>第一印象</strong>——画面好看、音效好听，玩家还没玩就已经被吸引了！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '好的素材不一定复杂！<strong>《我的世界》</strong>全是方块，<strong>《Flappy Bird》</strong>就是简单小鸟。关键是<strong>风格统一</strong>——所有素材看起来像同一个世界的东西。统一比精美更重要！' }]
+    },
+    { title: '知识讲解：素材三件套', emoji: '🔍', time: '17 分钟',
+      desc: '游戏素材分三大类：',
+      infoGrid: [
+        { icon: '🐱', title: '角色素材', desc: '主角、敌人、NPC 的造型和动画。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '🏞', title: '场景素材', desc: '背景图、地面、装饰物、UI 界面。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '🎵', title: '音频素材', desc: 'BGM背景音乐、音效、语音。', bg: 'rgba(255,201,60,.15)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 ⚑ 被点击' },
+        { type: 'sound', text: '重复播放 <span class="slot">背景音乐</span> 等待播完' },
+        { type: 'sensing', text: '当 <span class="slot">碰到敌人？</span>' },
+        { type: 'sound', text: '播放声音 <span class="slot">受伤</span> 等待播完' }
+      ],
+      tips: [{ icon: '⚡', strong: '造型动画：', text: '角色走路动画怎么做？<strong>2-4 个造型</strong>切换！每个造型是走路的一个姿势（左脚迈→双脚→右脚迈→双脚），快速循环就变成走路动画。造型越多越流畅，但 4 个就够用了！' }]
+    },
+    { title: '动手实践：素材设计器', emoji: '🛠', time: '30 分钟',
+      desc: '试试素材设计器！选择颜色和部件，设计你的游戏角色！',
+      demoType: 'asset-designer',
+      tips: [{ icon: '❓', strong: '想一想：', text: '你的游戏需要几个<strong>场景</strong>？开始界面、游戏场景、结束画面至少 3 个背景。用 Scratch 的<strong>背景</strong>标签页添加多个背景，用「切换背景」积木切换！' }]
+    },
+    { title: '挑战任务：素材制作', emoji: '🏆', time: '25 分钟',
+      desc: '为你的游戏制作全套素材！',
+      tasks: [
+        { text: '任务1：角色+4个动画造型', hint: '主角站立/走1/走2/跳，用造型编辑器画' },
+        { text: '任务2：3个场景背景', hint: '开始界面、游戏场景、结束画面' },
+        { text: '任务3：至少3个音效', hint: '跳跃声、碰撞声、得分声（用Scratch自带音效库）' },
+        { text: '⭐ 挑战：风格统一', hint: '所有素材用同一套颜色和风格，看起来像同一个游戏' }
+      ],
+      tips: [{ icon: '🌟', strong: '素材技巧：', text: '① <strong>颜色不超过5种</strong>——太多显得乱 ② <strong>简单几何</strong>——圆、方、三角拼出角色 ③ <strong>对称</strong>——左右对称的角色更好看 ④ <strong>用 Scratch 自带素材库</strong>——先借鉴再自己画！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的游戏素材！大家看看谁的角色最有特色。讨论：素材风格统一为什么重要？'
+    }
+  ],
+  summary: '今天我们学了<strong>游戏素材设计</strong>！三大素材：<strong>角色</strong>（造型+动画）、<strong>背景</strong>（多场景）、<strong>音效</strong>（BGM+效果音）。角色走路用<strong>2-4个造型</strong>切换。关键是<strong>风格统一</strong>——颜色不超过5种、简单几何拼角色、左右对称更美观！',
+  knowledgePoints: ['素材设计', '角色造型', '走路动画', '场景背景', '音效制作', 'BGM', '风格统一', '造型编辑器'],
+  homework: [
+    { stars: 1, title: '基础练习：角色造型', desc: '画一个角色，做4个走路动画造型，循环切换。' },
+    { stars: 2, title: '进阶挑战：全套素材', desc: '做角色+3个背景+3个音效，组成游戏素材包。' },
+    { stars: 3, title: '创意拓展：统一风格', desc: '所有素材用同一套颜色和风格，做一套统一的游戏美术。' }
+  ]
+},
+
+/* ===== 第 21 课 ===== */
+'l2-21': {
+  no: 21, title: '核心玩法实现', subtitle: '搭建游戏核心循环',
+  unit: '综合游戏创作', unitNo: 4, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '⚙', title: '核心循环', desc: '理解游戏核心循环的概念并搭建原型。' },
+    { icon: '🔄', title: '状态管理', desc: '用状态变量管理游戏的开始、进行、结束。' },
+    { icon: '🎮', title: '原型开发', desc: '快速搭建可玩的核心玩法原型。' }
+  ],
+  steps: [
+    { title: '趣味导入：先跑通核心', emoji: '🌟', time: '8 分钟',
+      desc: '做游戏最容易犯的错：<strong>先做画面和音效，再做玩法</strong>。结果发现不好玩，全白做了！正确做法是<strong>先做核心玩法原型</strong>——用最简单的方块和颜色，先把「好玩」跑通！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '专业游戏开发叫<strong>「白盒原型」</strong>——所有东西先用白色方块代替，只测试<strong>玩法好不好玩</strong>。好玩了再换精美素材！不好玩就改设计，素材也不浪费。这就是<strong>敏捷开发</strong>！' }]
+    },
+    { title: '知识讲解：核心循环', emoji: '🔍', time: '17 分钟',
+      desc: '每个游戏都有一个<strong>核心循环</strong>——玩家不断重复的基本操作：',
+      infoGrid: [
+        { icon: '🎮', title: '输入', desc: '玩家操作（按键/点击/移动）。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⚙', title: '更新', desc: '游戏逻辑（移动/碰撞/计分）。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '📺', title: '渲染', desc: '显示画面（角色/背景/特效）。', bg: 'rgba(255,201,60,.15)' },
+        { icon: '🔁', title: '循环', desc: '回到输入，周而复始。', bg: 'rgba(81,207,102,.12)' }
+      ],
+      blocks: [
+        { type: 'variables', text: '将 <span class="slot">游戏状态</span> 设为 <span class="slot">「游戏中」</span>' },
+        { type: 'control', text: '重复执行 直到 <span class="slot">游戏状态 = 「结束」</span>' },
+        { type: 'motion', text: '如果 <span class="slot">按下空格？</span> → 角色跳跃' },
+        { type: 'sensing', text: '如果 <span class="slot">碰到障碍？</span> → 游戏状态=「结束」' },
+        { type: 'variables', text: '将 <span class="slot">分数</span> 增加 <span class="slot">1</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: '状态变量：', text: '用<strong>游戏状态变量</strong>管理流程：「开始」→点击开始→「游戏中」→碰到障碍→「结束」→点击重玩→「游戏中」。每个状态做不同的事！用<strong>如果-那么</strong>判断当前状态！' }]
+    },
+    { title: '动手实践：核心玩法', emoji: '🛠', time: '30 分钟',
+      desc: '试试核心玩法原型！用方块角色跑通完整游戏循环：开始→游戏→结束→重玩。',
+      demoType: 'core-gameplay',
+      tips: [{ icon: '❓', strong: '想一想：', text: '什么是<strong>「有趣」</strong>？核心循环里哪个环节让玩家紧张？是跳跃的时机？躲避的速度？找到那个<strong>紧张点</strong>，把它做到最好——这就是游戏的<strong>核心乐趣</strong>！' }]
+    },
+    { title: '挑战任务：搭建原型', emoji: '🏆', time: '25 分钟',
+      desc: '用白盒原型搭建你的游戏核心循环！',
+      tasks: [
+        { text: '任务1：游戏状态管理', hint: '变量「游戏状态」，值=开始/游戏中/结束' },
+        { text: '任务2：核心循环跑通', hint: '输入→更新→渲染→循环，至少能玩' },
+        { text: '任务3：胜负条件', hint: '什么算赢？什么算输？明确判定' },
+        { text: '⭐ 挑战：调到好玩', hint: '调速度/难度/分数，直到「再来一局」的感觉' }
+      ],
+      tips: [{ icon: '🌟', strong: '好玩测试：', text: '原型完成后，让同学试玩 30 秒。如果他说<strong>「再来一次」</strong>→成功了！如果说<strong>「就这样？」</strong>→要改。关键是<strong>「再来一次」</strong>的冲动——这就是好游戏的<strong>上瘾点</strong>！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的白盒原型！大家试玩并给反馈：好玩吗？哪里要改？讨论：核心玩法和素材哪个更重要？'
+    }
+  ],
+  summary: '今天我们学了<strong>核心玩法实现</strong>！先做<strong>白盒原型</strong>（用方块代替素材）跑通玩法。核心循环=<strong>输入→更新→渲染→循环</strong>。用<strong>游戏状态变量</strong>管理开始/进行/结束。好玩的标准是<strong>「再来一次」</strong>的冲动！先确认好玩，再换精美素材——这就是<strong>敏捷开发</strong>！',
+  knowledgePoints: ['核心循环', '白盒原型', '游戏状态', '状态变量', '敏捷开发', '输入更新渲染', '胜负条件', '上瘾点'],
+  homework: [
+    { stars: 1, title: '基础练习：状态管理', desc: '做开始→游戏中→结束三状态切换，点击重玩回到游戏中。' },
+    { stars: 2, title: '进阶挑战：核心循环', desc: '用白盒跑通输入→更新→渲染→循环，至少能玩30秒。' },
+    { stars: 3, title: '创意拓展：调到好玩', desc: '调整参数到「再来一局」的感觉，记录调了什么。' }
+  ]
+},
+
+/* ===== 第 22 课 ===== */
+'l2-22': {
+  no: 22, title: '开始界面与菜单', subtitle: '游戏菜单与UI设计',
+  unit: '综合游戏创作', unitNo: 4, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '📺', title: '界面设计', desc: '设计游戏开始界面、暂停界面、结束界面。' },
+    { icon: '🎛', title: '菜单系统', desc: '实现开始、暂停、设置、重玩等菜单功能。' },
+    { icon: '✨', title: '用户体验', desc: '理解UX设计原则，让游戏操作更顺畅。' }
+  ],
+  steps: [
+    { title: '趣味导入：第一印象', emoji: '🌟', time: '8 分钟',
+      desc: '你打开一个游戏，第一眼看到什么？<strong>开始界面</strong>！如果开始界面丑丑的、按钮不好找，你可能会直接关掉。好的开始界面让人<strong>「想点开始」</strong>！这就是<strong>用户体验（UX）</strong>的力量！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '<strong>UX（用户体验）</strong>是游戏设计中容易被忽略但极重要的部分！按钮够大吗？文字清楚吗？操作直觉吗？好的 UX 让人<strong>不用想就会用</strong>。差的 UX 让人<strong>找不到开始按钮</strong>！' }]
+    },
+    { title: '知识讲解：界面三幕', emoji: '🔍', time: '17 分钟',
+      desc: '游戏界面分<strong>三幕</strong>，像电影一样：',
+      infoGrid: [
+        { icon: '🎬', title: '开始幕', desc: '标题、开始按钮、设置、最高分。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '🎮', title: '游戏幕', desc: 'HUD（分数/血量）、暂停按钮。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '🏆', title: '结束幕', desc: '成绩、重玩、返回菜单。', bg: 'rgba(255,201,60,.15)' }
+      ],
+      blocks: [
+        { type: 'event', text: '当 <span class="slot">开始按钮</span> 被点击' },
+        { type: 'control', text: '广播 <span class="slot">「开始游戏」</span>' },
+        { type: 'event', text: '当接收到 <span class="slot">「开始游戏」</span>' },
+        { type: 'looks', text: '切换背景到 <span class="slot">游戏场景</span>' },
+        { type: 'variables', text: '将 <span class="slot">游戏状态</span> 设为 <span class="slot">「游戏中」</span>' }
+      ],
+      tips: [{ icon: '⚡', strong: 'UX设计原则：', text: '① <strong>大按钮</strong>——手指能点到的最小44px ② <strong>明显文字</strong>——白字深色背景，对比度高 ③ <strong>一个主操作</strong>——「开始」按钮最大最亮，其他按钮小 ④ <strong>反馈</strong>——点击有动画/声音 ⑤ <strong>不挡画面</strong>——HUD放边角，不挡游戏区！' }]
+    },
+    { title: '动手实践：菜单演示', emoji: '🛠', time: '30 分钟',
+      desc: '试试菜单演示！点击开始、暂停、重玩按钮，体验完整的界面流程。',
+      demoType: 'game-menu',
+      tips: [{ icon: '❓', strong: '想一想：', text: '<strong>暂停</strong>怎么实现？暂停时游戏停止更新，但画面还在。用一个<strong>暂停变量</strong>，为 true 时跳过游戏逻辑的更新（但继续渲染）。或者用 Scratch 的「全部停止」积木再恢复！' }]
+    },
+    { title: '挑战任务：完整界面', emoji: '🏆', time: '25 分钟',
+      desc: '为你的游戏做完整的界面系统！',
+      tasks: [
+        { text: '任务1：开始界面', hint: '标题+开始按钮+最高分显示' },
+        { text: '任务2：游戏内HUD', hint: '左上角分数、右上角暂停按钮' },
+        { text: '任务3：结束界面', hint: '成绩+重玩按钮+返回菜单按钮' },
+        { text: '⭐ 挑战：暂停功能', hint: '暂停按钮→冻结游戏→显示继续按钮' }
+      ],
+      tips: [{ icon: '🌟', strong: '界面打磨：', text: '① <strong>过渡动画</strong>——界面切换有淡入淡出 ② <strong>按钮悬停</strong>——鼠标移上去放大/变亮 ③ <strong>音效</strong>——点击按钮有「叮」声 ④ <strong>最高分保存</strong>——用Scratch的「云端变量」或本地存！这些细节让游戏<strong>专业感</strong>大增！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '展示你的游戏界面！大家体验开始→游戏→暂停→结束的完整流程。讨论：哪个游戏的界面最顺手？'
+    }
+  ],
+  summary: '今天我们学了<strong>开始界面与菜单</strong>！游戏三幕：<strong>开始幕</strong>（标题+开始）、<strong>游戏幕</strong>（HUD+暂停）、<strong>结束幕</strong>（成绩+重玩）。UX原则：大按钮、高对比、一个主操作、有反馈、不挡画面。用<strong>广播</strong>切换场景和状态。细节打磨（过渡动画/音效/最高分）让游戏更<strong>专业</strong>！',
+  knowledgePoints: ['界面设计', '游戏三幕', '开始界面', 'HUD设计', '暂停功能', 'UX设计', '广播切换', '最高分'],
+  homework: [
+    { stars: 1, title: '基础练习：开始界面', desc: '做标题+开始按钮，点击切换到游戏场景。' },
+    { stars: 2, title: '进阶挑战：三幕完整', desc: '做开始+游戏HUD+结束三界面，用广播串联。' },
+    { stars: 3, title: '创意拓展：打磨细节', desc: '加暂停功能、按钮悬停效果、点击音效、最高分保存。' }
+  ]
+},
+
+/* ===== 第 23 课 ===== */
+'l2-23': {
+  no: 23, title: '测试与修Bug', subtitle: '调试与优化游戏',
+  unit: '综合游戏创作', unitNo: 4, duration: '90 分钟', isProject: false,
+  goals: [
+    { icon: '🐛', title: '找Bug', desc: '学会找出游戏中的Bug和问题。' },
+    { icon: '🔧', title: '调试技巧', desc: '掌握 Scratch 中的调试方法。' },
+    { icon: '✅', title: '测试方法', desc: '了解系统测试的方法和流程。' }
+  ],
+  steps: [
+    { title: '趣味导入：Bug是好朋友', emoji: '🌟', time: '8 分钟',
+      desc: '你做游戏时有没有遇到过：<strong>角色卡住了</strong>、<strong>分数变成负数</strong>、<strong>怎么点都没反应</strong>？这些就是<strong>Bug</strong>！别怕，Bug是程序员的<strong>好朋友</strong>——每个Bug都是在教你一个新知识！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '世界上最著名的 Bug：1947 年一只<strong>真飞蛾</strong>飞进了计算机，导致故障。工程师把它夹出来贴在日志上写「这是第一个 being found的 actual bug（虫子）」。从此程序错误就叫<strong>Bug</strong>（虫子）！修Bug 叫 <strong>Debug</strong>（除虫）！' }]
+    },
+    { title: '知识讲解：常见Bug类型', emoji: '🔍', time: '17 分钟',
+      desc: '游戏常见Bug分几类：',
+      infoGrid: [
+        { icon: '🔢', title: '逻辑Bug', desc: '条件写反、变量初始值错。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '⏱', title: '时序Bug', desc: '广播太快、初始化没跑完。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '📍', title: '边界Bug', desc: '角色飞出屏幕、数组越界。', bg: 'rgba(255,201,60,.15)' },
+        { icon: '🔄', title: '状态Bug', desc: '状态切换遗漏、死循环。', bg: 'rgba(81,207,102,.12)' }
+      ],
+      tips: [{ icon: '⚡', strong: '调试三板斧：', text: '① <strong>说出来</strong>——把代码逻辑念给橡皮鸭听（「橡皮鸭调试法」），说到一半常自己发现问题！② <strong>分段检查</strong>——在每步加「说」积木显示变量值，看到哪步不对 ③ <strong>缩小范围</strong>——注释掉一半代码，看Bug还在吗？在→Bug在另一半，不在→在被注释的部分！' }]
+    },
+    { title: '动手实践：Bug猎手', emoji: '🛠', time: '30 分钟',
+      desc: '试试Bug猎手演示！找出代码中的Bug并修复它。',
+      demoType: 'bug-hunt',
+      tips: [{ icon: '❓', strong: '想一想：', text: '最难找的Bug是<strong>「偶尔出现」</strong>的！比如 10 次里出 1 次。怎么找？<strong>记录重现条件</strong>——什么操作时会出Bug？做了几步？按什么顺序？找到规律就能重现，能重现就能修！' }]
+    },
+    { title: '挑战任务：找Bug修Bug', emoji: '🏆', time: '25 分钟',
+      desc: '在你的游戏中找Bug并修复！',
+      tasks: [
+        { text: '任务1：自己玩5分钟找Bug', hint: '尝试各种操作，记录所有异常' },
+        { text: '任务2：让同学玩5分钟', hint: '别人玩会出你没想到的Bug！' },
+        { text: '任务3：修至少3个Bug', hint: '用调试三板斧定位并修复' },
+        { text: '⭐ 挑战：边界测试', hint: '极端操作（狂点/快速切换/同时按键）找隐藏Bug' }
+      ],
+      tips: [{ icon: '🌟', strong: '测试清单：', text: '发布前检查：① <strong>所有按钮能点吗</strong>？② <strong>分数会变负吗</strong>？③ <strong>角色会卡墙里吗</strong>？④ <strong>重玩能正常开始吗</strong>？⑤ <strong>音效会同时播太多吗</strong>？⑥ <strong>极端操作会崩溃吗</strong>？过一遍这个清单，Bug少80%！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '分享你找到的最有趣的Bug和修法！讨论：哪种Bug最难找？你用了什么调试方法？'
+    }
+  ],
+  summary: '今天我们学了<strong>测试与修Bug</strong>！Bug分<strong>逻辑/时序/边界/状态</strong>四类。调试三板斧：<strong>说出来</strong>（橡皮鸭法）、<strong>分段检查</strong>（加显示积木）、<strong>缩小范围</strong>（注释法）。最难的是<strong>偶尔出现的Bug</strong>→找重现规律。发布前用<strong>测试清单</strong>过一遍！Bug是好朋友，每个Bug都是一课！',
+  knowledgePoints: ['Bug类型', '逻辑Bug', '时序Bug', '边界Bug', '调试技巧', '橡皮鸭调试', '测试清单', '边界测试'],
+  homework: [
+    { stars: 1, title: '基础练习：自测找Bug', desc: '自己玩5分钟找Bug，修至少3个。' },
+    { stars: 2, title: '进阶挑战：同学测试', desc: '让同学玩5分钟，收集并修复所有反馈的Bug。' },
+    { stars: 3, title: '创意拓展：测试清单', desc: '做一份包含10项的测试清单，逐项过一遍。' }
+  ]
+},
+
+/* ===== 第 24 课 ===== */
+'l2-24': {
+  no: 24, title: '游戏发布会', subtitle: '展示与分享你的作品',
+  unit: '综合游戏创作', unitNo: 4, duration: '90 分钟', isProject: true,
+  goals: [
+    { icon: '🎤', title: '作品展示', desc: '在发布会上展示你的完整游戏作品。' },
+    { icon: '📣', title: '游戏介绍', desc: '学会用语言介绍自己的游戏设计理念和亮点。' },
+    { icon: '🎉', title: '庆祝分享', desc: '享受完成作品的成就感，互相学习和鼓励。' }
+  ],
+  steps: [
+    { title: '趣味导入：今天是大日子', emoji: '🌟', time: '8 分钟',
+      desc: '今天是你游戏的<strong>发布会</strong>！就像苹果发布新 iPhone 一样，你也要向大家展示你做出来的游戏！经过前 23 节课的学习，你已经从<strong>零基础</strong>变成了能做出完整游戏的<strong>小开发者</strong>！今天就是展示成果的日子！',
+      tips: [{ icon: '💡', strong: '汽水老师说：', text: '你知道么？很多独立游戏开发者<strong>一个人</strong>就做出了世界级游戏！《星露谷物语》一个人做了4年，《Minecraft》最初一个人做的。你今天完成的作品，就是迈向<strong>独立开发者</strong>的第一步！为你骄傲！🎉' }]
+    },
+    { title: '知识讲解：如何展示', emoji: '🔍', time: '17 分钟',
+      desc: '游戏发布会要做好<strong>三件事</strong>：',
+      infoGrid: [
+        { icon: '🎯', title: '说设计', desc: '游戏名、灵感来源、核心玩法。', bg: 'rgba(255,122,69,.12)' },
+        { icon: '🎮', title: '现场玩', desc: '现场演示一段游戏，展示亮点。', bg: 'rgba(92,177,214,.12)' },
+        { icon: '💡', title: '说心得', desc: '最难的部分、最自豪的部分、学到了什么。', bg: 'rgba(255,201,60,.15)' }
+      ],
+      tips: [{ icon: '⚡', strong: '发布会流程：', text: '① <strong>30秒介绍</strong>——游戏名+一句话简介+核心玩法 ② <strong>1分钟演示</strong>——现场玩一段，展示最精彩的部分 ③ <strong>30秒心得</strong>——最难/最自豪/学到什么 ④ <strong>Q&A</strong>——同学提问。每人约3分钟，准备好就不紧张！' }]
+    },
+    { title: '动手实践：发布会演示', emoji: '🛠', time: '30 分钟',
+      desc: '试试发布会演示！看看完整的展示流程，然后准备你自己的介绍。',
+      demoType: 'game-release',
+      tips: [{ icon: '❓', strong: '想一想：', text: '你的游戏<strong>最自豪</strong>的是什么？是创意好？代码难？美术美？音效棒？想好你最想让大家看到的<strong>一个亮点</strong>，展示时重点突出它！别贪多，一个亮点让大家记住就成功了！' }]
+    },
+    { title: '挑战任务：最后打磨', emoji: '🏆', time: '25 分钟',
+      desc: '发布会前的最后打磨和准备！',
+      tasks: [
+        { text: '任务1：修完所有已知Bug', hint: '上一节课找的Bug全部修完' },
+        { text: '任务2：准备30秒介绍词', hint: '游戏名+一句话+核心玩法+亮点' },
+        { text: '任务3：找到最佳演示路线', hint: '练习玩一段，确保不会演示时翻车' },
+        { text: '⭐ 挑战：彩蛋', hint: '在游戏里藏一个彩蛋，发布会上展示给大家惊喜！' }
+      ],
+      tips: [{ icon: '🌟', strong: '发布会秘诀：', text: '① <strong>紧张正常</strong>——深呼吸3次，慢慢说 ② <strong>出Bug不慌</strong>——「这也是游戏的一部分 😂」轻松化解 ③ <strong>谦虚但自豪</strong>——说「我学了X周做出来的」，不贬低也不吹嘘 ④ <strong>感谢</strong>——感谢汽水老师和同学的帮助！' }]
+    },
+    { title: '分享与小结', emoji: '🎉', time: '10 分钟',
+      desc: '🎉🎉🎉 恭喜！你完成了 Scratch L2 全部 24 节课！从<strong>游戏机制</strong>到<strong>闯关开发</strong>，从<strong>动作进阶</strong>到<strong>综合创作</strong>，你已经能做出完整的游戏了！接下来可以挑战 <strong>Python P1</strong>，开始全新的编程之旅！🚀'
+    }
+  ],
+  summary: '今天是我们 Scratch L2 的<strong>最后一课——游戏发布会</strong>！24节课的旅程：从<strong>变量计分</strong>到<strong>条件判断</strong>，从<strong>碰撞检测</strong>到<strong>克隆技术</strong>，从<strong>重力跳跃</strong>到<strong>Boss战</strong>，最终做出了<strong>属于自己的完整游戏</strong>！你已经从<strong>Scratch初学者</strong>成长为<strong>游戏开发者</strong>了！下一步：Python 新征程！🐍',
+  knowledgePoints: ['游戏发布会', '作品展示', '游戏介绍', '现场演示', '设计理念', '开发心得', '彩蛋设计', 'Scratch L2毕业'],
+  homework: [
+    { stars: 1, title: '基础练习：30秒介绍', desc: '准备并练习你的游戏30秒介绍词，说给家人听。' },
+    { stars: 2, title: '进阶挑战：完美演示', desc: '练习演示路线5遍，确保不翻车，修完所有Bug。' },
+    { stars: 3, title: '创意拓展：加彩蛋', desc: '在游戏里藏一个惊喜彩蛋，发布会展示给大家看！' }
+  ]
+}
+};
+
+/* ================================================================
+   DEMOS 演示对象（24个）
+   ================================================================ */
+var DEMOS = {};
+
+/* --- variable: 变量记分牌 --- */
+DEMOS['variable'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DD);display:flex;align-items:center;justify-content:center;flex-direction:column;">' +
+      '<div id="demoScore" style="font-size:72px;font-weight:800;color:var(--orange);text-shadow:0 4px 16px rgba(255,122,69,.3);transition:transform .2s;">0</div>' +
+      '<div style="font-size:13px;color:var(--text-sub);margin-top:4px;">📊 分数变量 score</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'add1\')">➕ 加 1</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'add10\')">➕ 加 10</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'sub10\')">➖ 减 10</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 归零</button>';
+  },
+  init: function(s) { s.score = 0; s.el = document.getElementById('demoScore'); },
+  actions: {
+    add1: function(s) { s.score += 1; s.el.textContent = s.score; s.el.style.transform = 'scale(1.2)'; setTimeout(function(){ s.el.style.transform = 'scale(1)'; }, 200); },
+    add10: function(s) { s.score += 10; s.el.textContent = s.score; s.el.style.transform = 'scale(1.3)'; setTimeout(function(){ s.el.style.transform = 'scale(1)'; }, 200); },
+    sub10: function(s) { s.score -= 10; s.el.textContent = s.score; s.el.style.color = '#FF6B81'; setTimeout(function(){ s.el.style.color = 'var(--orange)'; }, 500); },
+    reset: function(s) { s.score = 0; s.el.textContent = s.score; }
+  }
+};
+
+/* --- condition: 条件判断 --- */
+DEMOS['condition'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DD);display:flex;align-items:center;justify-content:center;flex-direction:column;">' +
+      '<div id="demoScore" style="font-size:48px;font-weight:800;color:var(--orange);">0</div>' +
+      '<div id="demoMsg" style="font-size:20px;margin-top:12px;color:var(--text-sub);">分数 < 50，继续加油💪</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'add5\')">➕ 加 5</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'add20\')">➕ 加 20</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'check\')">🔍 检查条件</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.score = 0; s.el = document.getElementById('demoScore'); s.msg = document.getElementById('demoMsg'); },
+  actions: {
+    add5: function(s) { s.score += 5; s.el.textContent = s.score; DEMOS.condition._check(s); },
+    add20: function(s) { s.score += 20; s.el.textContent = s.score; DEMOS.condition._check(s); },
+    check: function(s) { DEMOS.condition._check(s); },
+    reset: function(s) { s.score = 0; s.el.textContent = s.score; s.msg.textContent = '分数 < 50，继续加油💪'; s.msg.style.color = 'var(--text-sub)'; },
+    _check: function(s) {
+      if (s.score >= 80) { s.msg.textContent = '🎉 太厉害了！分数 >= 80！'; s.msg.style.color = 'var(--green)'; }
+      else if (s.score >= 50) { s.msg.textContent = '⭐ 不错哦！分数 >= 50！'; s.msg.style.color = 'var(--orange)'; }
+      else { s.msg.textContent = '💪 继续，分数 < 50'; s.msg.style.color = 'var(--text-sub)'; }
+    }
+  }
+};
+
+/* --- collision-catch: 碰撞检测 --- */
+DEMOS['collision-catch'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#87CEEB,#B0E0E6);overflow:hidden;">' +
+      '<div id="demoApple" style="position:absolute;top:0;left:50%;font-size:36px;transition:top .05s linear;">🍎</div>' +
+      '<div id="demoBasket" style="position:absolute;bottom:10px;left:50%;font-size:40px;transition:left .15s;transform:translateX(-50%);">🧺</div>' +
+      '<div id="demoScore" style="position:absolute;top:8px;right:12px;font-size:16px;font-weight:700;color:#fff;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:12px;">接住: 0</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'left\')">⬅ 左移</button>' +
+      '<button class="demo-btn motion" onclick="demoAction(\'right\')">右移 ➡</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'drop\')">🍎 放苹果</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) {
+    s.apple = document.getElementById('demoApple');
+    s.basket = document.getElementById('demoBasket');
+    s.scoreEl = document.getElementById('demoScore');
+    s.stage = document.getElementById('demoStage');
+    s.basketX = 50; s.appleY = 0; s.appleX = 50; s.score = 0; s.falling = false;
+    s.basket.style.left = '50%';
+  },
+  actions: {
+    left: function(s) { s.basketX = Math.max(5, s.basketX - 15); s.basket.style.left = s.basketX + '%'; },
+    right: function(s) { s.basketX = Math.min(95, s.basketX + 15); s.basket.style.left = s.basketX + '%'; },
+    drop: function(s) {
+      if (s.falling) return;
+      s.falling = true; s.appleY = 0; s.appleX = 10 + Math.random() * 80;
+      s.apple.style.left = s.appleX + '%'; s.apple.style.top = '0px';
+      s.interval = setInterval(function() {
+        s.appleY += 4; s.apple.style.top = s.appleY + 'px';
+        var stageH = s.stage.offsetHeight;
+        if (s.appleY > stageH - 50) {
+          clearInterval(s.interval); s.falling = false;
+          if (Math.abs(s.appleX - s.basketX) < 15) {
+            s.score++; s.scoreEl.textContent = '接住: ' + s.score;
+            s.apple.textContent = '✨'; setTimeout(function(){ s.apple.textContent = '🍎'; }, 500);
+          }
+        }
+      }, 30);
+    },
+    reset: function(s) { if (s.interval) clearInterval(s.interval); s.falling = false; s.score = 0; s.scoreEl.textContent = '接住: 0'; s.apple.style.top = '0px'; }
+  },
+  cleanup: function(s) { if (s.interval) clearInterval(s.interval); }
+};
+
+/* --- random: 随机数 --- */
+DEMOS['random'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DD);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">' +
+      '<div id="demoDice" style="font-size:72px;">🎲</div>' +
+      '<div id="demoResult" style="font-size:24px;font-weight:700;color:var(--orange);">点击「掷骰子」</div>' +
+      '<div id="demoHistory" style="font-size:14px;color:var(--text-sub);">历史: —</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'roll\')">🎲 掷骰子(1-6)</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'color\')">🎨 随机颜色</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'pos\')">📍 随机位置</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.dice = document.getElementById('demoDice'); s.result = document.getElementById('demoResult'); s.history = document.getElementById('demoHistory'); s.rolls = []; },
+  actions: {
+    roll: function(s) {
+      s.dice.style.transform = 'rotate(360deg)'; setTimeout(function(){ s.dice.style.transform = 'rotate(0deg)'; }, 300);
+      setTimeout(function() {
+        var n = Math.floor(Math.random() * 6) + 1;
+        s.result.textContent = '🎲 结果: ' + n + '!';
+        s.rolls.push(n); s.history.textContent = '历史: ' + s.rolls.join(', ');
+      }, 300);
+    },
+    color: function(s) {
+      var colors = ['#FF6B81','#FFC93C','#51CF66','#5CB1D6','#8B5CF6','#FF7A45'];
+      var c = colors[Math.floor(Math.random() * colors.length)];
+      document.getElementById('demoStage').style.background = 'linear-gradient(135deg,' + c + ',' + c + 'dd)';
+      s.result.textContent = '🎨 随机色: ' + c;
+    },
+    pos: function(s) {
+      var x = Math.floor(Math.random() * 80) + 10;
+      s.dice.style.position = 'relative'; s.dice.style.left = (x - 50) + '%';
+      s.result.textContent = '📍 x = ' + x + '%';
+    },
+    reset: function(s) { s.rolls = []; s.result.textContent = '点击「掷骰子」'; s.history.textContent = '历史: —'; s.dice.style.left = '0'; document.getElementById('demoStage').style.background = 'linear-gradient(135deg,#FFF5F0,#FFE8DD)'; }
+  }
+};
+
+/* --- timer: 计时倒计时 --- */
+DEMOS['timer'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DD);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">' +
+      '<div id="demoTime" style="font-size:56px;font-weight:800;color:var(--orange);">30</div>' +
+      '<div style="width:80%;height:14px;background:rgba(0,0,0,.1);border-radius:7px;overflow:hidden;">' +
+      '<div id="demoBar" style="width:100%;height:100%;background:linear-gradient(90deg,var(--orange),var(--coral));transition:width 1s linear;"></div></div>' +
+      '<div id="demoState" style="font-size:14px;color:var(--text-sub);">⏸ 准备好了就点开始</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'start\')">▶ 开始</button>' +
+      '<button class="demo-btn control" onclick="demoAction(\'pause\')">⏸ 暂停</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) {
+    s.time = 30; s.running = false; s.el = document.getElementById('demoTime'); s.bar = document.getElementById('demoBar'); s.state = document.getElementById('demoState');
+  },
+  cleanup: function(s) { if (s.interval) clearInterval(s.interval); },
+  actions: {
+    start: function(s) {
+      if (s.running) return; s.running = true; s.state.textContent = '▶ 倒计时中…';
+      s.interval = setInterval(function() {
+        s.time--; s.el.textContent = s.time; s.bar.style.width = (s.time / 30 * 100) + '%';
+        if (s.time <= 5) s.el.style.color = '#FF6B81';
+        if (s.time <= 0) { clearInterval(s.interval); s.running = false; s.state.textContent = '⏰ 时间到！'; s.el.textContent = '⏰'; }
+      }, 1000);
+    },
+    pause: function(s) { if (s.running) { clearInterval(s.interval); s.running = false; s.state.textContent = '⏸ 已暂停'; } },
+    reset: function(s) { if (s.interval) clearInterval(s.interval); s.running = false; s.time = 30; s.el.textContent = '30'; s.el.style.color = 'var(--orange)'; s.bar.style.width = '100%'; s.state.textContent = '⏸ 准备好了就点开始'; }
+  }
+};
+
+/* --- game-apple: 接苹果大作战 --- */
+DEMOS['game-apple'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#87CEEB,#98D8C8);overflow:hidden;">' +
+      '<div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:700;color:#fff;background:rgba(0,0,0,.25);padding:3px 12px;border-radius:10px;">🍎 接住: <span id="demoScore">0</span> | ⏱ <span id="demoTimer">15</span>s</div>' +
+      '<div id="demoApples" style="position:absolute;top:0;left:0;right:0;bottom:0;"></div>' +
+      '<div id="demoBasket" style="position:absolute;bottom:8px;left:50%;font-size:36px;transition:left .1s;transform:translateX(-50%);cursor:default;">🧺</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'left\')">⬅</button>' +
+      '<button class="demo-btn motion" onclick="demoAction(\'right\')">➡</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'start\')">▶ 开始游戏</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) {
+    s.stage = document.getElementById('demoStage'); s.basket = document.getElementById('demoBasket'); s.scoreEl = document.getElementById('demoScore'); s.timerEl = document.getElementById('demoTimer'); s.apples = document.getElementById('demoApples');
+    s.basketX = 50; s.score = 0; s.time = 15; s.running = false; s.items = [];
+    document.onkeydown = function(e) { if (e.key === 'ArrowLeft') demoAction('left'); if (e.key === 'ArrowRight') demoAction('right'); };
+  },
+  cleanup: function(s) { if (s.interval) clearInterval(s.interval); if (s.spawnInt) clearInterval(s.spawnInt); s.running = false; document.onkeydown = null; s.items.forEach(function(it){ if(it.parentNode) it.remove(); }); s.items = []; },
+  actions: {
+    left: function(s) { if (!s.running) return; s.basketX = Math.max(5, s.basketX - 10); s.basket.style.left = s.basketX + '%'; },
+    right: function(s) { if (!s.running) return; s.basketX = Math.min(95, s.basketX + 10); s.basket.style.left = s.basketX + '%'; },
+    start: function(s) {
+      if (s.running) return; s.running = true; s.score = 0; s.time = 15; s.scoreEl.textContent = '0'; s.timerEl.textContent = '15';
+      s.spawnInt = setInterval(function() {
+        var a = document.createElement('div'); a.textContent = Math.random() < 0.2 ? '💎' : '🍎';
+        a.style.cssText = 'position:absolute;font-size:24px;top:0;left:' + (5 + Math.random() * 90) + '%;transition:top .05s linear;';
+        s.apples.appendChild(a); s.items.push(a);
+        var y = 0; var ax = parseFloat(a.style.left);
+        var fall = setInterval(function() {
+          if (!s.running) { clearInterval(fall); return; }
+          y += 3; a.style.top = y + 'px';
+          if (y > s.stage.offsetHeight - 45) {
+            if (Math.abs(ax - s.basketX) < 8) {
+              s.score += a.textContent === '💎' ? 3 : 1; s.scoreEl.textContent = s.score; a.textContent = '✨';
+            }
+            clearInterval(fall); setTimeout(function(){ if (a.parentNode) a.remove(); }, 300);
+          }
+        }, 40);
+      }, 800);
+      s.interval = setInterval(function() {
+        s.time--; s.timerEl.textContent = s.time;
+        if (s.time <= 0) { clearInterval(s.interval); clearInterval(s.spawnInt); s.running = false; s.timerEl.textContent = '🎉'; s.scoreEl.textContent = s.score + '!'; }
+      }, 1000);
+    },
+    reset: function(s) { if (s.interval) clearInterval(s.interval); if (s.spawnInt) clearInterval(s.spawnInt); s.running = false; s.score = 0; s.time = 15; s.scoreEl.textContent = '0'; s.timerEl.textContent = '15'; s.basketX = 50; s.basket.style.left = '50%'; s.items.forEach(function(it){ if(it.parentNode) it.remove(); }); s.items = []; }
+  }
+};
+
+/* --- clone: 克隆技术 --- */
+DEMOS['clone'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#E8ECFF,#F4F7FF);position:relative;cursor:pointer;" onclick="demoAction(\'clone\')">' +
+      '<div style="position:absolute;top:8px;left:12px;font-size:14px;color:var(--text-sub);">点击舞台克隆小猫 🐱</div>' +
+      '<div id="demoCount" style="position:absolute;top:8px;right:12px;font-size:14px;font-weight:700;color:var(--orange);">克隆体: 0</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'clone\')">🐱 克隆一个</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'clone5\')">✨ 克隆5个</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'scatter\')">💨 散开</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🧹 全部删除</button>';
+  },
+  init: function(s) { s.stage = document.getElementById('demoStage'); s.countEl = document.getElementById('demoCount'); s.count = 0; s.clones = []; },
+  cleanup: function(s) { s.clones.forEach(function(c){ if(c.parentNode) c.remove(); }); s.clones = []; },
+  actions: {
+    clone: function(s) {
+      var c = document.createElement('div'); c.innerHTML = catSVG(Math.floor(Math.random()*4)+1);
+      var x = 20 + Math.random() * 60, y = 20 + Math.random() * 60;
+      c.style.cssText = 'position:absolute;left:' + x + '%;bottom:' + y + '%;width:50px;height:50px;opacity:0;transition:opacity .3s;';
+      s.stage.appendChild(c); s.clones.push(c); s.count++; s.countEl.textContent = '克隆体: ' + s.count;
+      setTimeout(function(){ c.style.opacity = '1'; }, 10);
+    },
+    clone5: function(s) { for (var i = 0; i < 5; i++) setTimeout(function(){ DEMOS.clone.actions.clone(s); }, i * 100); },
+    scatter: function(s) { s.clones.forEach(function(c){ c.style.transition = 'all .5s'; c.style.transform = 'translate(' + (Math.random()*200-100) + 'px,' + (Math.random()*-200) + 'px) rotate(' + (Math.random()*360) + 'deg)'; c.style.opacity = '0'; }); setTimeout(function(){ DEMOS.clone.actions.reset(s); }, 600); },
+    reset: function(s) { s.clones.forEach(function(c){ if(c.parentNode) c.remove(); }); s.clones = []; s.count = 0; s.countEl.textContent = '克隆体: 0'; }
+  }
+};
+
+/* --- health: 血量生命值 --- */
+DEMOS['health'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#2C3E50,#34495E);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;">' +
+      '<div class="health-bar-wrap" id="demoHearts" style="position:relative;top:0;left:0;">❤️❤️❤️</div>' +
+      '<div class="hp-bar"><div id="demoHp" style="width:100%;height:100%;background:linear-gradient(90deg,#FF6B81,#FFC93C);transition:width .3s;border-radius:7px;"></div></div>' +
+      '<div id="demoHpText" style="font-size:14px;color:#fff;font-weight:600;">HP: 100/100</div>' +
+      '<div id="demoMsg" style="font-size:16px;color:#FFC93C;">英雄准备就绪！</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn sound" onclick="demoAction(\'damage\')">⚔ 受伤 -20</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'bigDamage\')">💥 重击 -50</button>' +
+      '<button class="demo-btn pen" onclick="demoAction(\'heal\')">💚 治疗 +30</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 满血</button>';
+  },
+  init: function(s) { s.hp = 100; s.hpEl = document.getElementById('demoHp'); s.hpText = document.getElementById('demoHpText'); s.msg = document.getElementById('demoMsg'); s.hearts = document.getElementById('demoHearts'); },
+  actions: {
+    damage: function(s) { s.hp = Math.max(0, s.hp - 20); DEMOS.health._update(s); },
+    bigDamage: function(s) { s.hp = Math.max(0, s.hp - 50); DEMOS.health._update(s); },
+    heal: function(s) { s.hp = Math.min(100, s.hp + 30); DEMOS.health._update(s); },
+    reset: function(s) { s.hp = 100; DEMOS.health._update(s); },
+    _update: function(s) {
+      s.hpEl.style.width = s.hp + '%'; s.hpText.textContent = 'HP: ' + s.hp + '/100';
+      var h = Math.ceil(s.hp / 33.3); s.hearts.textContent = '❤️'.repeat(h) + '🖤'.repeat(3 - h);
+      if (s.hp <= 0) { s.msg.textContent = '💀 游戏结束！'; s.msg.style.color = '#FF6B81'; }
+      else if (s.hp < 30) { s.msg.textContent = '⚠ 危险！血量低！'; s.msg.style.color = '#FF6B81'; }
+      else if (s.hp < 60) { s.msg.textContent = '😨 受伤了，注意！'; s.msg.style.color = '#FFC93C'; }
+      else { s.msg.textContent = '😊 状态良好！'; s.msg.style.color = '#51CF66'; }
+    }
+  }
+};
+
+/* --- level-map: 闯关地图 --- */
+DEMOS['level-map'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#2E8B57,#228B22);display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;">' +
+      '<div class="level-node active" onclick="demoAction(\'go\',1)" style="font-size:20px;">1</div>' +
+      '<div style="color:#fff;opacity:.4;">→</div>' +
+      '<div class="level-node" onclick="demoAction(\'go\',2)" style="font-size:20px;">2</div>' +
+      '<div style="color:#fff;opacity:.4;">→</div>' +
+      '<div class="level-node locked" onclick="demoAction(\'locked\',3)" style="font-size:20px;">🔒</div>' +
+      '<div style="color:#fff;opacity:.4;">→</div>' +
+      '<div class="level-node locked" onclick="demoAction(\'locked\',4)" style="font-size:20px;">🔒</div>' +
+      '<div style="color:#fff;opacity:.4;">→</div>' +
+      '<div class="level-node locked" onclick="demoAction(\'locked\',5)" style="font-size:20px;">👑</div>' +
+      '<div id="demoMsg" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:13px;color:#fff;background:rgba(0,0,0,.3);padding:4px 12px;border-radius:10px;">点亮的关卡可以挑战！</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'win\')">🏆 通关解锁下一关</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置进度</button>';
+  },
+  init: function(s) { s.stage = document.getElementById('demoStage'); s.msg = document.getElementById('demoMsg'); s.unlocked = 1; s.nodes = s.stage.querySelectorAll('.level-node'); },
+  actions: {
+    go: function(s, n) {
+      if (n <= s.unlocked) { s.msg.textContent = '🎮 进入第 ' + n + ' 关！'; s.nodes.forEach(function(nd){ nd.classList.remove('active'); }); s.nodes[n-1].classList.add('active'); }
+    },
+    locked: function(s, n) { s.msg.textContent = '🔒 第 ' + n + ' 关未解锁，先通过前面的关卡！'; },
+    win: function(s) {
+      if (s.unlocked < 5) { s.unlocked++; s.msg.textContent = '🎉 通关！第 ' + s.unlocked + ' 关已解锁！';
+        var nd = s.nodes[s.unlocked - 1]; nd.classList.remove('locked');
+        nd.textContent = s.unlocked === 5 ? '👑' : s.unlocked; }
+      else { s.msg.textContent = '👑 恭喜通关全部关卡！你是最强的！'; }
+    },
+    reset: function(s) {
+      s.unlocked = 1; s.msg.textContent = '点亮的关卡可以挑战！';
+      s.nodes.forEach(function(nd, i){ nd.classList.remove('active'); nd.classList.remove('locked'); if (i > 0) nd.classList.add('locked'); nd.textContent = i === 4 ? '🔒' : (i + 1); });
+      s.nodes[0].classList.add('active'); s.nodes[4].textContent = '🔒';
+    }
+  }
+};
+
+/* --- powerup: 道具奖励 --- */
+DEMOS['powerup'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">' +
+      '<div id="demoActor" style="width:80px;height:80px;transition:all .3s;">' + catSVG(1) + '</div>' +
+      '<div id="demoEffects" style="font-size:16px;color:#FFC93C;font-weight:600;">无效果</div>' +
+      '<div id="demoTimer" style="font-size:13px;color:#fff;opacity:.7;">点击下方按钮使用道具</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'speed\')">⚡ 加速</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'shield\')">🛡 护盾</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'magnet\')">🧲 磁铁</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 清除</button>';
+  },
+  init: function(s) { s.actor = document.getElementById('demoActor'); s.effects = document.getElementById('demoEffects'); s.timer = document.getElementById('demoTimer'); s.timers = []; },
+  cleanup: function(s) { s.timers.forEach(function(t){ clearInterval(t); }); s.timers = []; },
+  actions: {
+    speed: function(s) { DEMOS.powerup._clear(s); s.actor.style.filter = 'drop-shadow(0 0 12px #FFC93C)'; s.actor.style.animation = 'pulse .3s infinite alternate'; s.effects.textContent = '⚡ 加速中！移动速度 x2'; DEMOS.powerup._timer(s, 5); },
+    shield: function(s) { DEMOS.powerup._clear(s); s.actor.style.filter = 'drop-shadow(0 0 15px #5CB1D6)'; s.actor.style.borderRadius = '50%'; s.actor.style.boxShadow = '0 0 20px 5px rgba(92,177,214,.5)'; s.effects.textContent = '🛡 护盾激活！无敌状态'; DEMOS.powerup._timer(s, 5); },
+    magnet: function(s) { DEMOS.powerup._clear(s); s.actor.style.filter = 'drop-shadow(0 0 12px #FF6B81)'; s.effects.textContent = '🧲 磁铁激活！自动吸引金币'; DEMOS.powerup._timer(s, 5); },
+    reset: function(s) { DEMOS.powerup._clear(s); s.effects.textContent = '无效果'; s.timer.textContent = '点击下方按钮使用道具'; },
+    _clear: function(s) { s.timers.forEach(function(t){ clearInterval(t); }); s.timers = []; s.actor.style.filter = ''; s.actor.style.animation = ''; s.actor.style.boxShadow = ''; },
+    _timer: function(s, n) { var t = n; s.timer.textContent = '效果剩余: ' + t + 's'; var iv = setInterval(function(){ t--; s.timer.textContent = '效果剩余: ' + t + 's'; if (t <= 0) { clearInterval(iv); DEMOS.powerup._clear(s); s.effects.textContent = '无效果'; s.timer.textContent = '效果结束'; } }, 1000); s.timers.push(iv); }
+  }
+};
+
+/* --- game-audio: 音效音乐 --- */
+DEMOS['game-audio'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#1a1a2e,#2d1b69);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">' +
+      '<div id="demoVisual" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FF7A45,#FFC93C);display:flex;align-items:center;justify-content:center;font-size:36px;transition:transform .15s;">🎵</div>' +
+      '<div id="demoMsg" style="font-size:15px;color:#fff;opacity:.8;">点击按钮播放不同音效</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn sound" onclick="demoAction(\'jump\')">⬆ 跳跃声</button>' +
+      '<button class="demo-btn sound" onclick="demoAction(\'coin\')">🪙 金币声</button>' +
+      '<button class="demo-btn sound" onclick="demoAction(\'hit\')">💥 受伤声</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'melody\')">🎶 播放旋律</button>';
+  },
+  init: function(s) { s.visual = document.getElementById('demoVisual'); s.msg = document.getElementById('demoMsg'); try { s.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { s.ctx = null; } },
+  cleanup: function(s) {},
+  actions: {
+    jump: function(s) { DEMOS['game-audio']._beep(s, 523, 0.08, 'square', '⬆ 跳跃！'); },
+    coin: function(s) { DEMOS['game-audio']._beep(s, 988, 0.05, 'sine', '🪙 金币！'); setTimeout(function(){ DEMOS['game-audio']._beep(s, 1319, 0.08, 'sine', '🪙 金币！'); }, 80); },
+    hit: function(s) { DEMOS['game-audio']._beep(s, 150, 0.2, 'sawtooth', '💥 受伤！'); },
+    melody: function(s) {
+      var notes = [262, 294, 330, 349, 392, 440, 494, 523];
+      s.msg.textContent = '🎶 播放旋律…';
+      notes.forEach(function(f, i) { setTimeout(function(){ DEMOS['game-audio']._beep(s, f, 0.15, 'triangle', ''); }, i * 200); });
+    },
+    _beep: function(s, freq, dur, type, msg) {
+      if (!s.ctx) { s.msg.textContent = '⚠ 浏览器不支持音频'; return; }
+      var osc = s.ctx.createOscillator(); var gain = s.ctx.createGain();
+      osc.frequency.value = freq; osc.type = type || 'sine';
+      osc.connect(gain); gain.connect(s.ctx.destination);
+      gain.gain.setValueAtTime(0.15, s.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, s.ctx.currentTime + dur);
+      osc.start(); osc.stop(s.ctx.currentTime + dur);
+      s.visual.style.transform = 'scale(1.3)'; setTimeout(function(){ s.visual.style.transform = 'scale(1)'; }, 150);
+      if (msg) s.msg.textContent = msg;
+    }
+  }
+};
+
+/* --- maze-game: 迷宫大冒险 --- */
+DEMOS['maze-game'] = {
+  stage: function() {
+    var maze = [
+      [1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,1,0,0,0,0,1],
+      [1,1,1,0,1,0,1,1,0,1],
+      [1,0,0,0,0,0,1,0,0,1],
+      [1,0,1,1,1,1,1,0,1,1],
+      [1,0,0,0,0,0,0,0,0,1],
+      [1,1,1,1,1,0,1,1,0,1],
+      [1,0,0,0,0,0,1,0,0,1],
+      [1,0,1,1,1,1,1,0,2,1],
+      [1,1,1,1,1,1,1,1,1,1]
+    ];
+    var cells = '';
+    for (var r = 0; r < 10; r++) for (var c = 0; c < 10; c++) {
+      var v = maze[r][c]; var bg = v === 1 ? '#4A3B2E' : v === 2 ? '#FFC93C' : '#E8D5B7';
+      cells += '<div class="mcell" data-r="' + r + '" data-c="' + c + '" style="width:10%;height:10%;background:' + bg + ';border:1px solid rgba(0,0,0,.05);box-sizing:border-box;"></div>';
+    }
+    return '<div class="demo-stage" id="demoStage" style="background:#4A3B2E;padding:0;overflow:hidden;">' +
+      '<div id="demoMaze" style="display:grid;grid-template-columns:repeat(10,1fr);width:100%;height:100%;">' + cells + '</div>' +
+      '<div id="demoCat" style="position:absolute;width:9%;height:9%;left:1%;top:11%;transition:all .15s;font-size:20px;display:flex;align-items:center;justify-content:center;">🐱</div>' +
+      '<div id="demoMsg" style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:12px;color:#fff;background:rgba(0,0,0,.4);padding:2px 10px;border-radius:8px;white-space:nowrap;">到达 🏆 终点！</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'up\')">⬆</button>' +
+      '<button class="demo-btn motion" onclick="demoAction(\'down\')">⬇</button>' +
+      '<button class="demo-btn motion" onclick="demoAction(\'left\')">⬅</button>' +
+      '<button class="demo-btn motion" onclick="demoAction(\'right\')">➡</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) {
+    s.cat = document.getElementById('demoCat'); s.msg = document.getElementById('demoMsg'); s.maze = [
+      [1,1,1,1,1,1,1,1,1,1],[1,0,0,0,1,0,0,0,0,1],[1,1,1,0,1,0,1,1,0,1],
+      [1,0,0,0,0,0,1,0,0,1],[1,0,1,1,1,1,1,0,1,1],[1,0,0,0,0,0,0,0,0,1],
+      [1,1,1,1,1,0,1,1,0,1],[1,0,0,0,0,0,1,0,0,1],[1,0,1,1,1,1,1,0,2,1],[1,1,1,1,1,1,1,1,1,1]
+    ];
+    s.r = 1; s.c = 1; s.cellW = 10; s.cellH = 10;
+    s.cat.style.left = (s.c * s.cellW + 1) + '%'; s.cat.style.top = (s.r * s.cellH + 1) + '%';
+    document.onkeydown = function(e) {
+      var map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right'};
+      if (map[e.key]) demoAction(map[e.key]);
+    };
+  },
+  cleanup: function(s) { document.onkeydown = null; },
+  actions: {
+    up: function(s) { DEMOS['maze-game']._move(s, -1, 0); },
+    down: function(s) { DEMOS['maze-game']._move(s, 1, 0); },
+    left: function(s) { DEMOS['maze-game']._move(s, 0, -1); },
+    right: function(s) { DEMOS['maze-game']._move(s, 0, 1); },
+    reset: function(s) { s.r = 1; s.c = 1; s.cat.style.left = '1%'; s.cat.style.top = '11%'; s.msg.textContent = '到达 🏆 终点！'; },
+    _move: function(s, dr, dc) {
+      var nr = s.r + dr, nc = s.c + dc;
+      if (s.maze[nr] && s.maze[nr][nc] !== 1) {
+        s.r = nr; s.c = nc;
+        s.cat.style.left = (nc * s.cellW + 1) + '%'; s.cat.style.top = (nr * s.cellH + 1) + '%';
+        if (s.maze[nr][nc] === 2) { s.msg.textContent = '🎉 到达终点！你赢了！'; s.cat.textContent = '🏆'; setTimeout(function(){ s.cat.textContent = '🐱'; }, 2000); }
+      }
+    }
+  }
+};
+
+/* --- gravity-jump: 重力跳跃 --- */
+DEMOS['gravity-jump'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#87CEEB,#98D8C8);overflow:hidden;">' +
+      '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:#4A3B2E;border-radius:8px 8px 0 0;"></div>' +
+      '<div id="demoActor" style="position:absolute;bottom:30px;left:30%;width:60px;height:60px;transition:none;">' + catSVG(1) + '</div>' +
+      '<div id="demoMsg" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:14px;color:#fff;background:rgba(0,0,0,.3);padding:3px 12px;border-radius:10px;">空格/点击跳跃！理解重力</div>' +
+      '<div style="position:absolute;bottom:38px;left:50%;transform:translateX(-50%);font-size:20px;opacity:.3;">📦📦📦📦</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'jump\')">⬆ 跳跃</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'heavy\')">💪 重力+</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'light\')">🎈 重力-</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) {
+    s.actor = document.getElementById('demoActor'); s.stage = document.getElementById('demoStage'); s.msg = document.getElementById('demoMsg');
+    s.y = 0; s.vy = 0; s.gravity = 0.5; s.jumpForce = -10; s.grounded = true;
+    s.stage.onclick = function() { demoAction('jump'); };
+    s.interval = setInterval(function() {
+      if (!s.grounded) { s.vy += s.gravity; s.y += s.vy; if (s.y >= 0) { s.y = 0; s.vy = 0; s.grounded = true; } s.actor.style.bottom = (30 + (-s.y)) + 'px'; }
+    }, 30);
+  },
+  cleanup: function(s) { if (s.interval) clearInterval(s.interval); s.stage.onclick = null; },
+  actions: {
+    jump: function(s) { if (s.grounded) { s.vy = s.jumpForce; s.grounded = false; s.msg.textContent = '⬆ 起跳！vy = ' + s.jumpForce; } },
+    heavy: function(s) { s.gravity = Math.min(2, s.gravity + 0.3); s.msg.textContent = '💪 重力 = ' + s.gravity.toFixed(1) + '（跳不高）'; },
+    light: function(s) { s.gravity = Math.max(0.1, s.gravity - 0.3); s.msg.textContent = '🎈 重力 = ' + s.gravity.toFixed(1) + '（飞起来！）'; },
+    reset: function(s) { s.y = 0; s.vy = 0; s.gravity = 0.5; s.grounded = true; s.actor.style.bottom = '30px'; s.msg.textContent = '空格/点击跳跃！理解重力'; }
+  }
+};
+
+/* --- state-machine: 角色动画状态 --- */
+DEMOS['state-machine'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#87CEEB,#98D8C8);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;">' +
+      '<div id="demoActor" style="width:80px;height:80px;transition:all .3s;">' + catSVG(1) + '</div>' +
+      '<div id="demoState" style="font-size:16px;font-weight:700;color:var(--orange);background:#fff;padding:4px 16px;border-radius:12px;">状态: idle 🧍</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'walk\')">🚶 行走</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'jump\')">⬆ 跳跃</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'hurt\')">💔 受伤</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'idle\')">🧍 待机</button>';
+  },
+  init: function(s) { s.actor = document.getElementById('demoActor'); s.stateEl = document.getElementById('demoState'); s.state = 'idle'; s.timer = null; },
+  cleanup: function(s) { if (s.timer) clearInterval(s.timer); },
+  actions: {
+    walk: function(s) { DEMOS['state-machine']._set(s, 'walk', '🚶 行走中…', 1, 2, 'left'); },
+    jump: function(s) { DEMOS['state-machine']._set(s, 'jump', '⬆ 跳跃中！', 3, 3, null); s.actor.style.transform = 'translateY(-40px)'; setTimeout(function(){ s.actor.style.transform = 'translateY(0)'; }, 400); },
+    hurt: function(s) { DEMOS['state-machine']._set(s, 'hurt', '💔 受伤了！', 4, 4, null); s.actor.style.filter = 'brightness(0) saturate(100%) invert(30%) sepia(85%) saturate(5000%) hue-rotate(0deg)'; setTimeout(function(){ s.actor.style.filter = ''; }, 800); },
+    idle: function(s) { DEMOS['state-machine']._set(s, 'idle', '🧍 待机中…', 1, 1, null); },
+    _set: function(s, state, text, c1, c2, anim) {
+      if (s.timer) { clearInterval(s.timer); s.timer = null; }
+      s.state = state; s.stateEl.textContent = '状态: ' + state + ' ' + text;
+      var ci = 0;
+      s.timer = setInterval(function() {
+        s.actor.innerHTML = catSVG(ci % 2 === 0 ? c1 : c2);
+        if (anim === 'left') { s.actor.style.transform = 'translateX(' + (ci % 2 === 0 ? -10 : 10) + 'px)'; }
+        ci++;
+      }, 300);
+    }
+  }
+};
+
+/* --- boss-battle: Boss战设计 --- */
+DEMOS['boss-battle'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">' +
+      '<div style="font-size:14px;color:#FF6B81;font-weight:600;">👹 Boss</div>' +
+      '<div class="hp-bar" style="width:200px;"><div id="demoBossHp" style="width:100%;height:100%;background:linear-gradient(90deg,#FF6B81,#E74C3C);transition:width .3s;border-radius:7px;"></div></div>' +
+      '<div id="demoBoss" style="font-size:56px;">👹</div>' +
+      '<div style="font-size:14px;color:#51CF66;font-weight:600;margin-top:8px;">🛡 玩家</div>' +
+      '<div class="hp-bar" style="width:150px;"><div id="demoPlayerHp" style="width:100%;height:100%;background:linear-gradient(90deg,#51CF66,#2ECC71);transition:width .3s;border-radius:7px;"></div></div>' +
+      '<div id="demoMsg" style="font-size:14px;color:#FFC93C;">点击攻击和闪避！</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'attack\')">⚔ 攻击 Boss</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'dodge\')">💨 闪避</button>' +
+      '<button class="demo-btn pen" onclick="demoAction(\'special\')">✨ 必杀技</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重开</button>';
+  },
+  init: function(s) { s.bossHp = 100; s.playerHp = 100; s.bossHpEl = document.getElementById('demoBossHp'); s.playerHpEl = document.getElementById('demoPlayerHp'); s.msg = document.getElementById('demoMsg'); s.boss = document.getElementById('demoBoss'); s.dodging = false; },
+  actions: {
+    attack: function(s) {
+      var dmg = 10 + Math.floor(Math.random() * 10); s.bossHp = Math.max(0, s.bossHp - dmg); s.bossHpEl.style.width = s.bossHp + '%';
+      s.boss.style.transform = 'translateX(-10px)'; setTimeout(function(){ s.boss.style.transform = 'translateX(0)'; }, 200);
+      s.msg.textContent = '⚔ 造成 ' + dmg + ' 伤害！Boss HP: ' + s.bossHp;
+      if (s.bossHp <= 0) { s.msg.textContent = '🎉 击败 Boss！胜利！'; s.boss.textContent = '💀'; return; }
+      setTimeout(function() { DEMOS['boss-battle']._bossAttack(s); }, 500);
+    },
+    dodge: function(s) { s.dodging = true; s.msg.textContent = '💨 闪避中！'; setTimeout(function(){ s.dodging = false; }, 800); },
+    special: function(s) {
+      s.bossHp = Math.max(0, s.bossHp - 35); s.bossHpEl.style.width = s.bossHp + '%';
+      s.boss.style.filter = 'brightness(2) hue-rotate(180deg)'; setTimeout(function(){ s.boss.style.filter = ''; }, 400);
+      s.msg.textContent = '✨ 必杀技！-35！Boss HP: ' + s.bossHp;
+      if (s.bossHp <= 0) { s.msg.textContent = '🎉 必杀击败！'; s.boss.textContent = '💀'; return; }
+      setTimeout(function() { DEMOS['boss-battle']._bossAttack(s); }, 600);
+    },
+    reset: function(s) { s.bossHp = 100; s.playerHp = 100; s.bossHpEl.style.width = '100%'; s.playerHpEl.style.width = '100%'; s.msg.textContent = '点击攻击和闪避！'; s.boss.textContent = '👹'; s.dodging = false; },
+    _bossAttack: function(s) {
+      if (s.dodging) { s.msg.textContent = '💨 闪避成功！'; return; }
+      var dmg = 8 + Math.floor(Math.random() * 12); s.playerHp = Math.max(0, s.playerHp - dmg); s.playerHpEl.style.width = s.playerHp + '%';
+      s.msg.textContent = '👹 Boss 反击！-' + dmg + '！你的 HP: ' + s.playerHp;
+      if (s.playerHp <= 0) s.msg.textContent = '💀 你被击败了…点重开再战！';
+    }
+  }
+};
+
+/* --- weapon-shop: 武器升级 --- */
+DEMOS['weapon-shop'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#2C3E50,#34495E);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;">' +
+      '<div style="position:absolute;top:8px;right:12px;font-size:14px;font-weight:700;color:#FFC93C;">🪙 <span id="demoCoins">50</span></div>' +
+      '<div id="demoWeapon" style="font-size:48px;">🗡</div>' +
+      '<div id="demoWeaponName" style="font-size:14px;color:#fff;">木剑 (伤害: 5)</div>' +
+      '<div id="demoMsg" style="font-size:13px;color:#FFC93C;">点击下方按钮购买升级</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'buy1\')">🗡 铁剑 (50🪙)</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'buy2\')">⚔ 钢剑 (150🪙)</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'buy3\')">🌟 神剑 (400🪙)</button>' +
+      '<button class="demo-btn pen" onclick="demoAction(\'earn\')">💰 打怪赚10</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.coins = 50; s.weapon = 0; s.coinsEl = document.getElementById('demoCoins'); s.weaponEl = document.getElementById('demoWeapon'); s.nameEl = document.getElementById('demoWeaponName'); s.msg = document.getElementById('demoMsg');
+    s.weapons = [{emoji:'🗡',name:'木剑',dmg:5,cost:0},{emoji:'⚔',name:'铁剑',dmg:10,cost:50},{emoji:'⚔',name:'钢剑',dmg:20,cost:150},{emoji:'🌟',name:'神剑',dmg:40,cost:400}]; },
+  actions: {
+    buy1: function(s) { DEMOS['weapon-shop']._buy(s, 1); },
+    buy2: function(s) { DEMOS['weapon-shop']._buy(s, 2); },
+    buy3: function(s) { DEMOS['weapon-shop']._buy(s, 3); },
+    earn: function(s) { s.coins += 10; s.coinsEl.textContent = s.coins; s.msg.textContent = '💰 打怪获得 10 金币！'; },
+    reset: function(s) { s.coins = 50; s.weapon = 0; s.coinsEl.textContent = '50'; DEMOS['weapon-shop']._update(s); },
+    _buy: function(s, idx) {
+      var w = s.weapons[idx];
+      if (idx <= s.weapon) { s.msg.textContent = '已拥有 ' + w.name + '！'; return; }
+      if (idx > s.weapon + 1) { s.msg.textContent = '需先购买 ' + s.weapons[s.weapon + 1].name + '！'; return; }
+      if (s.coins < w.cost) { s.msg.textContent = '🪙 金币不足！差 ' + (w.cost - s.coins); return; }
+      s.coins -= w.cost; s.weapon = idx; s.coinsEl.textContent = s.coins; DEMOS['weapon-shop']._update(s);
+      s.msg.textContent = '🎉 购买 ' + w.name + '！伤害 ' + w.dmg + '！';
+    },
+    _update: function(s) { var w = s.weapons[s.weapon]; s.weaponEl.textContent = w.emoji; s.nameEl.textContent = w.name + ' (伤害: ' + w.dmg + ')'; }
+  }
+};
+
+/* --- difficulty: 难度曲线 --- */
+DEMOS['difficulty'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DD);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">' +
+      '<div id="demoLevel" style="font-size:32px;font-weight:800;color:var(--orange);">第 1 关</div>' +
+      '<div style="display:flex;gap:20px;align-items:flex-end;">' +
+      '<div style="text-align:center;"><div id="demoSpeed" style="width:40px;height:60px;background:var(--orange);border-radius:4px;transition:height .3s;"></div><div style="font-size:11px;color:var(--text-sub);margin-top:4px;">速度</div></div>' +
+      '<div style="text-align:center;"><div id="demoCount" style="width:40px;height:40px;background:#5CB1D6;border-radius:4px;transition:height .3s;"></div><div style="font-size:11px;color:var(--text-sub);margin-top:4px;">数量</div></div>' +
+      '<div style="text-align:center;"><div id="demoTime" style="width:40px;height:55px;background:#FFC93C;border-radius:4px;transition:height .3s;"></div><div style="font-size:11px;color:var(--text-sub);margin-top:4px;">时间</div></div>' +
+      '</div>' +
+      '<div id="demoMsg" style="font-size:13px;color:var(--text-sub);">敌人速度: 4.5 | 数量: 5 | 时间: 55s</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'next\')">▶ 下一关</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 回到第1关</button>';
+  },
+  init: function(s) { s.level = 1; s.levelEl = document.getElementById('demoLevel'); s.speedEl = document.getElementById('demoSpeed'); s.countEl = document.getElementById('demoCount'); s.timeEl = document.getElementById('demoTime'); s.msg = document.getElementById('demoMsg'); },
+  actions: {
+    next: function(s) {
+      if (s.level < 5) { s.level++; DEMOS.difficulty._update(s); }
+      else { s.msg.textContent = '👑 已到最高关！难度极限！'; }
+    },
+    reset: function(s) { s.level = 1; DEMOS.difficulty._update(s); },
+    _update: function(s) {
+      var speed = (3 + s.level * 1.5).toFixed(1), count = 3 + s.level * 2, time = Math.max(30, 60 - s.level * 5);
+      s.levelEl.textContent = '第 ' + s.level + ' 关';
+      s.speedEl.style.height = (speed * 8) + 'px'; s.countEl.style.height = (count * 6) + 'px'; s.timeEl.style.height = (time * 1.2) + 'px';
+      s.msg.textContent = '敌人速度: ' + speed + ' | 数量: ' + count + ' | 时间: ' + time + 's';
+    }
+  }
+};
+
+/* --- runner-game: 横版跑酷 --- */
+DEMOS['runner-game'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(180deg,#87CEEB,#98D8C8);overflow:hidden;">' +
+      '<div style="position:absolute;bottom:0;left:0;right:0;height:25px;background:#4A3B2E;"></div>' +
+      '<div id="demoBg" style="position:absolute;bottom:25px;left:0;right:0;height:15px;opacity:.3;">🌳🌲🌳🌲🌳🌲🌳🌲</div>' +
+      '<div id="demoActor" style="position:absolute;bottom:25px;left:15%;width:50px;height:50px;transition:bottom .05s;">' + catSVG(1) + '</div>' +
+      '<div id="demoObstacles" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;"></div>' +
+      '<div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:700;color:#fff;background:rgba(0,0,0,.3);padding:2px 12px;border-radius:10px;">距离: <span id="demoDist">0</span>m</div>' +
+      '<div id="demoMsg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5);display:none;">点击跳跃开始！</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'jump\')">⬆ 跳跃</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'start\')">▶ 开始</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) {
+    s.stage = document.getElementById('demoStage'); s.actor = document.getElementById('demoActor'); s.distEl = document.getElementById('demoDist'); s.msg = document.getElementById('demoMsg'); s.obs = document.getElementById('demoObstacles'); s.bg = document.getElementById('demoBg');
+    s.y = 0; s.vy = 0; s.gravity = 0.6; s.running = false; s.dist = 0; s.spawnTimer = 0; s.obstacles = [];
+    s.stage.onclick = function() { if (s.running) demoAction('jump'); };
+  },
+  cleanup: function(s) { if (s.interval) clearInterval(s.interval); s.stage.onclick = null; s.obstacles.forEach(function(o){ if(o.parentNode) o.remove(); }); s.obstacles = []; },
+  actions: {
+    start: function(s) {
+      if (s.running) return; s.running = true; s.dist = 0; s.distEl.textContent = '0'; s.msg.style.display = 'none';
+      s.interval = setInterval(function() {
+        s.vy -= s.gravity; s.y += s.vy; if (s.y < 0) { s.y = 0; s.vy = 0; } s.actor.style.bottom = (25 + s.y) + 'px';
+        s.dist++; if (s.dist % 5 === 0) s.distEl.textContent = s.dist;
+        s.bg.style.transform = 'translateX(' + (-s.dist % 40) + 'px)';
+        s.spawnTimer++; if (s.spawnTimer > 50 + Math.random() * 40) { s.spawnTimer = 0; DEMOS['runner-game']._spawn(s); }
+        s.obstacles.forEach(function(o) {
+          var x = parseFloat(o.style.left); x -= 4; o.style.left = x + '%';
+          if (x < 20 && x > 10 && s.y < 30) { clearInterval(s.interval); s.running = false; s.msg.textContent = '💥 撞到了！距离 ' + s.dist + 'm'; s.msg.style.display = 'block'; }
+          if (x < -5) { if(o.parentNode) o.remove(); }
+        });
+        s.obstacles = s.obstacles.filter(function(o){ return o.parentNode; });
+      }, 40);
+    },
+    jump: function(s) { if (s.running && s.y === 0) { s.vy = 10; } },
+    reset: function(s) { if (s.interval) clearInterval(s.interval); s.running = false; s.y = 0; s.vy = 0; s.dist = 0; s.actor.style.bottom = '25px'; s.distEl.textContent = '0'; s.obstacles.forEach(function(o){ if(o.parentNode) o.remove(); }); s.obstacles = []; s.msg.textContent = '点击跳跃开始！'; s.msg.style.display = 'block'; },
+    _spawn: function(s) { var o = document.createElement('div'); o.textContent = '🚧'; o.style.cssText = 'position:absolute;bottom:25px;left:95%;font-size:28px;transition:left .05s;'; s.obs.appendChild(o); s.obstacles.push(o); }
+  }
+};
+
+/* --- game-planning: 游戏策划 --- */
+DEMOS['game-planning'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DD);padding:16px;overflow-y:auto;">' +
+      '<div style="font-size:16px;font-weight:700;color:var(--orange);margin-bottom:8px;">📋 游戏设计文档</div>' +
+      '<div style="font-size:12px;color:var(--text-sub);margin-bottom:12px;">填写后点「生成文档」</div>' +
+      '<input id="demoName" placeholder="游戏名称" style="width:90%;padding:6px 10px;border:1px solid #FFD4C4;border-radius:6px;margin-bottom:6px;font-size:13px;">' +
+      '<select id="demoType" style="width:90%;padding:6px 10px;border:1px solid #FFD4C4;border-radius:6px;margin-bottom:6px;font-size:13px;">' +
+      '<option value="动作游戏">动作游戏</option><option value="益智游戏">益智游戏</option><option value="跑酷游戏">跑酷游戏</option><option value="冒险游戏">冒险游戏</option></select>' +
+      '<input id="demoGoal" placeholder="🎯 目标（玩家要做什么？）" style="width:90%;padding:6px 10px;border:1px solid #FFD4C4;border-radius:6px;margin-bottom:6px;font-size:13px;">' +
+      '<input id="demoRule" placeholder="📐 规则（能做/不能做？）" style="width:90%;padding:6px 10px;border:1px solid #FFD4C4;border-radius:6px;margin-bottom:6px;font-size:13px;">' +
+      '<input id="demoChallenge" placeholder="⚔ 挑战（难度在哪？）" style="width:90%;padding:6px 10px;border:1px solid #FFD4C4;border-radius:6px;margin-bottom:6px;font-size:13px;">' +
+      '<input id="demoFeedback" placeholder="✨ 反馈（做得好/不好的表现？）" style="width:90%;padding:6px 10px;border:1px solid #FFD4C4;border-radius:6px;margin-bottom:6px;font-size:13px;">' +
+      '<div id="demoOutput" style="font-size:12px;color:var(--text-sub);margin-top:8px;"></div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'generate\')">✨ 生成文档</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'template\')">📝 填示例</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'clear\')">🧹 清空</button>';
+  },
+  init: function(s) { s.name = document.getElementById('demoName'); s.type = document.getElementById('demoType'); s.goal = document.getElementById('demoGoal'); s.rule = document.getElementById('demoRule'); s.challenge = document.getElementById('demoChallenge'); s.feedback = document.getElementById('demoFeedback'); s.output = document.getElementById('demoOutput'); },
+  actions: {
+    generate: function(s) {
+      var n = s.name.value || '（未命名）', t = s.type.value, g = s.goal.value || '（未填）', r = s.rule.value || '（未填）', c = s.challenge.value || '（未填）', f = s.feedback.value || '（未填）';
+      s.output.innerHTML = '<div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #FFD4C4;">' +
+        '<div style="font-weight:700;color:var(--orange);margin-bottom:4px;">🎮 ' + n + '</div>' +
+        '<div style="margin-bottom:2px;">类型: ' + t + '</div>' +
+        '<div style="margin-bottom:2px;">🎯 目标: ' + g + '</div>' +
+        '<div style="margin-bottom:2px;">📐 规则: ' + r + '</div>' +
+        '<div style="margin-bottom:2px;">⚔ 挑战: ' + c + '</div>' +
+        '<div>✨ 反馈: ' + f + '</div></div>';
+    },
+    template: function(s) {
+      s.name.value = '猫咪大冒险'; s.type.value = '冒险游戏'; s.goal.value = '收集10条鱼回家'; s.rule.value = '只能走不能飞，碰到狗回起点'; s.challenge.value = '狗会追你，时间有限'; s.feedback.value = '吃到鱼加分，碰到狗扣血';
+    },
+    clear: function(s) { s.name.value = ''; s.goal.value = ''; s.rule.value = ''; s.challenge.value = ''; s.feedback.value = ''; s.output.innerHTML = ''; }
+  }
+};
+
+/* --- asset-designer: 素材设计 --- */
+DEMOS['asset-designer'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DD);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;">' +
+      '<div id="demoPreview" style="width:100px;height:100px;border-radius:50%;background:#FF7A45;display:flex;align-items:center;justify-content:center;font-size:48px;transition:all .3s;box-shadow:0 4px 16px rgba(0,0,0,.1);">🐱</div>' +
+      '<div id="demoColorName" style="font-size:14px;color:var(--text-sub);">颜色: 橙色 | 形状: 圆形 | 表情: 🐱</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'color\')">🎨 换颜色</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'shape\')">⬜ 换形状</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'face\')">😊 换表情</button>' +
+      '<button class="demo-btn pen" onclick="demoAction(\'size\')">📏 换大小</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.preview = document.getElementById('demoPreview'); s.colorName = document.getElementById('demoColorName');
+    s.colors = [['#FF7A45','橙色'],['#FF6B81','粉色'],['#5CB1D6','蓝色'],['#51CF66','绿色'],['#FFC93C','黄色'],['#8B5CF6','紫色']]; s.colorIdx = 0;
+    s.shapes = [['50%','圆形'],['0%','方形'],['20%','圆角'],['50% 50% 0 50%','水滴']]; s.shapeIdx = 0;
+    s.faces = ['🐱','🐶','🦊','🐻','🐼','🐸']; s.faceIdx = 0; s.sizeIdx = 0; s.sizes = [100,80,120]; },
+  actions: {
+    color: function(s) { s.colorIdx = (s.colorIdx + 1) % s.colors.length; DEMOS['asset-designer']._update(s); },
+    shape: function(s) { s.shapeIdx = (s.shapeIdx + 1) % s.shapes.length; DEMOS['asset-designer']._update(s); },
+    face: function(s) { s.faceIdx = (s.faceIdx + 1) % s.faces.length; DEMOS['asset-designer']._update(s); },
+    size: function(s) { s.sizeIdx = (s.sizeIdx + 1) % s.sizes.length; DEMOS['asset-designer']._update(s); },
+    reset: function(s) { s.colorIdx = 0; s.shapeIdx = 0; s.faceIdx = 0; s.sizeIdx = 0; DEMOS['asset-designer']._update(s); },
+    _update: function(s) {
+      var c = s.colors[s.colorIdx], sh = s.shapes[s.shapeIdx], f = s.faces[s.faceIdx], sz = s.sizes[s.sizeIdx];
+      s.preview.style.background = c[0]; s.preview.style.borderRadius = sh[0]; s.preview.textContent = f; s.preview.style.width = sz + 'px'; s.preview.style.height = sz + 'px';
+      s.colorName.textContent = '颜色: ' + c[1] + ' | 形状: ' + sh[1] + ' | 表情: ' + f;
+    }
+  }
+};
+
+/* --- core-gameplay: 核心玩法 --- */
+DEMOS['core-gameplay'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#1a1a2e,#2d1b69);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;position:relative;">' +
+      '<div id="demoState" style="font-size:24px;font-weight:800;color:var(--orange);">🎬 开始</div>' +
+      '<div id="demoScore" style="font-size:14px;color:#fff;">分数: 0 / 5</div>' +
+      '<div id="demoTargets" style="width:100%;height:120px;position:relative;"></div>' +
+      '<div id="demoMsg" style="font-size:14px;color:#FFC93C;">点击「开始」体验核心循环</div>' +
+      '<div class="game-over-overlay" id="demoOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);border-radius:12px;align-items:center;justify-content:center;flex-direction:column;gap:8px;">' +
+      '<div style="font-size:28px;font-weight:800;color:var(--orange);">🎉 通关！</div>' +
+      '<div style="font-size:14px;color:#fff;">核心循环完成！</div></div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'start\')">▶ 开始</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.state = document.getElementById('demoState'); s.scoreEl = document.getElementById('demoScore'); s.targets = document.getElementById('demoTargets'); s.msg = document.getElementById('demoMsg'); s.overlay = document.getElementById('demoOverlay'); s.score = 0; s.playing = false; s.items = []; },
+  cleanup: function(s) { if (s.spawnInt) clearInterval(s.spawnInt); s.items.forEach(function(t){ if(t.parentNode) t.remove(); }); s.items = []; },
+  actions: {
+    start: function(s) {
+      if (s.playing) return; s.playing = true; s.score = 0; s.scoreEl.textContent = '分数: 0 / 5'; s.state.textContent = '🎮 游戏中'; s.msg.textContent = '点击出现的圆圈！'; s.overlay.style.display = 'none';
+      s.spawnInt = setInterval(function() {
+        if (!s.playing) return; if (s.score >= 5) return;
+        var t = document.createElement('div'); t.style.cssText = 'position:absolute;width:40px;height:40px;border-radius:50%;background:var(--orange);cursor:pointer;box-shadow:0 0 12px rgba(255,122,69,.5);left:' + (10 + Math.random() * 80) + '%;top:' + (10 + Math.random() * 70) + '%;transition:opacity .2s;';
+        t.onclick = function() { s.score++; s.scoreEl.textContent = '分数: ' + s.score + ' / 5'; t.style.opacity = '0'; setTimeout(function(){ if(t.parentNode) t.remove(); }, 200); if (s.score >= 5) { s.state.textContent = '🎉 通关！'; s.overlay.style.display = 'flex'; clearInterval(s.spawnInt); s.playing = false; s.msg.textContent = '点重置再来一局！'; } };
+        s.targets.appendChild(t); s.items.push(t); setTimeout(function(){ if (t.parentNode) { t.style.opacity = '0'; setTimeout(function(){ if(t.parentNode) t.remove(); }, 200); } }, 1500);
+      }, 800);
+    },
+    reset: function(s) { if (s.spawnInt) clearInterval(s.spawnInt); s.playing = false; s.score = 0; s.scoreEl.textContent = '分数: 0 / 5'; s.state.textContent = '🎬 开始'; s.msg.textContent = '点击「开始」体验核心循环'; s.overlay.style.display = 'none'; s.items.forEach(function(t){ if(t.parentNode) t.remove(); }); s.items = []; }
+  }
+};
+
+/* --- game-menu: 开始界面与菜单 --- */
+DEMOS['game-menu'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FF7A45,#FFC93C);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;position:relative;">' +
+      '<div id="demoScreen" style="text-align:center;">' +
+      '<div style="font-size:28px;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);">🐱 猫咪大冒险</div>' +
+      '<div style="font-size:12px;color:#fff;opacity:.8;margin-top:4px;">汽水老师出品</div>' +
+      '<div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;align-items:center;">' +
+      '<button class="menu-screen-btn" onclick="demoAction(\'start\')" style="width:140px;">▶ 开始游戏</button>' +
+      '<button class="menu-screen-btn" onclick="demoAction(\'settings\')" style="width:100px;font-size:14px;">⚙ 设置</button>' +
+      '<div style="font-size:12px;color:#fff;opacity:.7;">最高分: <span id="demoHigh">0</span></div>' +
+      '</div></div>' +
+      '<div id="demoGame" style="display:none;text-align:center;">' +
+      '<div style="font-size:18px;color:#fff;font-weight:700;">🎮 游戏进行中…</div>' +
+      '<div style="font-size:13px;color:#fff;opacity:.8;margin-top:4px;">分数: <span id="demoScore">0</span></div>' +
+      '<button class="menu-screen-btn" onclick="demoAction(\'pause\')" style="margin-top:12px;font-size:14px;">⏸ 暂停</button>' +
+      '</div>' +
+      '<div id="demoMsg" style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:12px;color:#fff;background:rgba(0,0,0,.2);padding:2px 10px;border-radius:8px;white-space:nowrap;">点击开始按钮体验菜单</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'start\')">▶ 开始</button>' +
+      '<button class="demo-btn control" onclick="demoAction(\'pause\')">⏸ 暂停</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'back\')">🏠 返回菜单</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.screen = document.getElementById('demoScreen'); s.game = document.getElementById('demoGame'); s.msg = document.getElementById('demoMsg'); s.high = document.getElementById('demoHigh'); s.scoreEl = document.getElementById('demoScore'); s.score = 0; s.highScore = 0; s.state = 'menu'; s.paused = false; },
+  cleanup: function(s) { if (s.interval) clearInterval(s.interval); },
+  actions: {
+    start: function(s) {
+      if (s.state === 'menu') { s.state = 'playing'; s.screen.style.display = 'none'; s.game.style.display = 'block'; s.score = 0; s.scoreEl.textContent = '0'; s.paused = false; s.msg.textContent = '游戏开始！点击暂停可冻结'; s.interval = setInterval(function(){ if (!s.paused) { s.score++; s.scoreEl.textContent = s.score; } }, 500); }
+    },
+    pause: function(s) { if (s.state === 'playing') { s.paused = !s.paused; s.msg.textContent = s.paused ? '⏸ 已暂停' : '▶ 继续游戏'; } },
+    back: function(s) { if (s.state === 'playing') { if (s.interval) clearInterval(s.interval); s.state = 'menu'; s.screen.style.display = 'block'; s.game.style.display = 'none'; s.highScore = Math.max(s.highScore, s.score); s.high.textContent = s.highScore; s.msg.textContent = '返回主菜单，最高分: ' + s.highScore; } },
+    settings: function(s) { s.msg.textContent = '⚙ 设置功能开发中…（可以加音量/难度选项）'; },
+    reset: function(s) { if (s.interval) clearInterval(s.interval); s.state = 'menu'; s.screen.style.display = 'block'; s.game.style.display = 'none'; s.score = 0; s.msg.textContent = '点击开始按钮体验菜单'; }
+  }
+};
+
+/* --- bug-hunt: 测试修Bug --- */
+DEMOS['bug-hunt'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#1a1a2e,#2d1b69);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:16px;">' +
+      '<div style="font-size:16px;font-weight:700;color:#FF6B81;">🐛 Bug 猎手</div>' +
+      '<div id="demoCode" style="font-family:monospace;font-size:12px;background:rgba(0,0,0,.3);padding:12px;border-radius:8px;color:#FFC93C;width:90%;line-height:1.6;white-space:pre-wrap;">当 ⚑ 被点击\n将 [分数] 设为 (0)\n重复执行\n  如果 <碰到颜色 [#FF0000]?> 那么\n    将 [分数] 增加 (-1)  ← Bug!\n  否则\n    将 [分数] 增加 (1)\n  说 (分数)\n</div>' +
+      '<div id="demoMsg" style="font-size:13px;color:#fff;">找出 Bug 并点「修复」</div>' +
+      '<div id="demoHint" style="font-size:12px;color:#FFC93C;display:none;">💡 提示：碰到红色应该<strong>加分</strong>还是<strong>减分</strong>？</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'hint\')">💡 提示</button>' +
+      '<button class="demo-btn pen" onclick="demoAction(\'fix\')">🔧 修复 Bug</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'next\')">➡ 下一个 Bug</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.code = document.getElementById('demoCode'); s.msg = document.getElementById('demoMsg'); s.hint = document.getElementById('demoHint'); s.idx = 0;
+    s.bugs = [
+      { code: '当 ⚑ 被点击\n将 [分数] 设为 (0)\n重复执行\n  如果 <碰到颜色 [#FF0000]?> 那么\n    将 [分数] 增加 (-1)  ← Bug!\n  否则\n    将 [分数] 增加 (1)\n  说 (分数)', hint: '碰到红色应该加分还是减分？', fix: '当 ⚑ 被点击\n将 [分数] 设为 (0)\n重复执行\n  如果 <碰到颜色 [#FF0000]?> 那么\n    将 [分数] 增加 (1)  ✅ 已修复\n  否则\n    将 [分数] 增加 (-1)\n  说 (分数)' },
+      { code: '当 ⚑ 被点击\n将 [生命] 设为 (3)\n重复执行\n  如果 <碰到 [敌人]?> 那么\n    将 [生命] 增加 (1)  ← Bug!\n    等待 (1) 秒\n  如果 <[生命] = (0)> 那么\n    停止全部脚本', hint: '碰到敌人应该加生命还是减生命？', fix: '当 ⚑ 被点击\n将 [生命] 设为 (3)\n重复执行\n  如果 <碰到 [敌人]?> 那么\n    将 [生命] 增加 (-1)  ✅ 已修复\n    等待 (1) 秒\n  如果 <[生命] = (0)> 那么\n    停止全部脚本' },
+      { code: '当 ⚑ 被点击\n重复执行\n  将 [x坐标] 增加 (5)\n  如果 <[x坐标] > (240)> 那么\n    将 [x坐标] 设为 (240)  ← Bug!\n  如果 <[x坐标] < (-240)> 那么\n    将 [x坐标] 设为 (-240)', hint: '超过240应该回到-240还是留在240？', fix: '当 ⚑ 被点击\n重复执行\n  将 [x坐标] 增加 (5)\n  如果 <[x坐标] > (240)> 那么\n    将 [x坐标] 设为 (-240)  ✅ 已修复\n  如果 <[x坐标] < (-240)> 那么\n    将 [x坐标] 设为 (240)' }
+    ]; },
+  actions: {
+    hint: function(s) { s.hint.style.display = 'block'; s.hint.innerHTML = '💡 提示：' + s.bugs[s.idx].hint; },
+    fix: function(s) { s.code.textContent = s.bugs[s.idx].fix; s.code.style.color = '#51CF66'; s.msg.textContent = '✅ Bug 已修复！干得好！'; s.hint.style.display = 'none'; },
+    next: function(s) { s.idx = (s.idx + 1) % s.bugs.length; s.code.textContent = s.bugs[s.idx].code; s.code.style.color = '#FFC93C'; s.msg.textContent = '新 Bug！找出问题并修复'; s.hint.style.display = 'none'; },
+    reset: function(s) { s.idx = 0; s.code.textContent = s.bugs[0].code; s.code.style.color = '#FFC93C'; s.msg.textContent = '找出 Bug 并点「修复」'; s.hint.style.display = 'none'; }
+  }
+};
+
+/* --- game-release: 游戏发布会 --- */
+DEMOS['game-release'] = {
+  stage: function() {
+    return '<div class="demo-stage" id="demoStage" style="background:linear-gradient(135deg,#FF7A45,#FFC93C);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;position:relative;overflow:hidden;">' +
+      '<div id="demoConfetti" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;"></div>' +
+      '<div style="font-size:40px;">🎉🎮🎉</div>' +
+      '<div style="font-size:24px;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);">游戏发布会</div>' +
+      '<div id="demoMsg" style="font-size:15px;color:#fff;text-align:center;max-width:90%;">恭喜你完成 Scratch L2！<br>点击「发布会」展示你的游戏！</div>' +
+      '<div id="demoStep" style="font-size:12px;color:#fff;opacity:.7;">准备就绪</div>' +
+      '</div>';
+  },
+  controls: function() {
+    return '<button class="demo-btn motion" onclick="demoAction(\'launch\')">🎉 发布会开始</button>' +
+      '<button class="demo-btn event" onclick="demoAction(\'intro\')">📣 介绍</button>' +
+      '<button class="demo-btn sensing" onclick="demoAction(\'demo\')">🎮 演示</button>' +
+      '<button class="demo-btn reset" onclick="demoAction(\'reset\')">🔄 重置</button>';
+  },
+  init: function(s) { s.confetti = document.getElementById('demoConfetti'); s.msg = document.getElementById('demoMsg'); s.step = document.getElementById('demoStep'); s.celebrating = false; },
+  cleanup: function(s) { if (s.interval) clearInterval(s.interval); },
+  actions: {
+    launch: function(s) {
+      s.celebrating = true; s.msg.innerHTML = '🎉🎉🎉<br>欢迎来到游戏发布会！<br>今天我们展示 Scratch L2 的成果！'; s.step.textContent = '🎉 发布会进行中';
+      DEMOS['game-release']._confetti(s);
+      s.interval = setInterval(function() { DEMOS['game-release']._confetti(s); }, 800);
+    },
+    intro: function(s) { s.msg.innerHTML = '📣 这是我的游戏！<br>灵感来自跑酷+迷宫，核心玩法是跳跃躲避。<br>最自豪的是设计了完整的难度曲线！'; s.step.textContent = 'step 1/3: 介绍'; },
+    demo: function(s) { s.msg.innerHTML = '🎮 现场演示！<br>看——角色跳跃，躲避障碍，收集金币！<br>一切运行流畅！'; s.step.textContent = 'step 2/3: 演示'; setTimeout(function(){ s.msg.innerHTML = '💡 心得：最难的是调试碰撞Bug！<br>学到：先做白盒原型，再换素材！<br>感谢汽水老师和同学们！🎉'; s.step.textContent = 'step 3/3: 心得'; }, 3000); },
+    reset: function(s) { if (s.interval) clearInterval(s.interval); s.celebrating = false; s.msg.innerHTML = '恭喜你完成 Scratch L2！<br>点击「发布会」展示你的游戏！'; s.step.textContent = '准备就绪'; s.confetti.innerHTML = ''; },
+    _confetti: function(s) {
+      var emojis = ['🎉','🎊','✨','⭐','🌟','💫'];
+      for (var i = 0; i < 6; i++) {
+        var c = document.createElement('div'); c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        c.style.cssText = 'position:absolute;font-size:' + (14 + Math.random() * 16) + 'px;left:' + (Math.random() * 100) + '%;top:-20px;transition:all 1.5s ease-in;';
+        s.confetti.appendChild(c);
+        setTimeout(function(){ c.style.top = '120%'; c.style.transform = 'rotate(' + (Math.random() * 720) + 'deg)'; }, 10);
+        setTimeout(function(){ if (c.parentNode) c.remove(); }, 2000);
+      }
+    }
+  }
+};
+
+/* ================================================================
+   渲染函数（适配 L2）
+   ================================================================ */
+function renderTopbar(lesson) {
+  var dots = lesson.steps.map(function(s, i) {
+    return '<span class="progress-dot' + (i === 0 ? ' active' : '') + '" data-s="' + (i + 1) + '" title="' + s.title + '" onclick="scrollToStep(' + (i + 1) + ')"></span>';
+  }).join('');
+  var projectTag = lesson.isProject ? ' · 🎬 作品课' : '';
+  return '<div class="topbar"><div class="container topbar-inner">' +
+    '<div class="course-info">' +
+      '<span class="course-badge">Scratch · L2</span>' +
+      '<div><h1>第' + lesson.no + '课：' + lesson.title + '</h1>' +
+      '<div class="meta">汽水老师 · 8-10岁 · ' + lesson.duration + ' · ' + lesson.unit + projectTag + '</div></div>' +
+    '</div>' +
+    '<div class="lesson-progress">' + dots +
+      '<span class="progress-label" id="progressLabel">5 个环节</span>' +
+    '</div>' +
+  '</div></div>';
+}
+
+function renderGoals(lesson) {
+  var goals = lesson.goals.map(function(g) {
+    return '<div class="goal-item"><div class="icon">' + g.icon + '</div>' +
+      '<h4>' + g.title + '</h4><p>' + g.desc + '</p></div>';
+  }).join('');
+  return '<section class="section"><div class="container">' +
+    '<div class="goals-card"><h2>🎯 这节课我们要学会</h2>' +
+    '<div class="goal-grid">' + goals + '</div></div></div></section>';
+}
+
+function renderInfoGrid(items) {
+  var html = items.map(function(item) {
+    return '<div style="background:' + item.bg + ';border-radius:var(--radius-sm);padding:16px;text-align:center;">' +
+      '<div style="font-size:32px;margin-bottom:8px;">' + item.icon + '</div>' +
+      '<h4 style="font-size:16px;margin-bottom:4px;">' + item.title + '</h4>' +
+      '<p style="font-size:13px;color:var(--text-sub);">' + item.desc + '</p></div>';
+  }).join('');
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:16px 0;">' + html + '</div>';
+}
+
+function renderBlocks(blocks) {
+  var flagIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg>';
+  var html = blocks.map(function(b) {
+    var icon = b.type === 'event' ? flagIcon : '';
+    return '<div class="block ' + b.type + '">' + icon + ' ' + b.text + '</div>';
+  }).join('');
+  return '<div class="stack-label">📦 积木搭建（按顺序拼好）：</div>' +
+    '<div class="blocks">' + html + '</div>';
+}
+
+function renderTips(tips) {
+  if (!tips) return '';
+  return tips.map(function(t) {
+    return '<div class="tip"><span class="tip-icon">' + t.icon + '</span>' +
+      '<div><strong>' + t.strong + '</strong>' + t.text + '</div></div>';
+  }).join('');
+}
+
+function renderTasks(tasks) {
+  var html = tasks.map(function(t) {
+    return '<div class="task-item" onclick="toggleTask(this)">' +
+      '<div class="task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+      '<div><div class="task-text">' + t.text + '</div>' +
+      (t.hint ? '<div class="task-hint">' + t.hint + '</div>' : '') + '</div></div>';
+  }).join('');
+  return '<div class="task-list">' + html + '</div>';
+}
+
+function renderDemoBox(demoType) {
+  var demo = DEMOS[demoType];
+  if (!demo) return '';
+  return '<div class="demo-box">' + demo.stage() +
+    '<div class="demo-controls">' + demo.controls() + '</div></div>';
+}
+
+function renderSummary(lesson) {
+  var chips = lesson.knowledgePoints.map(function(kp) {
+    return '<span class="kp-chip">' + kp + '</span>';
+  }).join('');
+  return '<div class="summary-card"><h3>📝 今天我们学到了</h3>' +
+    '<p>' + lesson.summary + '</p>' +
+    '<div class="knowledge-points">' + chips + '</div></div>';
+}
+
+function renderHomework(lesson) {
+  var items = lesson.homework.map(function(hw) {
+    var stars = '';
+    for (var i = 0; i < hw.stars; i++) stars += '⭐';
+    return '<div class="hw-item"><span class="hw-star">' + stars + '</span>' +
+      '<div><h4>' + hw.title + '</h4><p>' + hw.desc + '</p></div></div>';
+  }).join('');
+  return '<div style="margin-top:24px;" class="homework">' +
+    '<h3 style="margin-bottom:6px;">🏠 课后小任务</h3>' +
+    '<p style="color:var(--text-sub);font-size:14px;margin-bottom:16px;">回家后打开 Scratch，完成下面的练习，下节课带过来分享哦！</p>' +
+    items + '</div>';
+}
+
+function renderStep(step, index, lesson) {
+  var html = '<div class="step-block" id="step' + (index + 1) + '">' +
+    '<div class="step-num">' + (index + 1) + '</div>' +
+    '<div class="step-content">' +
+      '<div class="step-head"><h3>' + step.emoji + ' ' + step.title + '</h3>' +
+        '<span class="step-time">⏱ ' + step.time + '</span></div>' +
+      '<p class="step-desc">' + step.desc + '</p>';
+  if (step.infoGrid) html += renderInfoGrid(step.infoGrid);
+  if (step.blocks) html += renderBlocks(step.blocks);
+  if (step.demoType) html += renderDemoBox(step.demoType);
+  if (step.tasks) html += renderTasks(step.tasks);
+  if (step.tips) html += renderTips(step.tips);
+  if (index === 4) {
+    html += renderSummary(lesson);
+    html += renderHomework(lesson);
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function renderNav(lesson, key) {
+  var no = lesson.no;
+  var prevKey = no > 1 ? 'l2-' + String(no - 1).padStart(2, '0') : null;
+  var nextKey = no < 24 ? 'l2-' + String(no + 1).padStart(2, '0') : null;
+  var prevHTML, nextHTML;
+  if (prevKey) {
+    prevHTML = '<a href="#' + prevKey + '"><span class="arrow">←</span><div><div class="label">上一节课</div><div class="title">第' + (no - 1) + '课：' + LESSONS[prevKey].title + '</div></div></a>';
+  } else {
+    prevHTML = '<a href="index.html#courses"><span class="arrow">←</span><div><div class="label">返回课程体系</div><div class="title">Scratch & Python</div></div></a>';
+  }
+  if (nextKey) {
+    nextHTML = '<a href="#' + nextKey + '" class="next"><div style="text-align:right;"><div class="label">下一节课</div><div class="title">第' + (no + 1) + '课：' + LESSONS[nextKey].title + '</div></div><span class="arrow">→</span></a>';
+  } else {
+    nextHTML = '<a href="index.html#courses" class="next"><div style="text-align:right;"><div class="label">返回课程体系</div><div class="title">全部课程完成 🎉</div></div><span class="arrow">→</span></a>';
+  }
+  return '<div class="lesson-nav">' + prevHTML + nextHTML + '</div>';
+}
+
+/* ================================================================
+   主渲染 + 事件处理
+   ================================================================ */
+var demoState = { type: null };
+// Fix: promote helper methods starting with an underscore inside actions to the demo top level, ensuring DEMOS['x']._helper is available
+Object.keys(DEMOS).forEach(function(k) {
+  var d = DEMOS[k];
+  if (d && d.actions) {
+    Object.keys(d.actions).forEach(function(a) {
+      if (a.charAt(0) === '_' && !d[a]) d[a] = d.actions[a];
+    });
+  }
+});
+
+function getCurrentKey() {
+  var hash = location.hash.slice(1);
+  if (!LESSONS[hash]) hash = 'l2-01';
+  return hash;
+}
+
+function render(key) {
+  var lesson = LESSONS[key];
+  if (!lesson) { key = 'l2-01'; lesson = LESSONS[key]; }
+
+  // 清理旧 demo
+  if (demoState.type && DEMOS[demoState.type] && DEMOS[demoState.type].cleanup) {
+    DEMOS[demoState.type].cleanup(demoState);
+  }
+
+  // 构建 steps HTML
+  var stepsHTML = lesson.steps.map(function(s, i) {
+    return renderStep(s, i, lesson);
+  }).join('');
+
+  var navHTML = renderNav(lesson, key);
+
+  var html = renderTopbar(lesson) +
+    renderGoals(lesson) +
+    '<section class="section" style="padding-top:0;"><div class="container">' +
+    stepsHTML + navHTML + '</div></section>';
+
+  document.getElementById('app').innerHTML = html;
+  document.title = 'Scratch L2 第' + lesson.no + '课 · ' + lesson.title + ' | 汽水老师编程课堂';
+
+  // 初始化 demo
+  var demoStep = lesson.steps.find(function(s) { return s.demoType; });
+  if (demoStep) {
+    demoState = { type: demoStep.demoType };
+    var demo = DEMOS[demoStep.demoType];
+    if (demo) demo.init(demoState);
+  } else {
+    demoState = { type: null };
+  }
+
+  // 设置滚动观察器
+  setupScrollObserver();
+
+  // 滚动到顶部
+  window.scrollTo(0, 0);
+}
+
+function toggleTask(el) {
+  el.classList.toggle('done');
+  updateProgress();
+}
+
+function updateProgress() {
+  var total = document.querySelectorAll('.task-item').length;
+  var done = document.querySelectorAll('.task-item.done').length;
+  var dots = document.querySelectorAll('.progress-dot');
+  if (total === 0 || dots.length === 0) return;
+  var ratio = done / total;
+  dots.forEach(function(d, i) {
+    d.classList.remove('done');
+    if (ratio >= (i + 1) / dots.length) d.classList.add('done');
+  });
+  var label = document.getElementById('progressLabel');
+  if (label) label.textContent = '任务完成 ' + done + '/' + total;
+}
+
+function scrollToStep(n) {
+  var el = document.getElementById('step' + n);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+function demoAction(action) {
+  var demo = DEMOS[demoState.type];
+  if (demo && demo.actions && demo.actions[action]) {
+    demo.actions[action](demoState);
+  }
+}
+
+function setupScrollObserver() {
+  var stepBlocks = document.querySelectorAll('.step-block');
+  var dots = document.querySelectorAll('.progress-dot');
+  if (stepBlocks.length === 0 || dots.length === 0) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var idx = Array.from(stepBlocks).indexOf(e.target);
+        dots.forEach(function(d) { d.classList.remove('active'); });
+        if (dots[idx] && !dots[idx].classList.contains('done')) {
+          dots[idx].classList.add('active');
+        }
+      }
+    });
+  }, { threshold: 0.3 });
+  stepBlocks.forEach(function(s) { observer.observe(s); });
+}
+
+/* ================================================================
+   左侧课程目录：列出全部课程，点击跳转；含回到首页
+   ================================================================ */
+var _rawRender = render;
+render = function(key) { _rawRender(key); updateToc(); };
+
+function buildToc() {
+  var sidebar = document.getElementById('tocSidebar');
+  var groups = {};
+  Object.keys(LESSONS).forEach(function(k) {
+    var l = LESSONS[k];
+    var u = l.unitNo != null ? l.unitNo : 0;
+    if (!groups[u]) groups[u] = { name: l.unit || '课程', items: [] };
+    groups[u].items.push({ key: k, no: l.no, title: l.title });
+  });
+  var html = '<button id="tocCollapse" class="toc-collapse" title="收起/展开目录" aria-label="收起或展开目录">◀</button>' +
+    '<div class="toc-head"><a class="toc-home" href="index.html">🏠 回到首页</a>' +
+    '<div class="toc-title">课程目录</div></div><div class="toc-list">';
+  Object.keys(groups).map(Number).sort(function(a, b) { return a - b; }).forEach(function(u) {
+    html += '<div class="toc-unit">' + groups[u].name + '</div>';
+    groups[u].items.forEach(function(it) {
+      html += '<div class="toc-item" data-key="' + it.key + '"><span class="toc-no">第' + it.no + '课</span><span>' + it.title + '</span></div>';
+    });
+  });
+  html += '</div>';
+  sidebar.innerHTML = html;
+  sidebar.addEventListener('click', function(e) {
+    var item = e.target.closest('.toc-item');
+    if (item) {
+      location.hash = '#' + item.getAttribute('data-key');
+      if (window.innerWidth <= 1100) toggleToc(false);
+    }
+  });
+}
+
+function updateToc() {
+  var sidebar = document.getElementById('tocSidebar');
+  if (!sidebar || !sidebar.querySelector('.toc-item')) return;
+  var key = getCurrentKey();
+  sidebar.querySelectorAll('.toc-item').forEach(function(el) {
+    el.classList.toggle('active', el.getAttribute('data-key') === key);
+  });
+  var active = sidebar.querySelector('.toc-item.active');
+  if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function toggleToc(open) {
+  document.getElementById('tocSidebar').classList.toggle('open', open);
+  document.getElementById('tocMask').classList.toggle('open', open);
+}
+
+buildToc();
+document.getElementById('tocFab').addEventListener('click', function() {
+  toggleToc(!document.getElementById('tocSidebar').classList.contains('open'));
+});
+document.getElementById('tocMask').addEventListener('click', function() { toggleToc(false); });
+
+/* 目录收起/展开（桌面端），状态记忆 */
+try {
+  if (localStorage.getItem('tocCollapsed') === '1') document.body.classList.add('toc-collapsed');
+} catch (e) {}
+document.getElementById('tocCollapse').addEventListener('click', function() {
+  var collapsed = document.body.classList.toggle('toc-collapsed');
+  try { localStorage.setItem('tocCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+});
+
+// hash 变化时重新渲染
+window.addEventListener('hashchange', function() { render(getCurrentKey()); });
+
+// 初始渲染
+var _initKey = getCurrentKey();
+if (location.hash !== '#' + _initKey) {
+  location.hash = _initKey;
+} else {
+  render(_initKey);
+}
+</script>
+  <script src="assets/annotate.js"></script>
+</body>
+</html>
+
